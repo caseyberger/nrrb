@@ -1,7 +1,7 @@
 /*
 Non-relativistic Bosons at Finite Chemical Potential and Zero Temperature with Rotating Potential
 Casey Berger
-Last edited: 08/06/19
+Last edited: 08/09/19
 Version 4.1
 
 This loops over mu, wtrap, AND lambda now - so I can leave it running longer
@@ -9,7 +9,7 @@ This loops over mu, wtrap, AND lambda now - so I can leave it running longer
 The chemical potential, trap, angular momentum, and interaction are all implemented as
 external gauge fields.
 
-This version computes observables every 500th step 
+This version computes observables every 100th step 
 
 */
 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 	string str, filename;
 	vector<double> mu_vals, wtrap_vals, l_vals;
 	string inputs [11] = {"dim","omega","lambda","m","Nx","Nt","dtau","nL", "w_t", "eps","mu"};//read in keywords for parameters
-	int acf_step = 500;
+	int acf_step = 100;
 	int dim, Nx, Nt, vol, nL;
 	double w, m, dtau, eps;
 	if (argc != 2){ //exits if input file is not given
