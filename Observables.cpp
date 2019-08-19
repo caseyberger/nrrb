@@ -29,7 +29,7 @@ std::vector<double> Field_Modulus_Squared(double *** Lattice, int size, int Nx, 
 void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename);
 std::vector<double> Average_Lz(double *** Lattice, int size, int Nx, int Nt, int dim);
 double Theta(double *** Lattice, int i, int t);
-bool loop_is_on_lattice(int Nx, int Nt, int i, int length);
+bool loop_is_on_lattice(int Nx, int Nt, int x, int y, int length);
 void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int length, std::string logfilename);
 std::vector<double> Action(double *** Lattice, int size, int Nx, int Nt, int dim, double dtau, double m, double mu, double w, double w_t, double l);
 
@@ -309,7 +309,7 @@ double Theta(double *** Lattice, int i, int t){
 	return theta;
 }
 
-bool loop_is_on_lattice(int Nx, int Nt, int i, int length){
+bool loop_is_on_lattice(int Nx, int Nt, int x, int y, int length){
 	//check that the full l x l loop is contained on the lattice
 	int x = i%(Nx);
 	int y = ((i - x)/Nx)%Nx;
@@ -331,7 +331,7 @@ bool loop_is_on_lattice(int Nx, int Nt, int i, int length){
 	}
 }
 
-void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int length,std::string logfilename){
+/*void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int length,std::string logfilename){
 	//find the total circulation over the lattice
 	if (dim == 2){
 		std::ofstream circ_file;
@@ -393,6 +393,75 @@ void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int leng
 				circ_file <<loop/(8.*atan(1.)) << ","; //adding the circulation for one loop to the total circulation
 			}//checking loop is contained within lattice
 		}//loop over space (i) 
+		circ_file << std::endl;
+		circ_file.close();
+	}//do nothing if we are not in two dimensions
+}//OLD VERSION*/
+
+
+//NEW VERSION
+void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int length,std::string logfilename){
+	//find the total circulation over the lattice
+	if (dim == 2){
+		std::ofstream circ_file;
+		std::string circ_filename = "Circ_"+logfilename.substr(8);
+		circ_file.open(circ_filename, std::fstream::app);
+		int center = Nx/2;
+		int x = center - length/2;
+		int y = center - length/2;
+		int t = Nt/2;
+		double loop = 0.0;
+		if (loop_is_on_lattice(Nx, Nt, x, y, length)){
+			int directions[4] = {2,1,-2,-1};				
+			std::vector<int> xvec = {i,t};
+			for (int d=0; d<4; d++){
+				//std::cout << "Loop segment in direction " << directions[d] << std::endl;
+				std::vector<int> xplusj;
+				if (directions[d] > 0){
+					int dir = directions[d];
+					xplusj = positive_step(dim, dir, xvec[0], t, Nx, Nt);
+				}
+				else{
+					int dir = abs(directions[d]);
+					xplusj = negative_step(dim, dir, xvec[0], t, Nx, Nt);
+				}
+				//std::cout << "x = " << x[0] << ", x+j = " << xplusj[0] << std::endl;
+				double theta = Theta(Lattice,xvec[0],t);
+				double theta_j;
+				if (xplusj[0] == 9999){
+					theta_j = 0.;
+				}
+				else{
+					theta_j = Theta(Lattice,xplusj[0],t);
+				}
+				loop += theta_j - theta;
+				for (int j=1; j < length; j++){
+					if (directions[d] > 0){
+						int dir = directions[d];
+						x = positive_step(dim, dir, xvec[0], t, Nx, Nt);//move x over 1 along j
+						xplusj = positive_step(dim, dir, xvec[0], t, Nx, Nt);//move x+j accordingly
+					}
+					else{
+						int dir = abs(directions[d]);
+						x = negative_step(dim, dir, xvec[0], t, Nx, Nt);//move x over 1 along j
+						xplusj = negative_step(dim, dir, xvec[0], t, Nx, Nt);//move x+j accordingly
+					}
+					//std::cout << "x = " << x[0] << ", x+j = " << xplusj[0] << std::endl;
+					theta = Theta(Lattice,xvec[0],t);
+					if (xplusj[0] == 9999){
+						theta_j = 0.;
+						//std::cout << theta_j << std::endl;
+					}
+					else{
+						theta_j = Theta(Lattice,xplusj[0],t);
+					}
+					loop += theta_j - theta;
+					//std::cout << "theta_{x+j} = " << theta_j << ' ' << "theta_{x} = " << theta << std::endl;
+				}
+			}//loop over direction (1,-2,-1,2)
+			//std::cout << "circulation around one loop = " << loop/(8.*atan(1.)) << std::endl;
+			circ_file <<loop/(8.*atan(1.)) << ","; //adding the circulation for one loop to the total circulation
+		}//checking loop is contained within lattice
 		circ_file << std::endl;
 		circ_file.close();
 	}//do nothing if we are not in two dimensions
