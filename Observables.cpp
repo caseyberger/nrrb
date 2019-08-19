@@ -311,8 +311,8 @@ double Theta(double *** Lattice, int i, int t){
 
 bool loop_is_on_lattice(int Nx, int Nt, int x, int y, int length){
 	//check that the full l x l loop is contained on the lattice
-	int x = i%(Nx);
-	int y = ((i - x)/Nx)%Nx;
+	//int x = i%(Nx);
+	//int y = ((i - x)/Nx)%Nx;
 	//std::cout << "x,y = " << x << ", " << y << " and Nx = " << Nx << std::endl;
 	//std::cout << "length of loop is " << length << std::endl;
 	if (x + length < Nx){
