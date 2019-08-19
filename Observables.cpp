@@ -412,7 +412,8 @@ void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int leng
 		int t = Nt/2;
 		double loop = 0.0;
 		if (loop_is_on_lattice(Nx, Nt, x, y, length)){
-			int directions[4] = {2,1,-2,-1};				
+			int directions[4] = {2,1,-2,-1};	
+			int i = Nx*x + Nx*Nx*y;			
 			std::vector<int> xvec = {i,t};
 			for (int d=0; d<4; d++){
 				//std::cout << "Loop segment in direction " << directions[d] << std::endl;
@@ -438,12 +439,12 @@ void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int leng
 				for (int j=1; j < length; j++){
 					if (directions[d] > 0){
 						int dir = directions[d];
-						x = positive_step(dim, dir, xvec[0], t, Nx, Nt);//move x over 1 along j
+						xvec = positive_step(dim, dir, xvec[0], t, Nx, Nt);//move x over 1 along j
 						xplusj = positive_step(dim, dir, xvec[0], t, Nx, Nt);//move x+j accordingly
 					}
 					else{
 						int dir = abs(directions[d]);
-						x = negative_step(dim, dir, xvec[0], t, Nx, Nt);//move x over 1 along j
+						xvec = negative_step(dim, dir, xvec[0], t, Nx, Nt);//move x over 1 along j
 						xplusj = negative_step(dim, dir, xvec[0], t, Nx, Nt);//move x+j accordingly
 					}
 					//std::cout << "x = " << x[0] << ", x+j = " << xplusj[0] << std::endl;
