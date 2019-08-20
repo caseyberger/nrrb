@@ -406,7 +406,7 @@ void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int leng
 	//find the total circulation over the lattice
 	if (dim == 2){
 		std::ofstream circ_file;
-		std::string length_str = to_string(length);
+		std::string length_str = length.str();
 		std::string circ_filename = "Circ_loop_"+length_str+"_"+logfilename.substr(8);
 		circ_file.open(circ_filename, std::fstream::app);
 		int center = Nx/2;
