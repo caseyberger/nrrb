@@ -1,10 +1,10 @@
 #############################################################################
 #
-# Makefile v4.1 of NRRB
+# Makefile v4.2 of NRRB
 #
 #
 # Author:  Casey E Berger
-# Date:    07/30/2019 (version 4.1)
+# Date:    08/20/2019 (version 4.2)
 #
 # Description:
 # ------------
@@ -21,17 +21,17 @@
 CXX = g++
 #CXXFLAGS = -Wall -O3 -g -std=c++0x -fopenmp
 CXXFLAGS = -Wall -g -std=c++0x --coverage
-TARGET = v4.1
+TARGET = v4.2
 #LFLAGS = -L/opt/ddt/lib/64 -Wl,--undefined=malloc -ldmalloc -Wl,--allow-multipledefinition -pgc++libs
 
 # ****************************************************
 # Targets needed to bring the executable up to date
 
-v4.1: v4.1.o test.o lattice_init.o lattice_save.o Langevin_evolution.o Observables.o
-	$(CXX) $(CXXFLAGS) -o v4.1 v4.1.o test.o lattice_init.o lattice_save.o Langevin_evolution.o Observables.o
+v4.2: v4.2.o test.o lattice_init.o lattice_save.o Langevin_evolution.o Observables.o
+	$(CXX) $(CXXFLAGS) -o v4.2 v4.2.o test.o lattice_init.o lattice_save.o Langevin_evolution.o Observables.o
 
-v4.1.o: v4.1.cpp test.h lattice_init.h lattice_save.h Langevin_evolution.h Observables.h
-	$(CXX) $(CXXFLAGS) -c v4.1.cpp
+v4.2.o: v4.2.cpp test.h lattice_init.h lattice_save.h Langevin_evolution.h Observables.h
+	$(CXX) $(CXXFLAGS) -c v4.2.cpp
 
 # Dependencies
 test.o: test.cpp test.h
