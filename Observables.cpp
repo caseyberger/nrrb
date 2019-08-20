@@ -64,6 +64,8 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 		std::vector<double> Lz = Average_Lz(Lattice,size,Nx,Nt,dim);
 		//std::cout << "Lz successfully computed: Lz = " << Lz[0] << " + i" << Lz[1] << std::endl;
 		Circulation(Lattice,size,Nx,Nt,dim,2,filename);
+		Circulation(Lattice,size,Nx,Nt,dim,4,filename);
+		Circulation(Lattice,size,Nx,Nt,dim,Nx-2,filename);
 		//std::cout << "Circulation successfully computed" << std::endl;
 		std::vector<double> Action_S = Action(Lattice, size, Nx, Nt, dim, dtau, m, mu, w, w_t, l);
 		//save values to file
@@ -404,16 +406,19 @@ void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int leng
 	//find the total circulation over the lattice
 	if (dim == 2){
 		std::ofstream circ_file;
-		std::string circ_filename = "Circ_"+logfilename.substr(8);
+		string length_str = to_string(length);
+		std::string circ_filename = "Circ_loop_"+length_str+"_"+logfilename.substr(8);
 		circ_file.open(circ_filename, std::fstream::app);
 		int center = Nx/2;
 		int x = center - length/2;
 		int y = center - length/2;
 		int t = Nt/2;
+		circ_file << "center = (" << center << ","<< center << ") and start = (" << x << "," << y << ")";
+		circ_file << std::endl;
 		double loop = 0.0;
 		if (loop_is_on_lattice(Nx, Nt, x, y, length)){
 			int directions[4] = {2,1,-2,-1};	
-			int i = Nx*x + Nx*Nx*y;			
+			int i = x + Nx*y;		
 			std::vector<int> xvec = {i,t};
 			for (int d=0; d<4; d++){
 				//std::cout << "Loop segment in direction " << directions[d] << std::endl;
@@ -461,7 +466,7 @@ void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int leng
 				}
 			}//loop over direction (1,-2,-1,2)
 			//std::cout << "circulation around one loop = " << loop/(8.*atan(1.)) << std::endl;
-			circ_file <<loop/(8.*atan(1.)) << ","; //adding the circulation for one loop to the total circulation
+			circ_file << loop/(8.*atan(1.)) << ","; //adding the circulation for one loop to the total circulation
 		}//checking loop is contained within lattice
 		circ_file << std::endl;
 		circ_file.close();
