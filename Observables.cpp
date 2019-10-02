@@ -83,7 +83,7 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 	}
 	logfile.close();
 	clock_t Obs_f = clock();
-	double Observable_time = = float(Obs_f - Obs_0)/CLOCKS_PER_SEC;
+	double Observable_time = float(Obs_f - Obs_0)/CLOCKS_PER_SEC;
 	std::cout << "Time spent calculating Observables = " << Observable_time << std::endl;
 }
 

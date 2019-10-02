@@ -39,11 +39,14 @@ std::vector<double> param_list(string param_string);
 
 int main(int argc, char *argv[]) {
 	clock_t all_t0 = clock(); //
+	//set number of steps between samples:
+	int acf_step = 10;
+
 	//read in parameters
 	string str, filename;
 	vector<double> mu_vals, wtrap_vals, l_vals;
 	string inputs [11] = {"dim","omega","lambda","m","Nx","Nt","dtau","nL", "w_t", "eps","mu"};//read in keywords for parameters
-	int acf_step = 100;
+	
 	int dim, Nx, Nt, vol, nL;
 	double w, m, dtau, eps;
 	if (argc != 2){ //exits if input file is not given
@@ -159,6 +162,7 @@ int main(int argc, char *argv[]) {
 
 					std::chrono::time_point<std::chrono::system_clock> ti = std::chrono::system_clock::now();
 					for(int k = 1; k <= nL; k++){
+						std::cout <<"k = " <<  k << std::endl;
 						//use Langevin equations to evolve your fields
 						Langevin_evolution(m, l, w, w_t, dtau, Lattice, vol, dim, Nx, Nt, mu, eps);
 						std::chrono::time_point<std::chrono::system_clock> tk = std::chrono::system_clock::now();
