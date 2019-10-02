@@ -1,8 +1,8 @@
 /*
 Non-relativistic Bosons at Finite Chemical Potential and Zero Temperature with Rotating Potential
 Casey Berger
-Last edited: 08/09/19
-Version 4.1
+Last edited: 10/02/19
+Version 4.2
 
 This loops over mu, wtrap, AND lambda now - so I can leave it running longer
 
@@ -35,10 +35,10 @@ using namespace std;
 
 //function declaration
 std::string generate_filename(std::string inputs[], int size);
-std::vector<double> mu_list(string mu_string);
-
+std::vector<double> param_list(string param_string);
 
 int main(int argc, char *argv[]) {
+	clock_t all_t0 = clock(); //
 	//read in parameters
 	string str, filename;
 	vector<double> mu_vals, wtrap_vals, l_vals;
@@ -81,9 +81,9 @@ int main(int argc, char *argv[]) {
 			string w_str = inputs[8];
 			eps = stod(inputs[9]);
 			string mu_str = inputs[10];
-			mu_vals = mu_list(mu_str);
-			wtrap_vals = mu_list(w_str);
-			l_vals = mu_list(l_str);
+			mu_vals = param_list(mu_str);
+			wtrap_vals = param_list(w_str);
+			l_vals = param_list(l_str);
 			//cout << "parameters acquired" <<endl;
 		}
 		if (dim != 2 and w !=0.){
@@ -133,6 +133,7 @@ int main(int argc, char *argv[]) {
 					logfile << setw(20) << left << "Im[<S>] ";
 					logfile << setw(12) << left << "dt (sec) " << endl;
 					logfile.close();
+
 					//END GENERATE LOGFILE AND START CLOCK
 					//Initalize the lattice - dynamically allocate the memory for the lattice
 					double *** Lattice = new double**[vol];
@@ -147,6 +148,15 @@ int main(int argc, char *argv[]) {
 					}
 					lattice_init(Lattice, vol, Nt);//initialize phi everywhere
 					//test_step_functions(Lattice, vol, dim, Nx, Nt);//print out step in every direction from every lattice site
+					
+					//print time for initialization
+					clock_t init_time = clock();
+					clock_t init_time_2 = init_time - all_t0;
+					double total_init_time = float(init_time_2)/CLOCKS_PER_SEC;
+					std::cout << "time to initialize lattice and logfile = " << total_init_time << std::endl;
+
+					clock_t Langevin_t0 = clock();
+
 					std::chrono::time_point<std::chrono::system_clock> ti = std::chrono::system_clock::now();
 					for(int k = 1; k <= nL; k++){
 						//use Langevin equations to evolve your fields
@@ -161,6 +171,12 @@ int main(int argc, char *argv[]) {
 						}//save the lattice configuration every so often
 						ti = std::chrono::system_clock::now();
 					}//Langevin loop
+					clock_t Langevin_tf = clock();
+					clock_t Langevin_time = Langevin_tf - Langevin_t0;
+					//print time for Langevin evol
+					double total_Langevin_time = float(Langevin_time)/CLOCKS_PER_SEC;
+					std::cout << "time to to full Langevin evolution = " << total_Langevin_time << std::endl;
+
 					delete [] Lattice; //de-allocate the memory
 					clock_t CPU_tf = clock();
 					std::chrono::time_point<std::chrono::system_clock> tf = std::chrono::system_clock::now();
@@ -198,18 +214,15 @@ std::string generate_filename(std::string inputs[], int size){
 	return filename;
 }
 
-std::vector<double> mu_list(string mu_string){
+std::vector<double> param_list(string param_string){
 	size_t pos = 0;
-	std::vector<double> mu_vals;
-	mu_string.erase(0,1);
-	while ((pos = mu_string.find(',')) != std::string::npos) {
-		double mu = stod(mu_string.substr(0, pos));
-		mu_vals.push_back(mu);
-		mu_string.erase(0, pos + 1);
+	std::vector<double> param_vals;
+	param_string.erase(0,1);
+	while ((pos = param_string.find(',')) != std::string::npos) {
+		double pval = stod(param_string.substr(0, pos));
+		param_vals.push_back(pval);
+		param_string.erase(0, pos + 1);
 	}
-	mu_vals.push_back(stod(mu_string.substr(0,mu_string.length()-1)));
-	//for(int i=0; i<mu_vals.size(); i++){
-	//	std::cout << mu_vals[i] << std::endl;
-	//}
-	return mu_vals;
+	param_vals.push_back(stod(param_string.substr(0,param_string.length()-1)));
+	return param_vals;
 }

@@ -1,0 +1,11 @@
+Spatial dimension dim = 2
+Rotational frequency omega = 0.1
+Interaction strength lambda = [0.00]
+Mass m = 1.0
+Lattice length (space) Nx = 11
+Lattice length (time) Nt = 40
+Timestep size dtau = 0.05
+Steps in CL time nL = 500
+External trap frequency w_t = [0.0]
+Size of CL step eps = 0.01
+Chem potential mu = [-0.1]

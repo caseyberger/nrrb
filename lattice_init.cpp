@@ -22,6 +22,10 @@ void lattice_init(double *** Lattice, int size, int time_size){
 	std::uniform_real_distribution<double> distribution(-1.0,1.0);
 	//assign each field a random value, uniformly distributed between -1 and 1
 	for (int i = 0; i<size;i++){
+		int Nx = sqrt(size);
+		int x = i%Nx;
+		int y = ((i - x)/Nx)%Nx;
+		std::cout << "(" << x << "," << y << ") ";
 		for (int j = 0; j<time_size;j++){
 			for (int k = 0; k<4;k++){
 				double r = distribution(mt);
@@ -31,5 +35,5 @@ void lattice_init(double *** Lattice, int size, int time_size){
 			}
 		}
 	}
-	//std::cout << "Fields initialized" << std::endl;
+	std::cout << "Fields initialized" << std::endl;
 }
