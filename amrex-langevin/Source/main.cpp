@@ -8,7 +8,9 @@
 
 using namespace amrex;
 
-void main_main ();
+void main_main    ();
+
+void init_lattice (MultiFab& lattice_new);
 
 int main (int argc, char* argv[])
 {
@@ -83,17 +85,17 @@ void main_main ()
     // How Boxes are distrubuted among MPI processes
     DistributionMapping dm(ba);
 
-    // we allocate two phi multifabs; one will store the old state, the other the new.
-    MultiFab phi_old(ba, dm, Ncomp, Nghost);
-    MultiFab phi_new(ba, dm, Ncomp, Nghost);
+    // we allocate two lattice multifabs; one will store the old state, the other the new.
+    MultiFab lattice_old(ba, dm, Ncomp, Nghost);
+    MultiFab lattice_new(ba, dm, Ncomp, Nghost);
 
-    // Initialize phi_new by calling a Fortran routine.
+    // Initialize lattice_new by calling a Fortran routine.
     // MFIter = MultiFab Iterator
-    for ( MFIter mfi(phi_new); mfi.isValid(); ++mfi )
+    for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.validbox();
-
-        // INIT VARIABLES HERE
+    
+        init_lattice(lattice_new);
     }
 
     // compute the time step
@@ -108,7 +110,7 @@ void main_main ()
     {
         int n = 0;
         const std::string& pltfile = amrex::Concatenate("plt",n,5);
-        WriteSingleLevelPlotfile(pltfile, phi_new, {"phi"}, geom, time, 0);
+        WriteSingleLevelPlotfile(pltfile, lattice_new, {"lattice"}, geom, time, 0);
     }
 
     // build the flux multifabs
@@ -123,22 +125,22 @@ void main_main ()
 
     for (int n = 1; n <= nsteps; ++n)
     {
-        MultiFab::Copy(phi_old, phi_new, 0, 0, 1, 0);
+        MultiFab::Copy(lattice_old, lattice_new, 0, 0, 1, 0);
 
-        // new_phi = old_phi + dt * (something)
+        // new_lattice = old_lattice + dt * (something)
         // ADVANCE VARIABLES HERE
         time = time + dt;
         
         // Tell the I/O Processor to write out which step we're doing
         amrex::Print() << "Advanced step " << n << "\n";
 
-        MultiFab::Copy(phi_new, phi_old, 0, 0, 1, 0);
+        MultiFab::Copy(lattice_new, lattice_old, 0, 0, 1, 0);
 
         // Write a plotfile of the current data (plot_int was defined in the inputs file)
         if (plot_int > 0 && n%plot_int == 0)
         {
             const std::string& pltfile = amrex::Concatenate("plt",n,5);
-            WriteSingleLevelPlotfile(pltfile, phi_new, {"phi"}, geom, time, n);
+            WriteSingleLevelPlotfile(pltfile, lattice_new, {"lattice"}, geom, time, n);
         }
     }
 
