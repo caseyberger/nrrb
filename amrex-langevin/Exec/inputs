@@ -1,4 +1,10 @@
-nsteps = 10000
-pplot_int = 1000
+# Domain Size and Grid Decomposition
 n_cell = 256
 max_grid_size = 64
+
+# Stopping criteria
+nsteps = 10
+
+# I/O
+plot_int = 1
+
