@@ -92,7 +92,7 @@ void main_main ()
     // Initialize lattice_old using an MFIter (MultiFab Iterator)
     // This loops over the array data corresponding to boxes owned by this MPI rank.
     // We could markup this loop with OpenMP if we like.
-    for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
+    for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
     {
         // This gets the index bounding box corresponding to the current MFIter object mfi.
         const Box& bx = mfi.validbox();
