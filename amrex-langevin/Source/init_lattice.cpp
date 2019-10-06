@@ -1,42 +1,21 @@
+#include <AMReX_Box.H>
+#include <AMReX_Array4.H>
+#include <AMReX_Utility.H>
 
-#include <AMReX_PlotFileUtil.H>
-#include <AMReX_ParmParse.H>
-#include <AMReX_Print.H>
-
-using namespace amrex;
-
-void init_lattice (MultiFab lattice_mf)
+void init_lattice (const amrex::Box& box, const int Ncomp, amrex::Array4<amrex::Real> const& Lattice)
 {
+    const auto lo = amrex::lbound(box);
+    const auto hi = amrex::ubound(box);
 
-    for ( MFIter mfi(lattice_mf); mfi.isValid(); ++mfi )
-    {
-
-      const Box& bx = mfi.validbox();
-
-// void lattice_init(double *** Lattice, int size, int time_size)
-        std::random_device rd;
-        std::mt19937 mt(rd());
-        std::uniform_real_distribution<double> distribution(-1.0,1.0);
-        //assign each field a random value, uniformly distributed between -1 and 1
-
-        for (int i = 0; i<size;i++){
-
-                int Nx = sqrt(size);
-                int x = i%Nx;
-                int y = ((i - x)/Nx)%Nx;
-                std::cout << "(" << x << "," << y << ") ";
-
-                for (int j = 0; j<time_size;j++){
-
-                        for (int k = 0; k<4;k++){
-
-                                double r = distribution(mt);
-                                //double r = 1.;
-//                              Lattice[i][j][k] = r; //time-evolved fields - for future reference
-//                              Lattice[i][j][k+4] = r; //old fields - for future reference
-                        }
+    for (int n = 0; n < Ncomp; ++n) {
+        for (int k = lo.z; k <= hi.z; ++k) {
+            for (int j = lo.y; j <= hi.y; ++j) {
+                for (int i = lo.x; i <= hi.x; ++i) {
+                    // Get uniformly distributed random number in [0,1)
+                    // by calling amrex::Random() and scale it to [-1, 1)
+                    Lattice(i, j, k, n) = 2.0 * amrex::Random() - 1.0;
                 }
+            }
         }
     }
-    std::cout << "Fields initialized" << std::endl;
 }
