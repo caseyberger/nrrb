@@ -79,7 +79,8 @@ void main_main ()
     int Nghost = 1;
     
     // Ncomp = number of components for each array
-    int Ncomp  = 1;
+    int Ncomp  = 4;
+    const Vector<std::string> component_names = {"phi1", "phi2", "phi3", "phi4"};
   
     // How Boxes are distrubuted among MPI processes
     DistributionMapping dm(ba);
@@ -132,7 +133,7 @@ void main_main ()
     {
         int n = 0;
         const std::string& pltfile = amrex::Concatenate("plt",n,5);
-        WriteSingleLevelPlotfile(pltfile, lattice_new, {"lattice"}, geom, time, 0);
+        WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, time, 0);
     }
 
     // e.g. compute the time step
@@ -156,7 +157,7 @@ void main_main ()
         if (plot_int > 0 && n%plot_int == 0)
         {
             const std::string& pltfile = amrex::Concatenate("plt",n,5);
-            WriteSingleLevelPlotfile(pltfile, lattice_new, {"lattice"}, geom, time, n);
+            WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, time, 0);
         }
     }
 
