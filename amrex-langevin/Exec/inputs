@@ -1,6 +1,6 @@
 # Domain Size and Grid Decomposition
-n_cell = 256
-max_grid_size = 64
+n_cell = 64
+max_grid_size = 32
 
 # Stopping criteria
 nsteps = 10
