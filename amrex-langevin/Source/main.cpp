@@ -129,6 +129,8 @@ void main_main ()
     // starting at component index 0 in each and with Nghost ghost cells.
     MultiFab::Copy(lattice_new, lattice_old, 0, 0, Ncomp, Nghost);
 
+    amrex::Print() << "Fields initialized" << std::endl;
+
     // time = starting time in the simulation
     Real time = 0.0;
 
