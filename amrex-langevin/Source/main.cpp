@@ -14,9 +14,9 @@ int main (int argc, char* argv[])
     // AMReX's Initialize will parse argc and argv to read runtime parameters
     // and initialize components of AMReX, including the random number generator.
     amrex::Initialize(argc,argv);
-    
+
     main_main();
-    
+
     amrex::Finalize();
     return 0;
 }
@@ -35,7 +35,7 @@ void main_main ()
         // ParmParse is way of reading inputs from the inputs file
         ParmParse pp;
 
-        // We need to get n_cell from the inputs file - this is the number of cells on each side of 
+        // We need to get n_cell from the inputs file - this is the number of cells on each side of
         //   a square (or cubic) domain.
         pp.get("n_cell",n_cell);
 
@@ -75,13 +75,13 @@ void main_main ()
         geom.define(domain,&real_box,CoordSys::cartesian,is_periodic.data());
     }
 
-    // Nghost = number of ghost cells for each array 
+    // Nghost = number of ghost cells for each array
     int Nghost = 1;
-    
+
     // Ncomp = number of components for each array
     int Ncomp  = 4;
     const Vector<std::string> component_names = {"phi1", "phi2", "phi3", "phi4"};
-  
+
     // How Boxes are distrubuted among MPI processes
     DistributionMapping dm(ba);
 
@@ -149,7 +149,7 @@ void main_main ()
         MultiFab::Copy(lattice_new, lattice_old, 0, 0, Ncomp, 0);
 
         time = time + dt;
-        
+
         // Tell the I/O Processor to write out which step we're doing
         amrex::Print() << "Advanced step " << n << "\n";
 
