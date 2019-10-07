@@ -1,2 +1,6 @@
 CEXE_sources += main.cpp
-CEXE_sources += init_lattice.cpp
+CEXE_sources += Langevin_evolution.cpp
+CEXE_sources += Ka_Im.cpp
+CEXE_sources += Ka_Re.cpp
+CEXE_sources += Langevin_utils.cpp
+CEXE_headers += Langevin.H
