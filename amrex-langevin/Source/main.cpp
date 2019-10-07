@@ -28,7 +28,9 @@ void main_main ()
 
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size, nsteps, plot_int;
-    Vector<int> is_periodic(AMREX_SPACEDIM,1);  // periodic in all direction by default
+    Vector<int> is_periodic(AMREX_SPACEDIM, 1);     // periodic in all direction by default
+    Vector<int> domain_lo_bc_type(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
+    Vector<int> domain_hi_bc_type(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
 
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
@@ -52,6 +54,8 @@ void main_main ()
         pp.query("nsteps",nsteps);
 
         pp.queryarr("is_periodic", is_periodic);
+        pp.queryarr("domain_lo_bc_type", domain_lo_bc_type);
+        pp.queryarr("domain_hi_bc_type", domain_hi_bc_type);
     }
 
     // make BoxArray and Geometry
@@ -67,7 +71,7 @@ void main_main ()
         // Break up boxarray "ba" into chunks no larger than "max_grid_size" along a direction
         ba.maxSize(max_grid_size);
 
-       // This defines the physical box, [-1,1] in each direction.
+        // This defines the physical box, [-1,1] in each direction.
         RealBox real_box({AMREX_D_DECL(-1.0,-1.0,-1.0)},
                          {AMREX_D_DECL( 1.0, 1.0, 1.0)});
 
@@ -89,6 +93,25 @@ void main_main ()
     MultiFab lattice_old(ba, dm, Ncomp, Nghost);
     MultiFab lattice_new(ba, dm, Ncomp, Nghost);
 
+    Vector<BCRec> lattice_bc(Ncomp);
+    for (int n = 0; n < Ncomp; ++n)
+    {
+        for (int i = 0; i < AMREX_SPACEDIM; ++i)
+        {
+            // is_periodic overrides inputs in domain_(lo/hi)_bc_type
+            if (geom.isPeriodic(i))
+            {
+                lattice_bc[n].setLo(i, BCType::int_dir);
+                lattice_bc[n].setHi(i, BCType::int_dir);
+            }
+            else
+            {
+                lattice_bc[n].setLo(i, domain_lo_bc_type[i]);
+                lattice_bc[n].setHi(i, domain_hi_bc_type[i]);
+            }
+        }
+    }
+
     // Initialize lattice_old using an MFIter (MultiFab Iterator)
     // This loops over the array data corresponding to boxes owned by this MPI rank.
 
@@ -107,14 +130,6 @@ void main_main ()
         // with dimensions (x, y, z, component).
         Array4<Real> const& L_old = lattice_old.array(mfi);
 
-        // Two options for setting the values in L_old:
-        // (1) Pass the Box and Array4 to our custom function to manually loop through indices
-        // (2) Use amrex::ParallelFor to loop through the box indices with a lambda function we provide
-
-        // (1) pass the Box and Array4 to a function that loops over indices
-        init_lattice(bx, Ncomp, L_old);
-
-        // (2) amrex::ParallelFor() lets us do this in just 3 lines
         ParallelFor(bx, Ncomp, [=](int i, int j, int k, int n) {
             L_old(i, j, k, n) = 2.0 * Random() - 1.0;
         });
@@ -122,6 +137,7 @@ void main_main ()
 
     // We initialized the interior of the domain (above, we got bx by calling MFIter::validbox())
     // so now we should fill the ghost cells using our periodic boundary conditions in the Geometry object geom.
+    // Don: set Dirichlet BCs to 0, try FOEXTRAP?
     lattice_old.FillBoundary(geom.periodicity());
 
     // AMReX also provides high-level MultiFab operations like Copy
@@ -143,17 +159,48 @@ void main_main ()
         WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, time, 0);
     }
 
-    // e.g. compute the time step
-    const Real* dx = geom.CellSize();
-    Real dt = 0.9*dx[0]*dx[0] / (2.0*AMREX_SPACEDIM);
+    Real m = 0.0;
+    Real l = 0.0;
+    Real w = 0.0;
+    Real w_t = 0.0;
+    Real dtau = 0.0;
 
     for (int n = 1; n <= nsteps; ++n)
     {
-        MultiFab::Copy(lattice_old, lattice_new, 0, 0, Ncomp, 0);
+        MultiFab::Copy(lattice_old, lattice_new, 0, 0, Ncomp, Nghost);
 
-        // e.g. new_lattice = old_lattice + dt * (something)
-        // ADVANCE VARIABLES HERE, for now just copy old to new
-        MultiFab::Copy(lattice_new, lattice_old, 0, 0, Ncomp, 0);
+        // Advance lattice
+        for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
+        {
+            // This gets the index bounding box corresponding to the current MFIter object mfi.
+            const Box& bx = mfi.validbox();
+
+            // This gets an Array4, a light wrapper for the underlying data that mfi points to.
+            // The Array4 object provides accessor functions so it can be treated like a 4-D array
+            // with dimensions (x, y, z, component).
+            Array4<Real> const& L_old = lattice_old.array(mfi);
+            Array4<Real> const& L_new = lattice_new.array(mfi);
+
+            Langevin_evolution(m, l, w, w_t, dtau, mu, eps, lattice_old, lattice_new, geom);
+        }
+
+        // fill ghost cells
+        lattice_new.FillBoundary(geom.periodicity());
+
+        // Calculate observables
+        /*
+        if (n % autocorrelation_step == 0) {
+        for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
+        {
+            // This gets the index bounding box corresponding to the current MFIter object mfi.
+            const Box& bx = mfi.validbox();
+// This gets an Array4, a light wrapper for the underlying data that mfi points to.  The Array4 object provides accessor functions so it can be treated like a 4-D array with dimensions (x, y, z, component).
+            Array4<Real> const& L_new = lattice_new.array(mfi);
+
+            // Calculate_observables(m, l, w, w_t, dtau, mu, eps, lattice_old, lattice_new, geom);
+        }
+        }
+        */
 
         time = time + dt;
 
