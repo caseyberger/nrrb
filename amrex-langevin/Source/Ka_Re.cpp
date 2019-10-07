@@ -47,20 +47,20 @@ Real K_a_Re(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	//CHEMICAL POTENTIAL + TIME DERIVATIVE PART OF Ka
 	//\phi_{a,r}^{R} - e^{\mu}/2 (\phi_{a,r-t}^{R} + \phi_{a,r+t}^{R})
 	//no special conditions here because we have periodic boundary conditions in time
-	Ka += Lattice(i,j,t,Field(a,Complex::Re));
-	Ka += - 0.5 * exp(mu) * Lattice(i,j,t-1,Field(a,Complex::Re));
-	Ka += - 0.5 * exp(mu) * Lattice(i,j,t+1,Field(a,Complex::Re));
+	Ka += Lattice(i,j,t,Field(a,C::Re));
+	Ka += - 0.5 * exp(mu) * Lattice(i,j,t-1,Field(a,C::Re));
+	Ka += - 0.5 * exp(mu) * Lattice(i,j,t+1,Field(a,C::Re));
 
 	for (int b=1; b<=2; b++){
 		//\eps_{ab} e^{\mu}/2 (\phi_{b,r-t}^{I}-\phi_{b,r+t}^{I})
-		Ka += epsilon(a,b) * 0.5 * exp(mu) * Lattice(i,j,t-1,Field(b,Complex::Im));
-		Ka -= epsilon(a,b) * 0.5 * exp(mu) * Lattice(i,j,t+1,Field(b,Complex::Im));
+		Ka += epsilon(a,b) * 0.5 * exp(mu) * Lattice(i,j,t-1,Field(b,C::Im));
+		Ka -= epsilon(a,b) * 0.5 * exp(mu) * Lattice(i,j,t+1,Field(b,C::Im));
 	}//last checked on 10.07.19
 
 	//SPATIAL DERIVATIVE PART OF Ka
 	//To test 0+1 dimensional case, just skip this loop
 	//(d/m)\phi_{a}^{R}
-	Ka += 1.*dim*Lattice(i,j,t,Field(a,Complex::Re))/m;
+	Ka += (AMREX_SPACEDIM-1)*Lattice(i,j,t,Field(a,C::Re))/m;
 	for (int d = 1; d <= AMREX_SPACEDIM-1; d++) { //loop over adjacent spatial sites!
 		//if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
 		// -(1/2m)\phi_{a,i+1}^{R} - (1/2m)\phi_{a,ii1}^{R}
@@ -68,15 +68,15 @@ Real K_a_Re(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
         {
             if (!(i == domain_lo[0] || i == domain_hi[0]))
             {
-				Ka += -0.5 * Lattice(i+1,j,t,Field(a,Complex::Re)) / m;
-				Ka += -0.5 * Lattice(i-1,j,t,Field(a,Complex::Re)) / m;
+				Ka += -0.5 * Lattice(i+1,j,t,Field(a,C::Re)) / m;
+				Ka += -0.5 * Lattice(i-1,j,t,Field(a,C::Re)) / m;
             }
         } else if (d == 2)
         {
             if (!(j == domain_lo[1] || j == domain_hi[1]))
             {
-				Ka += -0.5 * Lattice(i,j+1,t,Field(a,Complex::Re)) / m;
-				Ka += -0.5 * Lattice(i,j-1,t,Field(a,Complex::Re)) / m;
+				Ka += -0.5 * Lattice(i,j+1,t,Field(a,C::Re)) / m;
+				Ka += -0.5 * Lattice(i,j-1,t,Field(a,C::Re)) / m;
             }
         }
 	}//updated on 10.07.19 - part mixing a and b removed per notes
@@ -85,14 +85,14 @@ Real K_a_Re(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	//TRAPPING PIECE
 
 	// 0.25*m*w_t^{2}*r2*(\phi_{a,r+t}^{R}+\phi_{a,r-t}^{R})
-    Ka += 0.25*m*w_t*w_t*r2_cell * Lattice(i,j,t+1,Field(a,Complex::Re));
-    Ka += 0.25*m*w_t*w_t*r2_cell * Lattice(i,j,t-1,Field(a,Complex::Re));
+    Ka += 0.25*m*w_t*w_t*r2_cell * Lattice(i,j,t+1,Field(a,C::Re));
+    Ka += 0.25*m*w_t*w_t*r2_cell * Lattice(i,j,t-1,Field(a,C::Re));
 
     for (int b=1; b<=2; b++){
         //TRAPPING PIECE
         // -0.25*m*w_t^{2} r2*\eps_{ab}(\phi_{b,r+t}^{I}+\phi_{b,r-t}^{I})
-        Ka += -0.25*m*w_t*w_t*r2_cell*epsilon(a,b) * Lattice(i,j,t+1,Field(b,Complex::Im));
-        Ka += -0.25*m*w_t*w_t*r2_cell*epsilon(a,b) * Lattice(i,j,t-1,Field(b,Complex::Im));
+        Ka += -0.25*m*w_t*w_t*r2_cell*epsilon(a,b) * Lattice(i,j,t+1,Field(b,C::Im));
+        Ka += -0.25*m*w_t*w_t*r2_cell*epsilon(a,b) * Lattice(i,j,t-1,Field(b,C::Im));
     }
 
     // ROTATIONAL PIECE
@@ -101,39 +101,39 @@ Real K_a_Re(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
     const Real y = y_cell - y_center;
 
 	// w (x-y)(\phi_{a,r+t}^{I}+\phi_{a,r-t}^{I})
-	Ka += 0.5*w*x * Lattice(i,j,t+1,Field(a, Complex::Im));
-	Ka += -0.5*w*y * Lattice(i,j,t+1,Field(a, Complex::Im));
-	Ka += 0.5*w*x * Lattice(i,j,t-1,Field(a, Complex::Im));
-	Ka += -0.5*w*y * Lattice(i,j,t-1,Field(a, Complex::Im));
+	Ka += 0.5*w*x * Lattice(i,j,t+1,Field(a, C::Im));
+	Ka += -0.5*w*y * Lattice(i,j,t+1,Field(a, C::Im));
+	Ka += 0.5*w*x * Lattice(i,j,t-1,Field(a, C::Im));
+	Ka += -0.5*w*y * Lattice(i,j,t-1,Field(a, C::Im));
 
 	// (w/2) y (\phi_{a,r+x+t}^{I} + \phi_{a,r-x-t}^{I}) - (w/2) x (\phi_{a,r+y+t}^{I} + \phi_{a,r-y-t}^{I})
     //if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
     if (!(i == domain_lo[0] || i == domain_hi[0]))
     {
-	    Ka += 0.5*w*y * Lattice(i+1,j,t+1,Field(a,Complex::Im));
-	    Ka += 0.5*w*y * Lattice(i-1,j,t-1,Field(a,Complex::Im));
+	    Ka += 0.5*w*y * Lattice(i+1,j,t+1,Field(a,C::Im));
+	    Ka += 0.5*w*y * Lattice(i-1,j,t-1,Field(a,C::Im));
     }
 
     if (!(j == domain_lo[1] || j == domain_hi[1]))
     {
-	    Ka += -0.5*w*x * Lattice(i,j+1,t+1,Field(a,Complex::Im));
-	    Ka += -0.5*w*x * Lattice(i,j-1,t-1,Field(a,Complex::Im));
+	    Ka += -0.5*w*x * Lattice(i,j+1,t+1,Field(a,C::Im));
+	    Ka += -0.5*w*x * Lattice(i,j-1,t-1,Field(a,C::Im));
     }
 
     for (int b=1; b<=2; b++){
         //\eps_{ab} (w/2) (y (\phi_{b,r-x-t}^{R} + \phi_{b,r+x+t}^{R})- x (\phi_{b,r-y-t}^{R}+\phi_{b,r+y+t}^{R}))
-        Ka += -0.5*epsilon(a,b)*w*x * Lattice(i,j+1,t+1,Field(b,Complex::Re));
-        Ka += - 0.5*epsilon(a,b)*w*x * Lattice(i,j-1,t-1,Field(b,Complex::Re));
+        Ka += -0.5*epsilon(a,b)*w*x * Lattice(i,j+1,t+1,Field(b,C::Re));
+        Ka += - 0.5*epsilon(a,b)*w*x * Lattice(i,j-1,t-1,Field(b,C::Re));
 
-        Ka += 0.5*epsilon(a,b)*w*y * Lattice(i-1,j,t-1,Field(b,Complex::Re));
-        Ka += 0.5*epsilon(a,b)*w*y * Lattice(i+1,j,t+1,Field(b,Complex::Re));
+        Ka += 0.5*epsilon(a,b)*w*y * Lattice(i-1,j,t-1,Field(b,C::Re));
+        Ka += 0.5*epsilon(a,b)*w*y * Lattice(i+1,j,t+1,Field(b,C::Re));
 
         //\eps_{ab} (w/2) (x-y)(\phi_{b,r+t}^{R}+\phi_{b,r-t}^{R})
-        Ka += 0.5*epsilon(a,b)*w*x * Lattice(i,j,t+1,Field(b,Complex::Re));
-        Ka += 0.5*epsilon(a,b)*w*x * Lattice(i,j,t-1,Field(b,Complex::Re));
+        Ka += 0.5*epsilon(a,b)*w*x * Lattice(i,j,t+1,Field(b,C::Re));
+        Ka += 0.5*epsilon(a,b)*w*x * Lattice(i,j,t-1,Field(b,C::Re));
 
-        Ka += -0.5*epsilon(a,b)*w*y * Lattice(i,j,t+1,Field(b,Complex::Re));
-        Ka += -0.5*epsilon(a,b)*w*y * Lattice(i,j,t-1,Field(b,Complex::Re));
+        Ka += -0.5*epsilon(a,b)*w*y * Lattice(i,j,t+1,Field(b,C::Re));
+        Ka += -0.5*epsilon(a,b)*w*y * Lattice(i,j,t-1,Field(b,C::Re));
     }
 }
 //last updated 10.07.19
@@ -141,56 +141,56 @@ Real K_a_Re(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 
 	//INTERACTION PART OF Ka
 	for (int b=1; b<=2; b++){
-		Ka += l*Lattice(i,j,t,Field(b,Complex::Re))*Lattice(i,j,t-1,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(b,Complex::Re));
-		Ka += - l*Lattice(i,j,t,Field(b,Complex::Re))*Lattice(i,j,t-1,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(b,Complex::Im));
+		Ka += l*Lattice(i,j,t,Field(b,C::Re))*Lattice(i,j,t-1,Field(a,C::Re))*Lattice(i,j,t-1,Field(b,C::Re));
+		Ka += - l*Lattice(i,j,t,Field(b,C::Re))*Lattice(i,j,t-1,Field(a,C::Im))*Lattice(i,j,t-1,Field(b,C::Im));
 
-		Ka += l*Lattice(i,j,t,Field(b,Complex::Re))*Lattice(i,j,t+1,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(b,Complex::Re));
-		Ka += - l*Lattice(i,j,t,Field(b,Complex::Re))*Lattice(i,j,t+1,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(b,Complex::Im));
+		Ka += l*Lattice(i,j,t,Field(b,C::Re))*Lattice(i,j,t+1,Field(a,C::Re))*Lattice(i,j,t+1,Field(b,C::Re));
+		Ka += - l*Lattice(i,j,t,Field(b,C::Re))*Lattice(i,j,t+1,Field(a,C::Im))*Lattice(i,j,t+1,Field(b,C::Im));
 
-		Ka += -1.0*l*Lattice(i,j,t,Field(b,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(b,Complex::Im));
-		Ka += - l*Lattice(i,j,t,Field(b,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(b,Complex::Re));
+		Ka += -1.0*l*Lattice(i,j,t,Field(b,C::Im))*Lattice(i,j,t-1,Field(a,C::Re))*Lattice(i,j,t-1,Field(b,C::Im));
+		Ka += - l*Lattice(i,j,t,Field(b,C::Im))*Lattice(i,j,t-1,Field(a,C::Im))*Lattice(i,j,t-1,Field(b,C::Re));
 
-		Ka += -1.0*l*Lattice(i,j,t,Field(b,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(b,Complex::Im));
-		Ka += - l*Lattice(i,j,t,Field(b,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(b,Complex::Re));
+		Ka += -1.0*l*Lattice(i,j,t,Field(b,C::Im))*Lattice(i,j,t+1,Field(a,C::Re))*Lattice(i,j,t+1,Field(b,C::Im));
+		Ka += - l*Lattice(i,j,t,Field(b,C::Im))*Lattice(i,j,t+1,Field(a,C::Im))*Lattice(i,j,t+1,Field(b,C::Re));
 
-		Ka += 0.5*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(b,Complex::Im))*Lattice(i,j,t-1,Field(b,Complex::Im));
-		Ka += -0.5*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(b,Complex::Re))*Lattice(i,j,t-1,Field(b,Complex::Re));
+		Ka += 0.5*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t-1,Field(b,C::Im))*Lattice(i,j,t-1,Field(b,C::Im));
+		Ka += -0.5*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t-1,Field(b,C::Re))*Lattice(i,j,t-1,Field(b,C::Re));
 
-		Ka += 0.5*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(b,Complex::Im))*Lattice(i,j,t+1,Field(b,Complex::Im));
-		Ka += -0.5*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(b,Complex::Re))*Lattice(i,j,t+1,Field(b,Complex::Re));
+		Ka += 0.5*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t+1,Field(b,C::Im))*Lattice(i,j,t+1,Field(b,C::Im));
+		Ka += -0.5*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t+1,Field(b,C::Re))*Lattice(i,j,t+1,Field(b,C::Re));
 
-		Ka += l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(b,Complex::Im))*Lattice(i,j,t-1,Field(b,Complex::Re));
-		Ka += l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(b,Complex::Im))*Lattice(i,j,t+1,Field(b,Complex::Re));
+		Ka += l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t-1,Field(b,C::Im))*Lattice(i,j,t-1,Field(b,C::Re));
+		Ka += l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t+1,Field(b,C::Im))*Lattice(i,j,t+1,Field(b,C::Re));
 
-		Ka += -1.*epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(b,Complex::Im));
-		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(b,Complex::Re));
+		Ka += -1.*epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t-1,Field(a,C::Re))*Lattice(i,j,t-1,Field(b,C::Im));
+		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t-1,Field(a,C::Im))*Lattice(i,j,t-1,Field(b,C::Re));
 
-		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(b,Complex::Im));
-		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(b,Complex::Re));
+		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t+1,Field(a,C::Re))*Lattice(i,j,t+1,Field(b,C::Im));
+		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t+1,Field(a,C::Im))*Lattice(i,j,t+1,Field(b,C::Re));
 
-		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(b,Complex::Im));
-		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(b,Complex::Re));
+		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t-1,Field(a,C::Im))*Lattice(i,j,t-1,Field(b,C::Im));
+		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t-1,Field(a,C::Re))*Lattice(i,j,t-1,Field(b,C::Re));
 
-		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(b,Complex::Re));
-		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(b,Complex::Im));
+		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t+1,Field(a,C::Re))*Lattice(i,j,t+1,Field(b,C::Re));
+		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t+1,Field(a,C::Im))*Lattice(i,j,t+1,Field(b,C::Im));
 
-		Ka += 0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(b,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(a,Complex::Re));
-		Ka += -0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(b,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Im));
+		Ka += 0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(b,C::Im))*Lattice(i,j,t-1,Field(a,C::Re))*Lattice(i,j,t-1,Field(a,C::Re));
+		Ka += -0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(b,C::Im))*Lattice(i,j,t-1,Field(a,C::Im))*Lattice(i,j,t-1,Field(a,C::Im));
 
-		Ka += 0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(b,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Im));
-		Ka += -0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(b,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(a,Complex::Re));
+		Ka += 0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(b,C::Im))*Lattice(i,j,t+1,Field(a,C::Im))*Lattice(i,j,t+1,Field(a,C::Im));
+		Ka += -0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(b,C::Im))*Lattice(i,j,t+1,Field(a,C::Re))*Lattice(i,j,t+1,Field(a,C::Re));
 
-		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(b,Complex::Re))*Lattice(i,j,t-1,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Re));
-		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(b,Complex::Re))*Lattice(i,j,t+1,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Re));
+		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(b,C::Re))*Lattice(i,j,t-1,Field(a,C::Im))*Lattice(i,j,t-1,Field(a,C::Re));
+		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(b,C::Re))*Lattice(i,j,t+1,Field(a,C::Im))*Lattice(i,j,t+1,Field(a,C::Re));
 
-		Ka += 0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Im));
-		Ka += -0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(a,Complex::Re));
+		Ka += 0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t-1,Field(a,C::Im))*Lattice(i,j,t-1,Field(a,C::Im));
+		Ka += -0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t-1,Field(a,C::Re))*Lattice(i,j,t-1,Field(a,C::Re));
 
-		Ka += 0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(a,Complex::Re));
-		Ka += -0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Im));
+		Ka += 0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t+1,Field(a,C::Re))*Lattice(i,j,t+1,Field(a,C::Re));
+		Ka += -0.5*epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Im))*Lattice(i,j,t+1,Field(a,C::Im))*Lattice(i,j,t+1,Field(a,C::Im));
 
-		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t+1,Field(a,Complex::Im))*Lattice(i,j,t+1,Field(a,Complex::Re));
-		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(a,Complex::Re))*Lattice(i,j,t-1,Field(a,Complex::Im))*Lattice(i,j,t-1,Field(a,Complex::Re));
+		Ka += epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t+1,Field(a,C::Im))*Lattice(i,j,t+1,Field(a,C::Re));
+		Ka += -epsilon(a,b)*l*Lattice(i,j,t,Field(a,C::Re))*Lattice(i,j,t-1,Field(a,C::Im))*Lattice(i,j,t-1,Field(a,C::Re));
 	}//last update 10.07.19 to make a gauge interaction
 	return -1.*Ka;
 }
