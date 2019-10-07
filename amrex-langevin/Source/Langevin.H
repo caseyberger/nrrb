@@ -3,7 +3,7 @@
 #ifndef LANGEVIN_H
 #define LANGEVIN_H
 
-enum class Complex { Re = 0, Im };
+enum class C { Re = 0, Im };
 
 AMREX_INLINE
 int Field(int a, Complex complex_type) {
