@@ -7,7 +7,7 @@ void Langevin_evolution(amrex::Real m, amrex::Real l, amrex::Real w, amrex::Real
                         const amrex::Box& box,
                         amrex::Array4<amrex::Real> const& Lattice_old,
                         amrex::Array4<amrex::Real> const& Lattice_new,
-                        const amrex::Geometry& geom);
+                        const amrex::GeometryData& geom);
 
 int field_comp(int a, bool is_real);
 

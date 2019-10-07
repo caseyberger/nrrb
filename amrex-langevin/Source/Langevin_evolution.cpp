@@ -12,7 +12,7 @@ void Langevin_evolution(Real m, Real l, Real w, Real w_t, Real dtau, Real mu, Re
                         const amrex::Box& box,
                         amrex::Array4<amrex::Real> const& Lattice_old,
                         amrex::Array4<amrex::Real> const& Lattice_new,
-                        const amrex::Geometry& geom)
+                        const amrex::GeometryData& geom)
 {
     const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
@@ -25,16 +25,16 @@ void Langevin_evolution(Real m, Real l, Real w, Real w_t, Real dtau, Real mu, Re
                     double eta_2 = RandomNormal(0.0, sqrt(2.0));
 
                     //phi1_Re
-                    Lattice_new(i,j,t,0) = Lattice_old(i,j,t,0) + eps * K_a_Re(m,l,w,w_t,1,dtau,mu,Lattice_old,i,j,t) + sqrt(eps) * eta_1;
+                    Lattice_new(i,j,t,0) = Lattice_old(i,j,t,0) + eps * K_a_Re(m,l,w,w_t,1,dtau,mu,Lattice_old,geom,i,j,t) + sqrt(eps) * eta_1;
 
                     //phi1_Im
-                    Lattice_new(i,j,t,1) = Lattice_old(i,j,t,1) + eps * K_a_Im(m,l,w,w_t,1,dtau,mu,Lattice_old,i,j,t);
+                    Lattice_new(i,j,t,1) = Lattice_old(i,j,t,1) + eps * K_a_Im(m,l,w,w_t,1,dtau,mu,Lattice_old,geom,i,j,t);
 
                     //phi2_Re
-                    Lattice_new(i,j,t,2) = Lattice_old(i,j,t,2) + eps * K_a_Re(m,l,w,w_t,2,dtau,mu,Lattice_old,i,j,t) + sqrt(eps) * eta_2;
+                    Lattice_new(i,j,t,2) = Lattice_old(i,j,t,2) + eps * K_a_Re(m,l,w,w_t,2,dtau,mu,Lattice_old,geom,i,j,t) + sqrt(eps) * eta_2;
 
                     //phi2+Im
-                    Lattice_new(i,j,t,3) = Lattice_old(i,j,t,3) + eps * K_a_Im(m,l,w,w_t,2,dtau,mu,Lattice_old,i,j,t);
+                    Lattice_new(i,j,t,3) = Lattice_old(i,j,t,3) + eps * K_a_Im(m,l,w,w_t,2,dtau,mu,Lattice_old,geom,i,j,t);
                 }
             }
         }
