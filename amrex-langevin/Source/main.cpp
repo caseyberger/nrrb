@@ -72,8 +72,8 @@ void main_main ()
         ba.maxSize(max_grid_size);
 
         // This defines the physical box, [-1,1] in each direction.
-        RealBox real_box({AMREX_D_DECL(-1.0,-1.0,-1.0)},
-                         {AMREX_D_DECL( 1.0, 1.0, 1.0)});
+        RealBox real_box({AMREX_D_DECL( 0.0, 0.0, 0.0)},
+                         {AMREX_D_DECL( 1.0*(n_cell-1), 1.0*(n_cell-1), 1.0*(n_cell-1))});
 
         // This defines a Geometry object
         geom.define(domain,&real_box,CoordSys::cartesian,is_periodic.data());
@@ -169,6 +169,8 @@ void main_main ()
     {
         MultiFab::Copy(lattice_old, lattice_new, 0, 0, Ncomp, Nghost);
 
+        // make this return source term
+        // do saxpy
         // Advance lattice
         for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
         {
