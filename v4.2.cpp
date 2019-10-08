@@ -169,9 +169,9 @@ int main(int argc, char *argv[]) {
 						Langevin_evolution(m, l, w, w_t, dtau, Lattice, vol, dim, Nx, Nt, mu, eps);
 						std::chrono::time_point<std::chrono::system_clock> tk = std::chrono::system_clock::now();
 						std::chrono::duration<double> delta_t = tk - ti;
-						//if (k%acf_step == 0){
-							//compute_observables(m, l, w, w_t, dtau, Lattice, vol, dim, Nx, Nt, mu, k, delta_t.count(),filename); //compute the observables at each 100th step
-						//}
+						if (k%acf_step == 0){
+							compute_observables(m, l, w, w_t, dtau, Lattice, vol, dim, Nx, Nt, mu, k, delta_t.count(),filename); //compute the observables at each 100th step
+						}
 						if (k%lattice_save_step == 0){
 							lattice_save(Lattice, vol, dim, Nx, Nt, mu, w, k); //save the configuration
 						}//save the lattice configuration every so often
