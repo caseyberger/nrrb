@@ -61,7 +61,7 @@ void Langevin_evolution(double m, double l, double w, double w_t, double dtau, d
 			random_num_gen_time += float(rn_f - rn_0)/CLOCKS_PER_SEC;
 			clock_t CL_0 = clock();
 			//phi1_Re
-			Lattice[i][t][0] = Lattice[i][t][4] + eps*K_a_Re(m,l,w,w_t,1,dtau,Lattice,dim,Nx,Nt,i,t,mu);// + sqrt(eps)*eta_1;
+			Lattice[i][t][0] = Lattice[i][t][4] + eps*K_a_Re(m,l,w,w_t,1,dtau,Lattice,dim,Nx,Nt,i,t,mu) + sqrt(eps)*eta_1;
 			//Lattice[i][t][0] = eta_1;
 
 			//phi1_Im
@@ -69,7 +69,7 @@ void Langevin_evolution(double m, double l, double w, double w_t, double dtau, d
 			//Lattice[i][t][1] = 0.;
 
 			//phi2_Re
-			Lattice[i][t][2] = Lattice[i][t][6] + eps*K_a_Re(m,l,w,w_t,2,dtau,Lattice,dim,Nx,Nt,i,t,mu);// + sqrt(eps)*eta_2;
+			Lattice[i][t][2] = Lattice[i][t][6] + eps*K_a_Re(m,l,w,w_t,2,dtau,Lattice,dim,Nx,Nt,i,t,mu) + sqrt(eps)*eta_2;
 			//Lattice[i][t][2] = eta_2;
 
 			//phi2_Im
