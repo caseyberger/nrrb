@@ -29,12 +29,19 @@ void main_main ()
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = amrex::second();
 
-    // AMREX_SPACEDIM: number of dimensions
+    // AMREX_SPACEDIM: number of dimensions (space + time)
     int max_grid_size, nsteps, plot_int;
     Vector<int> n_cell(AMREX_SPACEDIM, 1);
-    Vector<int> is_periodic(AMREX_SPACEDIM, 1);     // periodic in all direction by default
-    Vector<int> domain_lo_bc_types(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
-    Vector<int> domain_hi_bc_types(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
+
+    // Periodicity and Boundary Conditions
+    // Defaults to External Dirichlet (0.0) in space, periodic in time
+    Vector<int> is_periodic(AMREX_SPACEDIM, 0);
+    Vector<int> domain_lo_bc_types(AMREX_SPACEDIM, BCType::ext_dir);
+    Vector<int> domain_hi_bc_types(AMREX_SPACEDIM, BCType::ext_dir);
+    // Set periodicity and BCs for time
+    is_periodic[AMREX_SPACEDIM-1] = 1;
+    domain_lo_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
+    domain_hi_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
 
     struct NRRBParameters {
         Real m;
@@ -44,6 +51,7 @@ void main_main ()
         Real dtau;
         Real mu;
         Real eps;
+        int seed;
     };
 
     NRRBParameters nrrb_parm;
@@ -54,6 +62,7 @@ void main_main ()
     nrrb_parm.dtau = 0.0;
     nrrb_parm.mu = 0.0;
     nrrb_parm.eps = 0.0;
+    nrrb_parm.seed = -1;
 
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
@@ -88,6 +97,14 @@ void main_main ()
         pp_nrrb.get("dtau", nrrb_parm.dtau);
         pp_nrrb.get("mu", nrrb_parm.mu);
         pp_nrrb.get("eps", nrrb_parm.eps);
+        pp_nrrb.query("seed", nrrb_parm.seed);
+    }
+
+    // if we set a random seed to use, then reinitialize the random number generator with it
+    if (nrrb_parm.seed != -1)
+    {
+        Print() << "got seed = " << nrrb_parm.seed << std::endl;
+        amrex::ResetRandomSeed(nrrb_parm.seed);
     }
 
     // make BoxArray and Geometry
