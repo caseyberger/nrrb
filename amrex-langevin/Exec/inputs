@@ -19,16 +19,16 @@ max_grid_size = 32
 # For a given dimension, if is_periodic[i] = 1,
 # then the lo/hi BC type should be BCType::int_dir.
 #
-# Here are the supported boundary conditions in BCType:
+# Here are the supported boundary conditions in AMReX:
 # BCType::reflect_odd  = -1
 # BCType::int_dir      =  0
 # BCType::reflect_even =  1
 # BCType::foextrap     =  2
 # BCType::ext_dir      =  3
 # BCType::hoextrap     =  4
-is_periodic = 0 0 1 # Periodic in time, non-periodic in space
-domain_lo_bc_types = 2 2 0 # 1st order extrapolation in space, interior BCs (periodic) in time
-domain_hi_bc_types = 2 2 0 # 1st order extrapolation in space, interior BCs (periodic) in time
+is_periodic = 0 0 1 # Non-periodic in space, periodic in time
+domain_lo_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic) in time
+domain_hi_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic) in time
 
 # Stopping criteria
 nsteps = 10
