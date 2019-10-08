@@ -1,18 +1,19 @@
 # Physical Input Parameters
 nrrb.m = 1.0
-nrrb.l = 0.001
-nrrb.w = 0.001
-nrrb.w_t = 0.001
+nrrb.l = 0.1
+nrrb.w = 0.1
+nrrb.w_t = 0.1
 nrrb.dtau = 0.05
 nrrb.mu = -0.1
 nrrb.eps = 0.01
 
 # Set a seed for the random number generator
-nrrb.seed = -1
+nrrb.seed_init = 8134
+nrrb.seed_run = 61
 
 # Domain Size and Grid Decomposition
 n_cell = 21 21 80
-max_grid_size = 32
+max_grid_size = 128
 
 # Periodicity and Domain Boundary Conditions
 #
