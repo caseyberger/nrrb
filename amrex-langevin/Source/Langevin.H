@@ -39,6 +39,13 @@ amrex::Real epsilon(int a, int b){
 	else {return 0.;}//added 10.30.17
 }
 
+//DIRAC DELTA
+AMREX_INLINE
+amrex::Real delta(int a, int b){
+    if (a == b){return 1.;}
+    else {return 0.;}
+}
+
 void Langevin_evolution(amrex::Real m, amrex::Real l, amrex::Real w, amrex::Real w_t, amrex::Real dtau, amrex::Real mu, amrex::Real eps,
                         const amrex::Box& box, const int Ncomp,
                         amrex::Array4<amrex::Real> const& Lattice_old,
