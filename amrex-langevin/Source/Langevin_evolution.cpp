@@ -35,7 +35,7 @@ void Langevin_evolution(Real m, Real l, Real w, Real w_t, Real dtau, Real mu, Re
                     //phi2_Re
                     Lattice_new(i,j,t,2) = Lattice_old(i,j,t,2) + eps * K_a_Re(m,l,w,w_t,2,dtau,mu,Lattice_old,geom,i,j,t) + sqrt(eps) * eta_2;
 
-                    //phi2+Im
+                    //phi2_Im
                     Lattice_new(i,j,t,3) = Lattice_old(i,j,t,3) + eps * K_a_Im(m,l,w,w_t,2,dtau,mu,Lattice_old,geom,i,j,t);
                 }
             }
