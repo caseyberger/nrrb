@@ -40,7 +40,8 @@ std::vector<double> param_list(string param_string);
 int main(int argc, char *argv[]) {
 	clock_t all_t0 = clock(); //
 	//set number of steps between samples:
-	int acf_step = 10;
+	int acf_step = 1;
+	int lattice_save_step = 1;
 
 	//read in parameters
 	string str, filename;
@@ -151,7 +152,8 @@ int main(int argc, char *argv[]) {
 					}
 					lattice_init(Lattice, vol, Nt);//initialize phi everywhere
 					//test_step_functions(Lattice, vol, dim, Nx, Nt);//print out step in every direction from every lattice site
-					
+					lattice_save(Lattice, vol, dim, Nx, Nt, mu, w, 0); //save the initial configuration
+
 					//print time for initialization
 					clock_t init_time = clock();
 					clock_t init_time_2 = init_time - all_t0;
@@ -167,10 +169,10 @@ int main(int argc, char *argv[]) {
 						Langevin_evolution(m, l, w, w_t, dtau, Lattice, vol, dim, Nx, Nt, mu, eps);
 						std::chrono::time_point<std::chrono::system_clock> tk = std::chrono::system_clock::now();
 						std::chrono::duration<double> delta_t = tk - ti;
-						if (k%acf_step == 0){
-							compute_observables(m, l, w, w_t, dtau, Lattice, vol, dim, Nx, Nt, mu, k, delta_t.count(),filename); //compute the observables at each 100th step
-						}
-						if (k%10000 == 0){
+						//if (k%acf_step == 0){
+							//compute_observables(m, l, w, w_t, dtau, Lattice, vol, dim, Nx, Nt, mu, k, delta_t.count(),filename); //compute the observables at each 100th step
+						//}
+						if (k%lattice_save_step == 0){
 							lattice_save(Lattice, vol, dim, Nx, Nt, mu, w, k); //save the configuration
 						}//save the lattice configuration every so often
 						ti = std::chrono::system_clock::now();

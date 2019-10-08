@@ -33,29 +33,49 @@ void Langevin_evolution(double m, double l, double w, double w_t, double dtau, d
 	double random_num_gen_time = 0.;
 	double Langevin_calc_time = 0.;
 	double Lattice_update_time = 0.;
-	std::random_device rd;
-	std::mt19937 mt(rd());
-	std::normal_distribution<double> noise1(0.,sqrt(2.));
-	std::normal_distribution<double> noise2(0.,sqrt(2.));
+	//std::random_device rd;
+	//std::mt19937 mt(rd());
+	int seed = 61;
+	std::mt19937 generator(seed);
 	//evolve the lattice using the old lattice copy
-	#pragma omp parallel
-	#pragma omp for collapse(2)
+	//#pragma omp parallel
+	//#pragma omp for collapse(2)
+	//std::normal_distribution<double> noise1(0.,sqrt(2.));
+	//std::uniform_real_distribution<double> noise1(0.,1.);
+	//noise1.reset();
+	//for (int num = 0; num < 10; num++){	
+	//	double eta_1 = noise1(generator);
+	//	std::cout << eta_1 << std::endl;
+	//}
+
 	for(int i = 0; i<size; i++){
 		for (int t = 0; t<Nt;t++){
 			clock_t rn_0 = clock();
-			double eta_1 = noise1(mt);
-			double eta_2 = noise2(mt);
+			//std::normal_distribution<double> noise1(0.,sqrt(2.));
+			//std::normal_distribution<double> noise2(0.,sqrt(2.));
+			std::uniform_real_distribution<double> noise1(-1.,1.);
+			std::uniform_real_distribution<double> noise2(-1.,1.);
+			double eta_1 = noise1(generator);
+			double eta_2 = noise2(generator);
 			clock_t rn_f = clock();
 			random_num_gen_time += float(rn_f - rn_0)/CLOCKS_PER_SEC;
 			clock_t CL_0 = clock();
 			//phi1_Re
-			Lattice[i][t][0] = Lattice[i][t][4]+eps*K_a_Re(m,l,w,w_t,1,dtau,Lattice,dim,Nx,Nt,i,t,mu) + sqrt(eps)*eta_1;
+			Lattice[i][t][0] = Lattice[i][t][4] + eps*K_a_Re(m,l,w,w_t,1,dtau,Lattice,dim,Nx,Nt,i,t,mu);// + sqrt(eps)*eta_1;
+			//Lattice[i][t][0] = eta_1;
+
 			//phi1_Im
-			Lattice[i][t][1] = Lattice[i][t][5]+eps*K_a_Im(m,l,w,w_t,1,dtau,Lattice,dim,Nx,Nt,i,t,mu);
+			Lattice[i][t][1] = Lattice[i][t][5] + eps*K_a_Im(m,l,w,w_t,1,dtau,Lattice,dim,Nx,Nt,i,t,mu);
+			//Lattice[i][t][1] = 0.;
+
 			//phi2_Re
-			Lattice[i][t][2] = Lattice[i][t][6]+eps*K_a_Re(m,l,w,w_t,2,dtau,Lattice,dim,Nx,Nt,i,t,mu) + sqrt(eps)*eta_2;
-			//phi2+Im
-			Lattice[i][t][3] = Lattice[i][t][7]+eps*K_a_Im(m,l,w,w_t,2,dtau,Lattice,dim,Nx,Nt,i,t,mu);
+			Lattice[i][t][2] = Lattice[i][t][6] + eps*K_a_Re(m,l,w,w_t,2,dtau,Lattice,dim,Nx,Nt,i,t,mu);// + sqrt(eps)*eta_2;
+			//Lattice[i][t][2] = eta_2;
+
+			//phi2_Im
+			Lattice[i][t][3] = Lattice[i][t][7] + eps*K_a_Im(m,l,w,w_t,2,dtau,Lattice,dim,Nx,Nt,i,t,mu);
+			//Lattice[i][t][3] = 0.;
+
 			clock_t CL_f = clock();
 			Langevin_calc_time += float(CL_f - CL_0)/CLOCKS_PER_SEC;
 		}
@@ -148,6 +168,10 @@ double K_a_Re(double m, double l,double w, double w_t, int a, double dtau, doubl
 		double x = 1.0*xint - 0.5*(Nx-1);
 		double y = 1.0*yint - 0.5*(Nx-1);
 		double r2 = x*x+y*y;
+		//if (t == 40){
+		//	std::cout << "{x,y} = {" << xint << "," << yint << "}, "<< "(x - x_c) = " << x << ", (y - y_c) = " << y << std::endl;
+		//}
+		//double r2 = 1.;
 		std::vector<int> vpx = positive_step(dim, 1, i, t, Nx, Nt);
 		std::vector<int> vnx = negative_step(dim, 1, i, t, Nx, Nt);
 		std::vector<int> vpy = positive_step(dim, 2, i, t, Nx, Nt);
@@ -300,6 +324,7 @@ double K_a_Im(double m, double l, double w, double w_t, int a, double dtau, doub
 		double x = 1.0*xint - 0.5*(Nx-1);
 		double y = 1.0*yint - 0.5*(Nx-1);
 		double r2 = x*x+y*y;
+		//double r2 = 1.;
 		std::vector<int> vpx = positive_step(dim, 1, i, t, Nx, Nt);
 		std::vector<int> vnx = negative_step(dim, 1, i, t, Nx, Nt);
 		std::vector<int> vpy = positive_step(dim, 2, i, t, Nx, Nt);
@@ -350,19 +375,33 @@ double K_a_Im(double m, double l, double w, double w_t, int a, double dtau, doub
 		Ka += l*phib[0]*phia_mt[0]*phib_mt[1] + l*phib[0]*phia_mt[1]*phib_mt[0];
 		Ka += l*phib[0]*phia_pt[0]*phib_pt[1] + l*phib[0]*phia_pt[1]*phib_pt[0];
 		Ka += -1.0*l*phib[1]*phia_mt[1]*phib_mt[1] + l*phib[1]*phia_mt[0]*phib_mt[0];
-		Ka += -1.0*l*phib[1]*phia_pt[1]*phib_pt[1] - l*phib[1]*phia_pt[0]*phib_pt[0];
+		
+		Ka += -1.0*l*phib[1]*phia_pt[1]*phib_pt[1] + l*phib[1]*phia_pt[0]*phib_pt[0];
+		
 		Ka += 0.5*l*phia[1]*phib_mt[1]*phib_mt[1]-0.5*l*phia[1]*phib_mt[0]*phib_mt[0];
+		
 		Ka += 0.5*l*phia[1]*phib_pt[1]*phib_pt[1]-0.5*l*phia[1]*phib_pt[0]*phib_pt[0];
+		
 		Ka += -1.0*l*phia[0]*phib_mt[1]*phib_mt[0]-l*phia[0]*phib_pt[1]*phib_pt[0];
+		
 		Ka += -1.*epsilon(a,b)*l*phia[1]*phia_mt[0]*phib_mt[1]-epsilon(a,b)*l*phia[1]*phia_mt[1]*phib_mt[0];
+		
 		Ka += epsilon(a,b)*l*phia[1]*phia_pt[0]*phib_pt[1]+epsilon(a,b)*l*phia[1]*phia_pt[1]*phib_pt[0];
+		
 		Ka += epsilon(a,b)*l*phia[0]*phia_mt[0]*phib_mt[0]-epsilon(a,b)*l*phia[0]*phia_mt[1]*phib_mt[1];
+		
 		Ka += epsilon(a,b)*l*phia[0]*phia_pt[1]*phib_pt[1]-epsilon(a,b)*l*phia[0]*phia_pt[0]*phib_pt[0];
+		
 		Ka += 0.5*epsilon(a,b)*l*phib[0]*phia_mt[1]*phia_mt[1]-0.5*epsilon(a,b)*l*phib[0]*phia_mt[0]*phia_mt[0];
+		
 		Ka += 0.5*epsilon(a,b)*l*phib[0]*phia_pt[0]*phia_pt[0]-0.5*epsilon(a,b)*l*phib[0]*phia_pt[1]*phia_pt[1];
+		
 		Ka += epsilon(a,b)*l*phib[1]*phia_mt[1]*phia_mt[0]-epsilon(a,b)*l*phib[1]*phia_pt[1]*phia_pt[0];
+		
 		Ka += 0.5*epsilon(a,b)*l*phia[0]*phia_mt[0]*phia_mt[0]-0.5*epsilon(a,b)*l*phia[0]*phia_mt[1]*phia_mt[1];
+		
 		Ka += 0.5*epsilon(a,b)*l*phia[0]*phia_pt[1]*phia_pt[1]-0.5*epsilon(a,b)*l*phia[0]*phia_pt[0]*phia_pt[0];
+		
 		Ka += epsilon(a,b)*l*phia[1]*phia_pt[1]*phia_pt[0]-epsilon(a,b)*l*phia[1]*phia_mt[1]*phia_mt[0];
 	}//last update 2.22.19 to make a gauge interaction
 	/*

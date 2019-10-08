@@ -25,7 +25,8 @@ void lattice_save(double *** Lattice, int size, int dim, int Nx, int Nt, double 
 	w_stream << std::fixed << std::setprecision(3) << w; //truncate mu for filename
 	std::string str_w = w_stream.str();
 	std::string str_N = std::to_string(Nx);
-	std::string fname = "field_configs/v4_mu_" + str_mu + "_w_"+str_w+"_N_"+str_N+"_field_config.txt";//output filename
+	std::string str_nL = std::to_string(n);
+	std::string fname = "field_configs/v4_mu_" + str_mu + "_w_"+str_w+"_Nx_"+str_N+"_nL_"+str_nL+"_field_config.txt";//output filename
 	std::ofstream fout; //output stream
 	fout.open(fname, std::ios::out|std::ios::app); //open the file
 	//check if files are open
