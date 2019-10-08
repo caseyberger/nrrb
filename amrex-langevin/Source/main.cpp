@@ -51,7 +51,8 @@ void main_main ()
         Real dtau;
         Real mu;
         Real eps;
-        int seed;
+        int seed_init;
+        int seed_run;
     };
 
     NRRBParameters nrrb_parm;
@@ -62,7 +63,8 @@ void main_main ()
     nrrb_parm.dtau = 0.0;
     nrrb_parm.mu = 0.0;
     nrrb_parm.eps = 0.0;
-    nrrb_parm.seed = -1;
+    nrrb_parm.seed_init = -1;
+    nrrb_parm.seed_run = -1;
 
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
@@ -97,14 +99,15 @@ void main_main ()
         pp_nrrb.get("dtau", nrrb_parm.dtau);
         pp_nrrb.get("mu", nrrb_parm.mu);
         pp_nrrb.get("eps", nrrb_parm.eps);
-        pp_nrrb.query("seed", nrrb_parm.seed);
+        pp_nrrb.query("seed_init", nrrb_parm.seed_init);
+        pp_nrrb.query("seed_run", nrrb_parm.seed_run);
     }
 
     // if we set a random seed to use, then reinitialize the random number generator with it
-    if (nrrb_parm.seed != -1)
+    if (nrrb_parm.seed_init != -1)
     {
-        Print() << "got seed = " << nrrb_parm.seed << std::endl;
-        amrex::ResetRandomSeed(nrrb_parm.seed);
+        Print() << "got seed_init = " << nrrb_parm.seed_init << std::endl;
+        amrex::ResetRandomSeed(nrrb_parm.seed_init);
     }
 
     // make BoxArray and Geometry
@@ -122,7 +125,7 @@ void main_main ()
 
         // This defines the physical box, [-1,1] in each direction.
         RealBox real_box({AMREX_D_DECL( 0.0, 0.0, 0.0)},
-                         {AMREX_D_DECL( 1.0*(n_cell[0]-1), 1.0*(n_cell[1]-1), 1.0*(n_cell[2]-1))});
+                         {AMREX_D_DECL( n_cell[0], n_cell[1], n_cell[2])});
 
         // This defines a Geometry object
         geom.define(domain,&real_box,CoordSys::cartesian,is_periodic.data());
@@ -186,7 +189,6 @@ void main_main ()
 
     // We initialized the interior of the domain (above, we got bx by calling MFIter::validbox())
     // so now we should fill the ghost cells using our periodic boundary conditions in the Geometry object geom.
-    // Don: set Dirichlet BCs to 0, try FOEXTRAP?
     lattice_old.FillBoundary(geom.periodicity());
     FillDomainBoundary(lattice_old, geom, lattice_bc);
 
@@ -211,6 +213,13 @@ void main_main ()
 
     for (int n = 1; n <= nsteps; ++n)
     {
+        // if we set a random seed to use, then reinitialize the random number generator with it
+        if (nrrb_parm.seed_run != -1)
+        {
+            Print() << "got seed_run = " << nrrb_parm.seed_run << std::endl;
+            amrex::ResetRandomSeed(nrrb_parm.seed_run);
+        }
+
         MultiFab::Copy(lattice_old, lattice_new, 0, 0, Ncomp, Nghost);
 
         // make this return source term
