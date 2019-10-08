@@ -7,6 +7,9 @@ nrrb.dtau = 0.05
 nrrb.mu = -0.1
 nrrb.eps = 0.01
 
+# Set a seed for the random number generator
+nrrb.seed = -1
+
 # Domain Size and Grid Decomposition
 n_cell = 21 21 80
 max_grid_size = 32

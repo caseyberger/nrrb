@@ -44,6 +44,7 @@ void main_main ()
         Real dtau;
         Real mu;
         Real eps;
+        int seed;
     };
 
     NRRBParameters nrrb_parm;
@@ -54,6 +55,7 @@ void main_main ()
     nrrb_parm.dtau = 0.0;
     nrrb_parm.mu = 0.0;
     nrrb_parm.eps = 0.0;
+    nrrb_parm.seed = -1;
 
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
@@ -88,6 +90,14 @@ void main_main ()
         pp_nrrb.get("dtau", nrrb_parm.dtau);
         pp_nrrb.get("mu", nrrb_parm.mu);
         pp_nrrb.get("eps", nrrb_parm.eps);
+        pp_nrrb.query("seed", nrrb_parm.seed);
+    }
+
+    // if we set a random seed to use, then reinitialize the random number generator with it
+    if (nrrb_parm.seed != -1)
+    {
+        Print() << "got seed = " << nrrb_parm.seed << std::endl;
+        amrex::ResetRandomSeed(nrrb_parm.seed);
     }
 
     // make BoxArray and Geometry
