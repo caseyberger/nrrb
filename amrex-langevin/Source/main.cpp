@@ -3,6 +3,7 @@
 #include <AMReX_Print.H>
 #include <AMReX_BC_TYPES.H>
 #include <AMReX_BCRec.H>
+#include <AMReX_BCUtil.H>
 #include "Langevin.H"
 
 using namespace amrex;
@@ -32,8 +33,8 @@ void main_main ()
     int max_grid_size, nsteps, plot_int;
     Vector<int> n_cell(AMREX_SPACEDIM, 1);
     Vector<int> is_periodic(AMREX_SPACEDIM, 1);     // periodic in all direction by default
-    Vector<int> domain_lo_bc_type(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
-    Vector<int> domain_hi_bc_type(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
+    Vector<int> domain_lo_bc_types(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
+    Vector<int> domain_hi_bc_types(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
 
     struct NRRBParameters {
         Real m;
@@ -76,8 +77,8 @@ void main_main ()
         pp.query("nsteps",nsteps);
 
         pp.queryarr("is_periodic", is_periodic);
-        pp.queryarr("domain_lo_bc_type", domain_lo_bc_type);
-        pp.queryarr("domain_hi_bc_type", domain_hi_bc_type);
+        pp.queryarr("domain_lo_bc_types", domain_lo_bc_types);
+        pp.queryarr("domain_hi_bc_types", domain_hi_bc_types);
 
         ParmParse pp_nrrb("nrrb");
         pp_nrrb.get("m", nrrb_parm.m);
@@ -137,8 +138,8 @@ void main_main ()
             }
             else
             {
-                lattice_bc[n].setLo(i, domain_lo_bc_type[i]);
-                lattice_bc[n].setHi(i, domain_hi_bc_type[i]);
+                lattice_bc[n].setLo(i, domain_lo_bc_types[i]);
+                lattice_bc[n].setHi(i, domain_hi_bc_types[i]);
             }
         }
     }
@@ -170,6 +171,7 @@ void main_main ()
     // so now we should fill the ghost cells using our periodic boundary conditions in the Geometry object geom.
     // Don: set Dirichlet BCs to 0, try FOEXTRAP?
     lattice_old.FillBoundary(geom.periodicity());
+    FillDomainBoundary(lattice_old, geom, lattice_bc);
 
     // AMReX also provides high-level MultiFab operations like Copy
     // Here we copy Ncomp components from lattice_old to lattice_new
@@ -215,6 +217,7 @@ void main_main ()
 
         // fill ghost cells
         lattice_new.FillBoundary(geom.periodicity());
+        FillDomainBoundary(lattice_new, geom, lattice_bc);
 
         // Calculate observables WITH THE NEW LATTICE
         /*
