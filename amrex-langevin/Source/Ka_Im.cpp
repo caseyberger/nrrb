@@ -1,4 +1,7 @@
-#include "Langevin_evolution.h"
+#include "Langevin.H"
+
+using namespace amrex;
+
 /*
 Defines the function that evolves the lattice in Langevin time, as well as the real and imaginary
 drift functions, K_a.
@@ -19,9 +22,9 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
     const Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
     const Real dx_cell = geom.CellSize(0);
     const Real dy_cell = geom.CellSize(1);
-    const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo[0]);
-    const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo[1]);
-    const Real r2_cell = (x_cell - x_center)**2 + (y_cell - y_center)**2;
+    const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
+    const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
+    const Real r2_cell = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
 
 	Real Ka = 0.0;
 	//doing -K_{a}^{I} and then returning -Ka at the end for simplicity
@@ -54,14 +57,14 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 		//if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
         if (d == 1)
         {
-            if (!(i == domain_lo[0] || i == domain_hi[0]))
+            if (!(i == domain_lo.x || i == domain_hi.x))
             {
 				Ka += -0.5 * Lattice(i+1,j,t,Field(a,C::Im)) / m;
 				Ka += -0.5 * Lattice(i-1,j,t,Field(a,C::Im)) / m;
             }
         } else if (d == 2)
         {
-            if (!(j == domain_lo[1] || j == domain_hi[1]))
+            if (!(j == domain_lo.y || j == domain_hi.y))
             {
 				Ka += -0.5 * Lattice(i,j+1,t,Field(a,C::Im)) / m;
 				Ka += -0.5 * Lattice(i,j-1,t,Field(a,C::Im)) / m;
@@ -82,45 +85,50 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
     }
 
 #if (AMREX_SPACEDIM == 3)
-		//ROTATIONAL PIECE
-		// w(y-x)\phi_{a}^{R}
-		Ka +=  0.5*w*y * Lattice(i,j,t+1,Field(a,C::Re));
-		Ka += -0.5*w*x * Lattice(i,j,t+1,Field(a,C::Re));
-		Ka +=  0.5*w*y * Lattice(i,j,t-1,Field(a,C::Re));
-		Ka += -0.5*w*x * Lattice(i,j,t-1,Field(a,C::Re));
-		// (w/2) x (\phi_{a,r+y+t}^{R} + \phi_{a,r-y-t}^{R})-(w/2) y (\phi_{a,r+x+t}^{R} + \phi_{a,r-x-t}^{R})
-		//if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
-    if (!(i == domain_lo[0] || i == domain_hi[0]))
+    const Real x = x_cell - x_center;
+    const Real y = y_cell - y_center;
+
+    //ROTATIONAL PIECE
+    // w(y-x)\phi_{a}^{R}
+    Ka +=  0.5*w*y * Lattice(i,j,t+1,Field(a,C::Re));
+    Ka += -0.5*w*x * Lattice(i,j,t+1,Field(a,C::Re));
+    Ka +=  0.5*w*y * Lattice(i,j,t-1,Field(a,C::Re));
+    Ka += -0.5*w*x * Lattice(i,j,t-1,Field(a,C::Re));
+
+    // (w/2) x (\phi_{a,r+y+t}^{R} + \phi_{a,r-y-t}^{R})-(w/2) y (\phi_{a,r+x+t}^{R} + \phi_{a,r-x-t}^{R})
+    //if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
+    if (!(i == domain_lo.x || i == domain_hi.x))
     {
 	    Ka += -0.5*w*y * Lattice(i+1,j,t+1,Field(a,C::Re));
 	    Ka += -0.5*w*y * Lattice(i-1,j,t-1,Field(a,C::Re));
     }
 
-    if (!(j == domain_lo[1] || j == domain_hi[1]))
+    if (!(j == domain_lo.y || j == domain_hi.y))
     {
 	    Ka += 0.5*w*x * Lattice(i,j+1,t+1,Field(a,C::Re));
 	    Ka += 0.5*w*x * Lattice(i,j-1,t-1,Field(a,C::Re));
     }
-		for (int b=1; b<=2; b++){
-		//\eps_{ab} (w/2) (y (\phi_{b,r-x-t}^{I}+\phi_{b,r+x+t}^{I}) - x (\phi_{b,r-y-t}^{I}+\phi_{b,r+y+t}^{I}) )
-			Ka += -0.5*epsilon(a,b)*w*x * Lattice(i,j+1,t+1,Field(b,C::Im));
-			Ka += -0.5*epsilon(a,b)*w*x * Lattice(i,j-1,t-1,Field(b,C::Im));
 
-			Ka +=  0.5*epsilon(a,b)*w*y * Lattice(i-1,j,t-1,Field(b,C::Im));
-			Ka +=  0.5*epsilon(a,b)*w*y * Lattice(i+1,j,t+1,Field(b,C::Im));
+    for (int b=1; b<=2; b++){
+        //\eps_{ab} (w/2) (y (\phi_{b,r-x-t}^{I}+\phi_{b,r+x+t}^{I}) - x (\phi_{b,r-y-t}^{I}+\phi_{b,r+y+t}^{I}) )
+        Ka += -0.5*epsilon(a,b)*w*x * Lattice(i,j+1,t+1,Field(b,C::Im));
+        Ka += -0.5*epsilon(a,b)*w*x * Lattice(i,j-1,t-1,Field(b,C::Im));
 
-			//\eps_{ab} (w/2) (x-y)(\phi_{b,r+t}^{I}+\phi_{b,r-t}^{I})
-			Ka +=  0.5*epsilon(a,b)*w*x * Lattice(i,j,t+1,Field(b,C::Im));
-			Ka +=  0.5*epsilon(a,b)*w*x * Lattice(i,j,t-1,Field(b,C::Im));
+        Ka +=  0.5*epsilon(a,b)*w*y * Lattice(i-1,j,t-1,Field(b,C::Im));
+        Ka +=  0.5*epsilon(a,b)*w*y * Lattice(i+1,j,t+1,Field(b,C::Im));
 
-			Ka += -0.5*epsilon(a,b)*w*y * Lattice(i,j,t+1,Field(b,C::Im));
-			Ka += -0.5*epsilon(a,b)*w*y * Lattice(i,j,t-1,Field(b,C::Im));
-		}
+        //\eps_{ab} (w/2) (x-y)(\phi_{b,r+t}^{I}+\phi_{b,r-t}^{I})
+        Ka +=  0.5*epsilon(a,b)*w*x * Lattice(i,j,t+1,Field(b,C::Im));
+        Ka +=  0.5*epsilon(a,b)*w*x * Lattice(i,j,t-1,Field(b,C::Im));
+
+        Ka += -0.5*epsilon(a,b)*w*y * Lattice(i,j,t+1,Field(b,C::Im));
+        Ka += -0.5*epsilon(a,b)*w*y * Lattice(i,j,t-1,Field(b,C::Im));
+    }
 #endif
-	//last updated 2.20.19
+    //last updated 2.20.19
 
-	//INTERACTION PART OF Ka
-	for (int b=1; b<=2; b++){
+    //INTERACTION PART OF Ka
+    for (int b=1; b<=2; b++){
 		Ka += l * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
 		Ka += l * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
 

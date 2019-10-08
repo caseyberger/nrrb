@@ -1,5 +1,7 @@
 #include "Langevin.H"
 
+using namespace amrex;
+
 /*
    Defines the function that evolves the lattice in Langevin time, as well as the real and imaginary
    drift functions, K_a.
@@ -9,7 +11,7 @@
 */
 
 void Langevin_evolution(Real m, Real l, Real w, Real w_t, Real dtau, Real mu, Real eps,
-                        const amrex::Box& box,
+                        const amrex::Box& box, const int Ncomp,
                         amrex::Array4<amrex::Real> const& Lattice_old,
                         amrex::Array4<amrex::Real> const& Lattice_new,
                         const amrex::GeometryData& geom)

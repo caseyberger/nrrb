@@ -1,7 +1,9 @@
-
 #include <AMReX_PlotFileUtil.H>
 #include <AMReX_ParmParse.H>
 #include <AMReX_Print.H>
+#include <AMReX_BC_TYPES.H>
+#include <AMReX_BCRec.H>
+#include "Langevin.H"
 
 using namespace amrex;
 
@@ -27,10 +29,30 @@ void main_main ()
     Real strt_time = amrex::second();
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size, nsteps, plot_int;
+    int max_grid_size, nsteps, plot_int;
+    Vector<int> n_cell(AMREX_SPACEDIM, 1);
     Vector<int> is_periodic(AMREX_SPACEDIM, 1);     // periodic in all direction by default
     Vector<int> domain_lo_bc_type(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
     Vector<int> domain_hi_bc_type(AMREX_SPACEDIM, BCType::int_dir);  // for periodic BC by default
+
+    struct NRRBParameters {
+        Real m;
+        Real l;
+        Real w;
+        Real w_t;
+        Real dtau;
+        Real mu;
+        Real eps;
+    };
+
+    NRRBParameters nrrb_parm;
+    nrrb_parm.m = 1.0;
+    nrrb_parm.l = 0.0;
+    nrrb_parm.w = 0.0;
+    nrrb_parm.w_t = 0.0;
+    nrrb_parm.dtau = 0.0;
+    nrrb_parm.mu = 0.0;
+    nrrb_parm.eps = 0.0;
 
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
@@ -39,7 +61,7 @@ void main_main ()
 
         // We need to get n_cell from the inputs file - this is the number of cells on each side of
         //   a square (or cubic) domain.
-        pp.get("n_cell",n_cell);
+        pp.getarr("n_cell",n_cell);
 
         // The domain is broken into boxes of size max_grid_size
         pp.get("max_grid_size",max_grid_size);
@@ -56,6 +78,15 @@ void main_main ()
         pp.queryarr("is_periodic", is_periodic);
         pp.queryarr("domain_lo_bc_type", domain_lo_bc_type);
         pp.queryarr("domain_hi_bc_type", domain_hi_bc_type);
+
+        ParmParse pp_nrrb("nrrb");
+        pp_nrrb.get("m", nrrb_parm.m);
+        pp_nrrb.get("l", nrrb_parm.l);
+        pp_nrrb.get("w", nrrb_parm.w);
+        pp_nrrb.get("w_t", nrrb_parm.w_t);
+        pp_nrrb.get("dtau", nrrb_parm.dtau);
+        pp_nrrb.get("mu", nrrb_parm.mu);
+        pp_nrrb.get("eps", nrrb_parm.eps);
     }
 
     // make BoxArray and Geometry
@@ -63,7 +94,7 @@ void main_main ()
     Geometry geom;
     {
         IntVect dom_lo(AMREX_D_DECL(       0,        0,        0));
-        IntVect dom_hi(AMREX_D_DECL(n_cell-1, n_cell-1, n_cell-1));
+        IntVect dom_hi(AMREX_D_DECL(n_cell[0]-1, n_cell[1]-1, n_cell[2]-1));
         Box domain(dom_lo, dom_hi);
 
         // Initialize the boxarray "ba" from the single box "bx"
@@ -73,7 +104,7 @@ void main_main ()
 
         // This defines the physical box, [-1,1] in each direction.
         RealBox real_box({AMREX_D_DECL( 0.0, 0.0, 0.0)},
-                         {AMREX_D_DECL( 1.0*(n_cell-1), 1.0*(n_cell-1), 1.0*(n_cell-1))});
+                         {AMREX_D_DECL( 1.0*(n_cell[0]-1), 1.0*(n_cell[1]-1), 1.0*(n_cell[2]-1))});
 
         // This defines a Geometry object
         geom.define(domain,&real_box,CoordSys::cartesian,is_periodic.data());
@@ -148,7 +179,7 @@ void main_main ()
     amrex::Print() << "Fields initialized" << std::endl;
 
     // time = starting time in the simulation
-    Real time = 0.0;
+    Real Ltime = 0.0;
 
     // To check our initialization, we can write out plotfiles ...
     // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
@@ -156,14 +187,8 @@ void main_main ()
     {
         int n = 0;
         const std::string& pltfile = amrex::Concatenate("plt",n,5);
-        WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, time, 0);
+        WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
     }
-
-    Real m = 0.0;
-    Real l = 0.0;
-    Real w = 0.0;
-    Real w_t = 0.0;
-    Real dtau = 0.0;
 
     for (int n = 1; n <= nsteps; ++n)
     {
@@ -183,13 +208,15 @@ void main_main ()
             Array4<Real> const& L_old = lattice_old.array(mfi);
             Array4<Real> const& L_new = lattice_new.array(mfi);
 
-            Langevin_evolution(m, l, w, w_t, dtau, mu, eps, lattice_old, lattice_new, geom);
+            Langevin_evolution(nrrb_parm.m, nrrb_parm.l, nrrb_parm.w, nrrb_parm.w_t,
+                               nrrb_parm.dtau, nrrb_parm.mu, nrrb_parm.eps,
+                               bx, Ncomp, L_old, L_new, geom.data());
         }
 
         // fill ghost cells
         lattice_new.FillBoundary(geom.periodicity());
 
-        // Calculate observables
+        // Calculate observables WITH THE NEW LATTICE
         /*
         if (n % autocorrelation_step == 0) {
         for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
@@ -204,7 +231,7 @@ void main_main ()
         }
         */
 
-        time = time + dt;
+        Ltime = Ltime + nrrb_parm.eps;
 
         // Tell the I/O Processor to write out which step we're doing
         amrex::Print() << "Advanced step " << n << "\n";
@@ -213,7 +240,7 @@ void main_main ()
         if (plot_int > 0 && n%plot_int == 0)
         {
             const std::string& pltfile = amrex::Concatenate("plt",n,5);
-            WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, time, 0);
+            WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
         }
     }
 

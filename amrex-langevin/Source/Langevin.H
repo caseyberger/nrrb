@@ -1,4 +1,9 @@
 #include <math.h>
+#include <AMReX_REAL.H>
+#include <AMReX_Box.H>
+#include <AMReX_Geometry.H>
+#include <AMReX_Array4.H>
+#include <AMReX_Utility.H>
 
 #ifndef LANGEVIN_H
 #define LANGEVIN_H
@@ -6,21 +11,23 @@
 enum class C { Re = 0, Im };
 
 AMREX_INLINE
-int Field(int a, Complex complex_type) {
-    // Don: assert a = 1 or 2
+int Field(int a, C complex_type) {
     if (a == 1) {
-        if (complex_type == Complex::Re)
+        if (complex_type == C::Re)
             return 0;
         else
             return 1;
     }
     else if (a == 2) {
-        if (complex_type == Complex::Re)
+        if (complex_type == C::Re)
             return 2;
         else
             return 3;
     }
-    else return -1;
+    else {
+        amrex::Error("Field() received a != 1 or 2.");
+        return -1;
+    }
 }
 
 //ANTI-SYMMETRIC TENSOR
@@ -33,8 +40,8 @@ amrex::Real epsilon(int a, int b){
 }
 
 void Langevin_evolution(amrex::Real m, amrex::Real l, amrex::Real w, amrex::Real w_t, amrex::Real dtau, amrex::Real mu, amrex::Real eps,
-        const amrex::Box& box,
-        amrex::Array4<amrex::Real> const& Lattice_old,
+                        const amrex::Box& box, const int Ncomp,
+                        amrex::Array4<amrex::Real> const& Lattice_old,
                         amrex::Array4<amrex::Real> const& Lattice_new,
                         const amrex::GeometryData& geom);
 
