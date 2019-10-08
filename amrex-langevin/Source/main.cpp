@@ -66,6 +66,8 @@ void main_main ()
     nrrb_parm.seed_init = -1;
     nrrb_parm.seed_run = -1;
 
+    int autocorrelation_step = 1;
+
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -86,6 +88,7 @@ void main_main ()
         // Default nsteps to 10, allow us to set it to something else in the inputs file
         nsteps = 10;
         pp.query("nsteps",nsteps);
+        pp.query("autocorrelation_step", autocorrelation_step);
 
         pp.queryarr("is_periodic", is_periodic);
         pp.queryarr("domain_lo_bc_types", domain_lo_bc_types);
@@ -246,19 +249,18 @@ void main_main ()
         FillDomainBoundary(lattice_new, geom, lattice_bc);
 
         // Calculate observables WITH THE NEW LATTICE
-        /*
         if (n % autocorrelation_step == 0) {
-        for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
-        {
-            // This gets the index bounding box corresponding to the current MFIter object mfi.
-            const Box& bx = mfi.validbox();
-// This gets an Array4, a light wrapper for the underlying data that mfi points to.  The Array4 object provides accessor functions so it can be treated like a 4-D array with dimensions (x, y, z, component).
-            Array4<Real> const& L_new = lattice_new.array(mfi);
+            for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
+            {
+                // This gets the index bounding box corresponding to the current MFIter object mfi.
+                const Box& bx = mfi.validbox();
+                // This gets an Array4, a light wrapper for the underlying data that mfi points to.  The Array4 object provides accessor functions so it can be treated like a 4-D array with dimensions (x, y, z, component).
+                Array4<Real> const& L_new = lattice_new.array(mfi);
 
-            // Calculate_observables(m, l, w, w_t, dtau, mu, eps, lattice_old, lattice_new, geom);
+                std::string test_file = "test.log";
+                compute_observables(nrrb_parm.m, nrrb_parm.l, nrrb_parm.w, nrrb_parm.w_t, nrrb_parm.dtau, nrrb_parm.mu, n, 0.0, test_file, bx, Ncomp, L_new, geom.data());
+            }
         }
-        }
-        */
 
         Ltime = Ltime + nrrb_parm.eps;
 

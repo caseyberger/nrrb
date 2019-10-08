@@ -1,4 +1,5 @@
 #include "Langevin.H"
+#include <iomanip>
 
 using namespace amrex;
 
@@ -16,7 +17,7 @@ mu = dtau*mu; m = m/dtau; w = dtau*w; wtr = dtau* wtr; l = dtau*l;
 void compute_observables(double m, double l, double w, double w_t, double dtau, double mu, int nL,
 						double delta_t, std::string filename,
 						const amrex::Box& box, const int Ncomp, 
-                        amrex::Array4<amrex::Real> const& Lattice_new,
+                        amrex::Array4<amrex::Real> const& Lattice,
                         const amrex::GeometryData& geom){
 	//n is number of steps in Langevin time
 	std::ofstream logfile;
@@ -30,7 +31,7 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 
 	//create logfile for density profiles
 	std::fstream dpfile;
-	std::string dp_filename = "dp_"+logfilename.substr(8);
+	std::string dp_filename = "dp_"+filename.substr(8);
 	dpfile.open(dp_filename, std::fstream::app);
 
 	//Initialize observable variables
@@ -40,6 +41,8 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 	double phisqIm = 0.;
 	double LzRe = 0.;
 	double LzIm = 0.;
+    double S_Re = 0.;
+    double S_Im = 0.;
 
 	//modify parameters by dtau
 	mu = dtau*mu;
@@ -58,14 +61,15 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
     const Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
     const Real dx_cell = geom.CellSize(0);
     const Real dy_cell = geom.CellSize(1);
-    const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
-    const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
-    const Real r2 = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
 
 	//loop over lattice
 	for (int j = lo.y; j <= hi.y; ++j){
 		for (int i = lo.x; i <= hi.x; ++i){
-			//density profiles are averaged over time loop only
+            const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
+            const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
+            const Real r2 = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
+
+            //density profiles are averaged over time loop only
 			double dpRe = 0.;
 			double dpIm = 0.;
             for (int t = lo.z; t <= hi.z; ++t){
@@ -98,7 +102,7 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 				for (int a = 1; a <=2; a++){//loop over a
 					//real sum over a only
 					LzRe += 0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Im));
-					LzRe += 0.5 * x * Lattice(i,j,t,Field(a,C::Im)) Lattice(i,j-1,t-1,Field(a,C::Re));
+					LzRe += 0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Re));
 					LzRe += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Im));
 					LzRe += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Re));
 					LzRe += y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
@@ -106,7 +110,7 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 					//imaginary sum over a only
 					LzIm += -0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Re));
 					LzIm += 0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Im ));
-					LzIm += 0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Re))
+					LzIm += 0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Re));
 					LzIm += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Im));
 					LzIm += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
 					LzIm += 0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
@@ -127,9 +131,6 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 				}//loop over a for Lz
 			#endif
 				
-				//Action
-				double S_Re = 0.;
-				double S_Im = 0.;
 				/*
 				//Stau
 				for (int a =1; a<=2; a++){
@@ -299,7 +300,7 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 	*/
 
 	//save values to file
-	logfile << std::setw(6) << std::left << n << ' ';
+	logfile << std::setw(6) << std::left << nL << ' ';
 	logfile << std::setw(19) << std::left << phisqRe/volume << ' ';
 	logfile << std::setw(19) << std::left << phisqIm/volume << ' ';
 	logfile << std::setw(19) << std::left << densRe/volume << ' ';
@@ -311,9 +312,6 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 	logfile << std::setw(11) << std::left << delta_t << std::endl;		
 
 	logfile.close();
-	clock_t Obs_f = clock();
-	double Observable_time = float(Obs_f - Obs_0)/CLOCKS_PER_SEC;
-	std::cout << "Time spent calculating Observables = " << Observable_time << std::endl;
 }
 
 /*void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename){
