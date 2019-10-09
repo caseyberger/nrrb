@@ -1,4 +1,5 @@
 #include "Langevin.H"
+#include "AMReX_Print.H"
 #include <iomanip>
 
 using namespace amrex;
@@ -27,7 +28,10 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
     const auto hi = amrex::ubound(box);
 
 	long int volume = box.volume();
+	Print() << "in Observables" << std::endl;
+	Print() << "volume = " << volume << std::endl;
 	long int Nt = box.length(2);
+	Print() << "Nt = " << Nt << std::endl;
 
 	//create logfile for density profiles
 	std::fstream dpfile;
@@ -73,8 +77,13 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 			double dpRe = 0.;
 			double dpIm = 0.;
             for (int t = lo.z; t <= hi.z; ++t){
-				for (int a = 1; a <=2; a++){
-					for (int b = 1; b <=2; b++){	
+                for (int a = 1; a <=2; a++){
+                    //Field modulus squared
+                    phisqRe += 0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
+                    phisqRe += -0.5 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
+                    phisqIm += Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
+
+                    for (int b = 1; b <=2; b++){
 						//Density
 						dpRe += delta(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
 						dpRe += -delta(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
@@ -84,16 +93,9 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 						dpIm += delta(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
 						dpIm += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
 						dpIm += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
-						
-						//Field modulus squared
-						phisqRe += 0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
-						phisqRe += -0.5 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
-						phisqIm += Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
-						
-
 					}//loop over b = 1,2
 				}//loop over a = 1,2
-			
+
 			//Angular momentum
 			#if (AMREX_SPACEDIM == 3)
 				//define x and y
@@ -271,18 +273,18 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 						S_Im += -0.5*l*epsilon(a,b)*(phia[1]*phia[0]*phia_mt[0]*phib_mt[1] + phia[1]*phia[0]*phia_mt[1]*phib_mt[0]);
 					}//loop over b
 				}//loop over a (for the Action) */
-			}//loop over t
-			dpRe = 0.5*exp(mu)*dpRe/(1.0*Nt);
-			dpIm = 0.5*exp(mu)*dpIm/(1.0*Nt);
+            }//loop over t
+			dpRe = 0.5*exp(mu)*dpRe;
+			dpIm = 0.5*exp(mu)*dpIm;
 			//add local density to avg density variables
 			densRe += dpRe;
 			densIm += dpIm;
 			//write dp to logfile
 			if (dpIm < 0){
-				dpfile << "(" << dpRe << dpIm << "j)" << ",";
+				dpfile << "(" << dpRe/(1.0*Nt) << dpIm/(1.0*Nt) << "j)" << ",";
 				}
 			else{
-				dpfile << "(" << dpRe << "+" << dpIm << "j)" << ",";
+				dpfile << "(" << dpRe/(1.0*Nt) << "+" << dpIm/(1.0*Nt) << "j)" << ",";
 				}		
 		}//loop over x
 	}//loop over y
