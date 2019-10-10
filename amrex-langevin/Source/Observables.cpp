@@ -11,10 +11,10 @@ don't forget to modify mu, m, w, wtr, and l by dtau if they appear in observable
 mu = dtau*mu; m = m/dtau; w = dtau*w; wtr = dtau* wtr; l = dtau*l;
 */
 //void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename);
-double S_tau_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice);
-double S_tau_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice);
-double S_del_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice);
-double S_del_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice);
+double S_tau_Re(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice);
+double S_tau_Im(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice);
+double S_del_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom);
+double S_del_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom);
 double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice);
 double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice);
 double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<amrex::Real> const& Lattice);
@@ -146,9 +146,9 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 					//S_tau 
 					S_Re += S_tau_Re(i,j,t,a,Lattice);
 					S_Im += S_tau_Im(i,j,t,a,Lattice);
-					//S_del
-					S_Re += S_del_Re(i,j,t,a,Lattice);
-					S_Im += S_del_Im(i,j,t,a,Lattice);
+					//S_del 
+					S_Re += S_del_Re(i,j,t,a,m,Lattice,geom);
+					S_Im += S_del_Im(i,j,t,a,m,Lattice,geom);
 					//S_trap
 					S_Re += S_trap_Re(i,j,t,a,w_t,r2,Lattice);
 					S_Im += S_trap_Im(i,j,t,a,w_t,r2,Lattice);
@@ -232,8 +232,11 @@ double S_tau_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Latti
 	return S_Im;
 }
 
-double S_del_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice){
-	double S_Re = 0.;
+double S_del_Re(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom){
+	const auto domain_box = geom.Domain();
+    const auto domain_lo = amrex::lbound(domain_box);
+    const auto domain_hi = amrex::ubound(domain_box);
+    double S_Re = 0.;
 	S_Re += 0.5*m*(AMREX_SPACEDIM -1)*Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t,Field(a,C::Re)) ;
 	S_Re += -0.5*m*(AMREX_SPACEDIM -1)*Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j,t,Field(a,C::Im)) ;
 	for (int d = 1; d <= AMREX_SPACEDIM-1; d++) { //loop over adjacent spatial sites!
@@ -275,8 +278,11 @@ double S_del_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Latti
 	return S_Re;
 }
 
-double S_del_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice){
-	double S_Im = 0.;
+double S_del_Im(int i,int j,int t,int a, double m, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom){
+	const auto domain_box = geom.Domain();
+    const auto domain_lo = amrex::lbound(domain_box);
+    const auto domain_hi = amrex::ubound(domain_box);
+    double S_Im = 0.;
 	S_Im += m*(AMREX_SPACEDIM -1)*Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t,Field(a,C::Im)) ;
 	for (int d = 1; d <= AMREX_SPACEDIM-1; d++) { //loop over adjacent spatial sites!
 		//if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
