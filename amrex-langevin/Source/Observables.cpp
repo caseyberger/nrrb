@@ -11,9 +11,8 @@ don't forget to modify mu, m, w, wtr, and l by dtau if they appear in observable
 mu = dtau*mu; m = m/dtau; w = dtau*w; wtr = dtau* wtr; l = dtau*l;
 */
 //void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename);
-//double Theta(double *** Lattice, int i, int t);
-//bool loop_is_on_lattice(int Nx, int Nt, int x, int y, int length);
-//void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int length, std::string logfilename);
+void Circulation(amrex::Array4<amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom, 
+			long int Nt, int radius, std::string filename);
 
 void compute_observables(double m, double l, double w, double w_t, double dtau, double mu, int nL,
 						double delta_t, std::string filename,
@@ -132,7 +131,7 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 					}//loop over b for Lz
 				}//loop over a for Lz
 			#endif
-				
+				//ACTION
 				/*
 				//Stau
 				for (int a =1; a<=2; a++){
@@ -295,11 +294,10 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 	//Equal_Time_Correlators(Lattice, size, Nx, Nt, filename);
 	
 	//std::cout << "Lz successfully computed: Lz = " << Lz[0] << " + i" << Lz[1] << std::endl;
-	/*
-	Circulation(Lattice,size,Nx,Nt,dim,2,filename);
-	Circulation(Lattice,size,Nx,Nt,dim,4,filename);
-	Circulation(Lattice,size,Nx,Nt,dim,Nx-2,filename);
-	*/
+	//compute circulation
+	long int Nx = box.length(0);
+	Circulation(Lattice, box, geom, Nt, Nx/4, filename);
+	Circulation(Lattice, box, geom, Nt, Nx/2 - 1, filename);
 
 	//save values to file
 	logfile << std::setw(6) << std::left << nL << ' ';
@@ -371,113 +369,72 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 	Gfile.close();
 	G2file.close();
 }//updated 2.1.19
-
-
-double Theta(double *** Lattice, int i, int t){
-	//compute the phase at point x,t
-	double theta = 0.0;
-	bool new_lat = true;
-	std::vector<double> phi_1= phi_a(Lattice,i,t,1,new_lat);
-	double phi_1_Re = phi_1[0];
-	double phi_1_Im = phi_1[1];
-	std::vector<double> phi_2 = phi_a(Lattice,i,t,2,new_lat);
-	double phi_2_Re = phi_2[0];
-	double phi_2_Im = phi_2[1];
-	theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-	return theta;
-}
-
-bool loop_is_on_lattice(int Nx, int Nt, int x, int y, int length){
-	//check that the full l x l loop is contained on the lattice
-	//int x = i%(Nx);
-	//int y = ((i - x)/Nx)%Nx;
-	//std::cout << "x,y = " << x << ", " << y << " and Nx = " << Nx << std::endl;
-	//std::cout << "length of loop is " << length << std::endl;
-	if (x + length < Nx){
-		if (y + length < Nx){
-			//std::cout<< "loop is contained on lattice" << std::endl;
-			return true;
-		}
-		else{
-			//std::cout<< "loop is not contained on lattice" << std::endl;
-			return false;
-		}
-	}
-	else{
-		//std::cout<< "loop is not contained on lattice" << std::endl;
-		return false;
-	}
-}
+*/
 
 //NEW VERSION
-void Circulation(double *** Lattice, int size, int Nx, int Nt, int dim, int length,std::string logfilename){
+void Circulation(amrex::Array4<amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom, 
+			long int Nt, int radius, std::string filename){
 	//find the total circulation over the lattice
-	if (dim == 2){
-		std::ofstream circ_file;
-		std::string length_str = std::to_string(length);
-		std::string circ_filename = "Circ_loop_"+length_str+"_"+logfilename.substr(8);
-		circ_file.open(circ_filename, std::fstream::app);
-		int center = Nx/2;
-		int x = center - length/2;
-		int y = center - length/2;
-		int t = Nt/2;
-		circ_file << "center = (" << center << ","<< center << ") and start = (" << x << "," << y << ")";
-		circ_file << std::endl;
-		double loop = 0.0;
-		if (loop_is_on_lattice(Nx, Nt, x, y, length)){
-			int directions[4] = {2,1,-2,-1};	
-			int i = x + Nx*y;		
-			std::vector<int> xvec = {i,t};
-			for (int d=0; d<4; d++){
-				//std::cout << "Loop segment in direction " << directions[d] << std::endl;
-				std::vector<int> xplusj;
-				if (directions[d] > 0){
-					int dir = directions[d];
-					xplusj = positive_step(dim, dir, xvec[0], t, Nx, Nt);
-				}
-				else{
-					int dir = abs(directions[d]);
-					xplusj = negative_step(dim, dir, xvec[0], t, Nx, Nt);
-				}
-				//std::cout << "x = " << x[0] << ", x+j = " << xplusj[0] << std::endl;
-				double theta = Theta(Lattice,xvec[0],t);
-				double theta_j;
-				if (xplusj[0] == 9999){
-					theta_j = 0.;
-				}
-				else{
-					theta_j = Theta(Lattice,xplusj[0],t);
-				}
-				loop += theta_j - theta;
-				for (int j=1; j < length; j++){
-					if (directions[d] > 0){
-						int dir = directions[d];
-						xvec = positive_step(dim, dir, xvec[0], t, Nx, Nt);//move x over 1 along j
-						xplusj = positive_step(dim, dir, xvec[0], t, Nx, Nt);//move x+j accordingly
-					}
-					else{
-						int dir = abs(directions[d]);
-						xvec = negative_step(dim, dir, xvec[0], t, Nx, Nt);//move x over 1 along j
-						xplusj = negative_step(dim, dir, xvec[0], t, Nx, Nt);//move x+j accordingly
-					}
-					//std::cout << "x = " << x[0] << ", x+j = " << xplusj[0] << std::endl;
-					theta = Theta(Lattice,xvec[0],t);
-					if (xplusj[0] == 9999){
-						theta_j = 0.;
-						//std::cout << theta_j << std::endl;
-					}
-					else{
-						theta_j = Theta(Lattice,xplusj[0],t);
-					}
-					loop += theta_j - theta;
-					//std::cout << "theta_{x+j} = " << theta_j << ' ' << "theta_{x} = " << theta << std::endl;
-				}
-			}//loop over direction (1,-2,-1,2)
-			//std::cout << "circulation around one loop = " << loop/(8.*atan(1.)) << std::endl;
-			circ_file << loop/(8.*atan(1.)) << ","; //adding the circulation for one loop to the total circulation
-		}//checking loop is contained within lattice
-		circ_file << std::endl;
-		circ_file.close();
-	}//do nothing if we are not in two dimensions
+	//open circulation file
+	std::ofstream circ_file;
+	std::string r_string = std::to_string(radius);
+	std::string circ_filename = "Circ_loop_"+r_string+"_"+filename.substr(8);
+	circ_file.open(circ_filename, std::fstream::app);
+
+	const auto lo = amrex::lbound(box);
+    const auto hi = amrex::ubound(box);
+
+    const auto domain_xlo = geom.ProbLo();
+    const auto domain_xhi = geom.ProbHi();
+    const auto domain_box = geom.Domain();
+    const auto domain_lo = amrex::lbound(domain_box);
+    const auto domain_hi = amrex::ubound(domain_box);
+    const Real x_center = 0.5 * (domain_xlo[0] + domain_xhi[0]);
+    const Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
+    const Real dx_cell = geom.CellSize(0);
+    const Real dy_cell = geom.CellSize(1);
+
+	//Set coordinates
+	int t = Nt/2;
+	const Real x_left = x_center - radius;
+    const Real y_bottom = y_center - radius;
+    const Real x_right = x_center + radius;
+    const Real y_top = y_center + radius;
+
+	//Print loop center and radius to logfile
+	circ_file << "center = (" << x_center << ","<< y_center << ") and loop radius = " << radius ;
+	circ_file << std::endl;
+
+	//Initialize sum over theta
+	double theta_sum = 0.0;
+
+	//figure out how to pick out i, j for that distance from the center
+	for (int j = lo.y; j <= hi.y; ++j){
+		const Real y = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
+		if (y >= y_bottom && y <= y_top){
+			int i_left = (x_left - domain_xlo[0]) / dx_cell - 0.5 + domain_lo.x;
+			int i_right = (x_right - domain_xlo[0]) / dx_cell - 0.5 + domain_lo.x;
+			//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
+			theta_sum += Lattice(i_left,j,t,Field(1,C::Im)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
+			theta_sum += Lattice(i_left,j,t,Field(2,C::Re)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
+			theta_sum += Lattice(i_right,j,t,Field(1,C::Im)) / (Lattice(i_right,j,t,Field(1,C::Re)) - Lattice(i_right,j,t,Field(2,C::Im)));
+			theta_sum += Lattice(i_right,j,t,Field(2,C::Re)) / (Lattice(i_right,j,t,Field(1,C::Re)) - Lattice(i_right,j,t,Field(2,C::Im)));
+		}
+	}
+	for (int i = lo.x; i <= hi.x; ++i){
+		const Real x = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
+		if (x >= x_left && x <= x_right){
+			int j_top = (y_top - domain_xlo[1]) / dy_cell - 0.5 + domain_lo.y;
+			int j_bottom = (y_bottom - domain_xlo[1]) / dy_cell - 0.5 + domain_lo.y;
+			//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
+			theta_sum += Lattice(i,j_top,t,Field(1,C::Im)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
+			theta_sum += Lattice(i,j_top,t,Field(2,C::Re)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
+			theta_sum += Lattice(i,j_bottom,t,Field(1,C::Im)) / (Lattice(i,j_bottom,t,Field(1,C::Re)) - Lattice(i,j_bottom,t,Field(2,C::Im)));
+			theta_sum += Lattice(i,j_bottom,t,Field(2,C::Re)) / (Lattice(i,j_bottom,t,Field(1,C::Re)) - Lattice(i,j_bottom,t,Field(2,C::Im)));
+		}
+	}
+	//write results to circulation file
+	circ_file << theta_sum/(8.*atan(1.)) << ","; //adding the circulation for one loop to the total circulation
+	circ_file << std::endl;
+	circ_file.close();
 }
-*/
