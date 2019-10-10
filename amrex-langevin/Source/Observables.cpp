@@ -11,10 +11,10 @@ don't forget to modify mu, m, w, wtr, and l by dtau if they appear in observable
 mu = dtau*mu; m = m/dtau; w = dtau*w; wtr = dtau* wtr; l = dtau*l;
 */
 //void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename);
-double S_tau_Re(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice);
-double S_tau_Im(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice);
-double S_del_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom);
-double S_del_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom);
+double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<amrex::Real> const& Lattice);
+double S_tau_Im(int i,int j,int t,int a, double mu,amrex::Array4<amrex::Real> const& Lattice);
+double S_del_Re(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom);
+double S_del_Im(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom);
 double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice);
 double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice);
 double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<amrex::Real> const& Lattice);
@@ -144,8 +144,8 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 				//ACTION
 				for (int a =1; a<=2; a++){
 					//S_tau 
-					S_Re += S_tau_Re(i,j,t,a,Lattice);
-					S_Im += S_tau_Im(i,j,t,a,Lattice);
+					S_Re += S_tau_Re(i,j,t,a,mu,Lattice);
+					S_Im += S_tau_Im(i,j,t,a,mu,Lattice);
 					//S_del 
 					S_Re += S_del_Re(i,j,t,a,m,Lattice,geom);
 					S_Im += S_del_Im(i,j,t,a,m,Lattice,geom);
@@ -207,7 +207,7 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 	logfile.close();
 }
 
-double S_tau_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice){
+double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<amrex::Real> const& Lattice){
 	double S_Re = 0.;
 	S_Re += 0.5 * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t,Field(a,C::Re)) ;
 	S_Re += -0.5 * Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j,t,Field(a,C::Im)) ;
@@ -220,7 +220,7 @@ double S_tau_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Latti
 	return S_Re;
 }
 
-double S_tau_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice){
+double S_tau_Im(int i,int j,int t,int a,double mu, amrex::Array4<amrex::Real> const& Lattice){
 	double S_Im = 0.;
 	S_Im += Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t,Field(a,C::Im)) ;
 	S_Im +=-0.5 * exp(mu) * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t-1,Field(a,C::Im)) ;
