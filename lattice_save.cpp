@@ -40,9 +40,9 @@ void lattice_save(double *** Lattice, int size, int dim, int Nx, int Nt, double 
 				if (dim == 1){
 					int t = j;
 					int x = i%Nx;
-					fout << std::setw(6) << "{" << x << "," << t << "}";
+					fout << std::setw(6) << "{" << x << "," << t << "}" << " ";
 					for (int k = 0; k < 4; k++){
-						fout << std::setw(12) << Lattice[i][j][k];
+						fout << std::setw(12) << Lattice[i][j][k] << " ";
 					}
 					fout << std::endl;
 				}
@@ -50,9 +50,9 @@ void lattice_save(double *** Lattice, int size, int dim, int Nx, int Nt, double 
 					int t = j;
 					int x = i%Nx;
 					int y = ((i - x)/Nx)%Nx;
-					fout << std::setw(4) << "{" << x << "," << y << "," << t << "}";
+					fout << std::setw(4) << "{" << x << "," << y << "," << t << "}" << " ";
 					for (int k = 0; k < 4; k++){
-						fout << std::setw(12) << Lattice[i][j][k];
+						fout << std::setw(12) << Lattice[i][j][k] << " ";
 					}
 					fout << std::endl;
 				}
@@ -61,9 +61,9 @@ void lattice_save(double *** Lattice, int size, int dim, int Nx, int Nt, double 
 					int x = i%Nx;
 					int y = ((i - x)/Nx)%Nx;
 					int z = ((i - x - Nx*y)/(Nx*Nx))%(Nx);
-					fout << std::setw(2) << "{" << x << "," << y << "," << z << "," << t << "}";
+					fout << std::setw(2) << "{" << x << "," << y << "," << z << "," << t << "}" << " ";
 					for (int k = 0; k < 4; k++){
-						fout << std::setw(12) << Lattice[i][j][k];
+						fout << std::setw(12) << Lattice[i][j][k] << " ";
 					}
 					fout << std::endl;
 				}
