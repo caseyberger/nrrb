@@ -15,8 +15,8 @@ double S_tau_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Latti
 double S_tau_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice);
 double S_del_Re(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice);
 double S_del_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Lattice);
-double S_trap_Re(int i,int j,int t,int a, double w_t,r2, amrex::Array4<amrex::Real> const& Lattice);
-double S_trap_Im(int i,int j,int t,int a,double w_t,r2, amrex::Array4<amrex::Real> const& Lattice);
+double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice);
+double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice);
 double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<amrex::Real> const& Lattice);
 double S_w_Im(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<amrex::Real> const& Lattice);
 double S_int_Re(int i,int j,int t,int a,double l, amrex::Array4<amrex::Real> const& Lattice);
@@ -317,7 +317,7 @@ double S_del_Im(int i,int j,int t,int a, amrex::Array4<amrex::Real> const& Latti
 	return S_Im;
 }
 
-double S_trap_Re(int i,int j,int t,int a, double w_t,r2, amrex::Array4<amrex::Real> const& Lattice){
+double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice){
 	double S_Re = 0.;
 	S_Re += 0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t-1,Field(a,C::Re)) ;
 	S_Re += -0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j,t-1,Field(a,C::Im)) ;
@@ -328,7 +328,7 @@ double S_trap_Re(int i,int j,int t,int a, double w_t,r2, amrex::Array4<amrex::Re
 	return S_Re;
 }
 
-double S_trap_Im(int i,int j,int t,int a,double w_t,r2, amrex::Array4<amrex::Real> const& Lattice){
+double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice){
 	double S_Im = 0.;
 	S_Im += 0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t-1,Field(a,C::Im)) ;
 	S_Im += 0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j,t-1,Field(a,C::Re)) ;
