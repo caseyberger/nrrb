@@ -259,13 +259,21 @@ std::vector<double> Average_Lz(double *** Lattice, int size, int Nx, int Nt, int
 				std::vector<int> vy = negative_step(dim, 2, i, t, Nx, Nt);
 				int yn= vy[0];//define a step back in y direction
 				//std::cout << "y, y-1 ="  << yint << " " << ((yn-xint)/Nx)%Nx << std::endl;
-				double x = 1.*xint - 0.5*(Nx+1); //shift x so our rotation is about the center of the lattice
-				double y = 1.*yint - 0.5*(Nx+1); //shift y so our rotation is about the center of the lattice
+				double x = 1.*xint - 0.5*(Nx-1); //shift x so our rotation is about the center of the lattice
+				double y = 1.*yint - 0.5*(Nx-1); //shift y so our rotation is about the center of the lattice
 				//std::cout << "x-Nx/2, y-Nx/2 = "  << x << "," << y << std::endl;
 				for (int a = 1; a <=2; a++){//loop over a
 					std::vector<double> phia = phi_a(Lattice,i,t,a,new_lat);
-					std::vector<double> phia_x = phi_a(Lattice,xn,t,a,new_lat);
-					std::vector<double> phia_y = phi_a(Lattice,yn,t,a,new_lat);
+					// Shift in t as well as x, y using periodic BCs for t
+					std::vector<double> phia_x;
+					std::vector<double> phia_y;
+					if (t==0) {
+						phia_x = phi_a(Lattice,xn,Nt-1,a,new_lat);
+						phia_y = phi_a(Lattice,yn,Nt-1,a,new_lat);
+					} else {
+						phia_x = phi_a(Lattice,xn,t-1,a,new_lat);
+						phia_y = phi_a(Lattice,yn,t-1,a,new_lat);
+					}
 					//real sum over a only
 					LzRe += 0.5*x*phia[0]*phia_y[1]+0.5*x*phia[1]*phia_y[0];
 					LzRe += -0.5*y*phia[0]*phia_x[1]-0.5*y*phia[1]*phia_x[0];
@@ -276,8 +284,16 @@ std::vector<double> Average_Lz(double *** Lattice, int size, int Nx, int Nt, int
 					LzIm += -0.5*y*phia[0]*phia[0]+0.5*y*phia[1]*phia[1];
 					LzIm += 0.5*x*phia[0]*phia[0]-0.5*x*phia[1]*phia[1];
 					for (int b = 1; b <=2; b++){//loop over b
-						std::vector<double> phib_x = phi_a(Lattice,xn,t,b,new_lat);
-						std::vector<double> phib_y = phi_a(Lattice,yn,t,b,new_lat);
+						// Shift in t as well as x, y using periodic BCs for t
+						std::vector<double> phib_x;
+						std::vector<double> phib_y;
+						if (t==0) {
+							phib_x = phi_a(Lattice,xn,Nt-1,b,new_lat);
+							phib_y = phi_a(Lattice,yn,Nt-1,b,new_lat);
+						} else {
+							phib_x = phi_a(Lattice,xn,t-1,b,new_lat);
+							phib_y = phi_a(Lattice,yn,t-1,b,new_lat);
+						}
 						//real sum over a and b
 						LzRe += 0.5*epsilon(a,b)*x*phia[0]*phib_y[0] - 0.5*epsilon(a,b)*x*phia[1]*phib_y[1];
 						LzRe += 0.5*epsilon(a,b)*y*phia[1]*phib_x[1]- 0.5*epsilon(a,b)*y*phia[0]*phib_x[0];
