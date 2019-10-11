@@ -520,12 +520,17 @@ void Circulation(amrex::Array4<amrex::Real> const& Lattice, const amrex::Box& bo
 	//Initialize sum over theta
 	double theta_sum = 0.0;
 
+	//std::cout << "center = (" << x_center << ","<< y_center << ") and loop radius = " << radius << std::endl;
+	//std::cout << "{(i,j)}s = ";
 	//figure out how to pick out i, j for that distance from the center
 	for (int j = lo.y; j <= hi.y; ++j){
 		const Real y = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
 		if (y >= y_bottom && y <= y_top){
 			int i_left = (x_left - domain_xlo[0]) / dx_cell - 0.5 + domain_lo.x;
 			int i_right = (x_right - domain_xlo[0]) / dx_cell - 0.5 + domain_lo.x;
+			//check loop indices
+			//std::cout << "(" << i_left << "," << j << "), ";
+			//std::cout << "(" << i_right << "," << j << "), ";
 			//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
 			theta_sum += Lattice(i_left,j,t,Field(1,C::Im)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
 			theta_sum += Lattice(i_left,j,t,Field(2,C::Re)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
@@ -538,6 +543,9 @@ void Circulation(amrex::Array4<amrex::Real> const& Lattice, const amrex::Box& bo
 		if (x >= x_left && x <= x_right){
 			int j_top = (y_top - domain_xlo[1]) / dy_cell - 0.5 + domain_lo.y;
 			int j_bottom = (y_bottom - domain_xlo[1]) / dy_cell - 0.5 + domain_lo.y;
+			//check loop indices
+			//std::cout << "(" << i << "," << j_top << "), ";
+			//std::cout << "(" << i << "," << j_bottom << "), ";
 			//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
 			theta_sum += Lattice(i,j_top,t,Field(1,C::Im)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
 			theta_sum += Lattice(i,j_top,t,Field(2,C::Re)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
