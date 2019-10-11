@@ -36,6 +36,8 @@ $ main3d.gnu.ex inputs nrrb.l=0.5
 
 # Verification
 
+## Plotfiles
+
 `Langevin-Compare.py` can be used to write out cell values from an AMReX plotfile
 and also calculate the infinity or L2 norms between cell values in an AMReX
 plotfile and a lattice save file from the original NRRB code.
@@ -83,4 +85,22 @@ Comparing plt00000 to ../../field_configs/v4_mu_-0.100_w_0.100_Nx_21_nL_0_field_
  phi_1_Im   0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
  phi_2_Re   0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
  phi_2_Im   0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
+```
+
+## Observables
+
+`observables-compare.py` takes an AMReX observable file (`-a` flag) and an original observable file to compare (`-c` flag)
+and prints out the absolute and relative error norms for each observable, e.g.:
+
+```
+$ python3 observables-compare.py -a test.log -c ../../logfile_D_2_Nx_21_Nt_80_dt_0.05_nL_10_eps_0.01_m_1.0_wtr_0.10_w_0.1_l_0.100_mu_-0.100.log
+Comparing test.log to ../../logfile_D_2_Nx_21_Nt_80_dt_0.05_nL_10_eps_0.01_m_1.0_wtr_0.10_w_0.1_l_0.100_mu_-0.100.log ...
+  Observable       Abs Inf Norm   Rel Inf Norm   Abs L2 Norm    Rel L2 Norm
+ Re[phi^{*}phi]    0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
+ Im[phi^{*}phi]    0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
+ Re[<n>]           0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
+ Im[<n>]           0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
+ Re[<Lz>]          3.189200e-02   3.008104e+00   5.126316e-02   4.326049e+00
+ Im[<Lz>]          2.984680e-02   4.727911e-01   7.208607e-02   1.210221e+00
+ Re[<S>]           7.300000e-03   1.217695e-03   1.203818e-02   1.253478e-03
 ```
