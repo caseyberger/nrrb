@@ -22,8 +22,19 @@ void Langevin_evolution(Real m, Real l, Real w, Real w_t, Real dtau, Real mu, Re
     for (int j = lo.y; j <= hi.y; ++j) {
         for (int i = lo.x; i <= hi.x; ++i) {
             for (int t = lo.z; t <= hi.z; ++t) {
+
+#ifdef TEST_CONSTANT_RNG
+                Real eta_1 = 1.0;
+                Real eta_2 = 1.0;
+#else
+#ifdef TEST_UNIFORM_RNG
+                Real eta_1 = 2.0 * Random() - 1.0;
+                Real eta_1 = 2.0 * Random() - 1.0;
+#else
                 Real eta_1 = RandomNormal(0.0, sqrt(2.0));
                 Real eta_2 = RandomNormal(0.0, sqrt(2.0));
+#endif
+#endif
 
                 //phi1_Re
                 Lattice_new(i,j,t,0) = Lattice_old(i,j,t,0) + eps * K_a_Re(m,l,w,w_t,1,dtau,mu,Lattice_old,geom,i,j,t)  + sqrt(eps) * eta_1;
