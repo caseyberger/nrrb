@@ -29,34 +29,39 @@ std::vector<double> phi_a(double *** Lattice, int i, int t, int a, bool new_lat)
 void test_step_functions(double *** Lattice, int size, int dim, int Nx, int Nt);
 
 void Langevin_evolution(double m, double l, double w, double w_t, double dtau, double *** Lattice, int size, int dim, int Nx, int Nt, double mu, double eps){
-	//std::default_random_engine generator;
 	double random_num_gen_time = 0.;
 	double Langevin_calc_time = 0.;
 	double Lattice_update_time = 0.;
-	//std::random_device rd;
-	//std::mt19937 mt(rd());
+
+#ifdef TEST_SEED_RNG
 	int seed = 61;
 	std::mt19937 generator(seed);
-	//evolve the lattice using the old lattice copy
-	//#pragma omp parallel
-	//#pragma omp for collapse(2)
-	//std::normal_distribution<double> noise1(0.,sqrt(2.));
-	//std::uniform_real_distribution<double> noise1(0.,1.);
-	//noise1.reset();
-	//for (int num = 0; num < 10; num++){	
-	//	double eta_1 = noise1(generator);
-	//	std::cout << eta_1 << std::endl;
-	//}
+#else
+    //std::default_random_engine generator;
+	std::random_device rd;
+	std::mt19937 generator(rd());
+#endif
 
+	//evolve the lattice using the old lattice copy
+	#pragma omp parallel
+	#pragma omp for collapse(2)
 	for(int i = 0; i<size; i++){
 		for (int t = 0; t<Nt;t++){
 			clock_t rn_0 = clock();
-			//std::normal_distribution<double> noise1(0.,sqrt(2.));
-			//std::normal_distribution<double> noise2(0.,sqrt(2.));
+#ifdef TEST_CONSTANT_RNG
+			double eta_1 = 1.0;
+			double eta_2 = 1.0;
+#else
+#ifdef TEST_UNIFORM_RNG
 			std::uniform_real_distribution<double> noise1(-1.,1.);
 			std::uniform_real_distribution<double> noise2(-1.,1.);
+#else
+			std::normal_distribution<double> noise1(0.,sqrt(2.));
+			std::normal_distribution<double> noise2(0.,sqrt(2.));
+#endif
 			double eta_1 = noise1(generator);
 			double eta_2 = noise2(generator);
+#endif
 			clock_t rn_f = clock();
 			random_num_gen_time += float(rn_f - rn_0)/CLOCKS_PER_SEC;
 			clock_t CL_0 = clock();
