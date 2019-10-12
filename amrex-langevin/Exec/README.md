@@ -19,6 +19,12 @@ Even though this is a pretty short `make` rule to delete the temporary build fil
 `AMREX_HOME` still needs to be defined since all the make rules are defined
 within AMReX.
 
+Passing `USE_MPI=TRUE` to `make` will compile the code with MPI enabled.
+
+```
+$ make -j [N] AMREX_HOME=[path to the amrex repository directory] USE_MPI=TRUE
+```
+
 # Running
 
 The AMReX example can be run by executing the "main[...].ex" executable file
@@ -103,4 +109,42 @@ Comparing test.log to ../../logfile_D_2_Nx_21_Nt_80_dt_0.05_nL_10_eps_0.01_m_1.0
  Re[<Lz>]          3.189200e-02   3.008104e+00   5.126316e-02   4.326049e+00
  Im[<Lz>]          2.984680e-02   4.727911e-01   7.208607e-02   1.210221e+00
  Re[<S>]           7.300000e-03   1.217695e-03   1.203818e-02   1.253478e-03
+```
+
+## MPI
+
+To compare the AMReX version with MPI enabled with the serial version of the original code,
+the random numbers generated in the initialization and advance are replaced with 1.0.
+
+The reason for this is that if we were to set a constant seed for the random number generators
+each MPI rank would use that seed for its part of the domain. We would have to map the boxes
+owned by each MPI rank to the parts of the domain in the original code and reset the
+random number generator there separately for each sub-domain.
+
+Since the arithmetic operations to do the advance don't change depending on
+exactly which random numbers are generated, replacing the random numbers with a constant
+makes this comparison very easy.
+
+Passing the `USE_TEST_CONSTANT_RNG=TRUE` flag to `make` for both the AMReX and original versions
+of the code will replace all random numbers with 1.0.
+
+For the AMReX version with MPI, I tested with the inputs in `inputs_mpi_test` with 4 MPI ranks where
+the domain is divided into boxes no larger than `8x8x8` by setting `max_grid_size = 8`.
+
+Here are the field norms for the 10th plotfiles for each version of the code,
+showing we get exactly the same field values in each case:
+
+```
+$ python3 Langevin-Compare.py mpi-4-constrng-grid8/plt00010 -c ../../field_configs/v4_mu_-0.100_w_0.100_Nx_21_nL_10_field_config.txt -csf 6
+yt : [INFO     ] 2019-10-11 17:09:04,702 Parameters: current_time              = 0.09999999999999999
+yt : [INFO     ] 2019-10-11 17:09:04,702 Parameters: domain_dimensions         = [21 21 80]
+yt : [INFO     ] 2019-10-11 17:09:04,702 Parameters: domain_left_edge          = [0. 0. 0.]
+yt : [INFO     ] 2019-10-11 17:09:04,702 Parameters: domain_right_edge         = [21. 21. 80.]
+Comparing mpi-4-constrng-grid8/plt00010 to ../../field_configs/v4_mu_-0.100_w_0.100_Nx_21_nL_10_field_config.txt ...
+ (Field values in AMReX plotfile rounded to 6 significant figures for the comparison)
+   field     Abs Inf Norm   Rel Inf Norm   Abs L2 Norm    Rel L2 Norm
+  phi_1_Re   0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
+  phi_1_Im   0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
+  phi_2_Re   0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
+  phi_2_Im   0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
 ```
