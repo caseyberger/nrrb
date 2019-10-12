@@ -186,7 +186,11 @@ void main_main ()
         Array4<Real> const& L_old = lattice_old.array(mfi);
 
         ParallelFor(bx, Ncomp, [=](int i, int j, int k, int n) {
+#ifdef TEST_CONSTANT_RNG
+            L_old(i, j, k, n) = 1.0;
+#else
             L_old(i, j, k, n) = 2.0 * Random() - 1.0;
+#endif
         });
     }
 
