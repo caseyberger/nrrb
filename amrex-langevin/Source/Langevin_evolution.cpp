@@ -19,9 +19,9 @@ void Langevin_evolution(Real m, Real l, Real w, Real w_t, Real dtau, Real mu, Re
     const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
 
-    for (int j = lo.y; j <= hi.y; ++j) {
-        for (int i = lo.x; i <= hi.x; ++i) {
-            for (int t = lo.z; t <= hi.z; ++t) {
+    for (int t = lo.z; t <= hi.z; ++t) {
+        for (int j = lo.y; j <= hi.y; ++j) {
+            for (int i = lo.x; i <= hi.x; ++i) {
 
 #ifdef TEST_CONSTANT_RNG
                 Real eta_1 = 1.0;
