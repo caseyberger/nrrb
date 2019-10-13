@@ -218,6 +218,10 @@ void main_main ()
         MultiFab::Copy(lattice_old, lattice_new, 0, 0, Ncomp, Nghost);
 
         // Advance lattice
+
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
         for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
         {
             // This gets the index bounding box corresponding to the current MFIter object mfi.
@@ -245,6 +249,9 @@ void main_main ()
             ReduceData<Real, Real, Real, Real, Real, Real, Real, Real> reduce_data(reduce_operations);
             using ReduceTuple = typename decltype(reduce_data)::Type;
 
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
             for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
             {
                 const Box& bx = mfi.validbox();
