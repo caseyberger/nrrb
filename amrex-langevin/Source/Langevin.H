@@ -63,6 +63,8 @@ amrex::Real delta(int a, int b){
     else {return 0.;}
 }
 
+void langevin_main();
+
 void Langevin_evolution(amrex::Real m, amrex::Real l, amrex::Real w, amrex::Real w_t, amrex::Real dtau, amrex::Real mu, amrex::Real eps,
                         const amrex::Box& box, const int Ncomp,
                         amrex::Array4<amrex::Real> const& Lattice_old,

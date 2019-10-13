@@ -8,23 +8,19 @@
 
 using namespace amrex;
 
-void main_main    ();
-
-void init_lattice (const amrex::Box&, const int, amrex::Array4<amrex::Real> const&);
-
 int main (int argc, char* argv[])
 {
     // AMReX's Initialize will parse argc and argv to read runtime parameters
     // and initialize components of AMReX, including the random number generator.
     amrex::Initialize(argc,argv);
 
-    main_main();
+    langevin_main();
 
     amrex::Finalize();
     return 0;
 }
 
-void main_main ()
+void langevin_main()
 {
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = amrex::second();
