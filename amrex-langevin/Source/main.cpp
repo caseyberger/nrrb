@@ -254,14 +254,14 @@ void main_main ()
                         [=] (Box const& bx) -> ReduceTuple
                         {
                             const auto observables = compute_observables(bx, Ncomp, L_new, geom.data(), nrrb_parm);
-                            return {observables[0],
-                                    observables[1],
-                                    observables[2],
-                                    observables[3],
-                                    observables[4],
-                                    observables[5],
-                                    observables[6],
-                                    observables[7]};
+                            return {observables[Obs::PhiSqRe],
+                                    observables[Obs::PhiSqIm],
+                                    observables[Obs::DensRe],
+                                    observables[Obs::DensIm],
+                                    observables[Obs::LzRe],
+                                    observables[Obs::LzIm],
+                                    observables[Obs::SRe],
+                                    observables[Obs::SIm]};
                         });
             }
 
@@ -269,24 +269,24 @@ void main_main ()
 
             // MPI reduction to the IO Processor
             const int IOProc = ParallelDescriptor::IOProcessorNumber();
-            ParallelDescriptor::ReduceRealSum(amrex::get<0>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<1>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<2>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<3>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<4>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<5>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<6>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<7>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::PhiSqRe>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::PhiSqIm>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::DensRe>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::DensIm>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::LzRe>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::LzIm>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SRe>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SIm>(reduced_observables), IOProc);
 
             Vector<Real> red_obs_vec(Obs::NumObservables, 0.0);
-            red_obs_vec[0] = amrex::get<0>(reduced_observables);
-            red_obs_vec[1] = amrex::get<1>(reduced_observables);
-            red_obs_vec[2] = amrex::get<2>(reduced_observables);
-            red_obs_vec[3] = amrex::get<3>(reduced_observables);
-            red_obs_vec[4] = amrex::get<4>(reduced_observables);
-            red_obs_vec[5] = amrex::get<5>(reduced_observables);
-            red_obs_vec[6] = amrex::get<6>(reduced_observables);
-            red_obs_vec[7] = amrex::get<7>(reduced_observables);
+            red_obs_vec[Obs::PhiSqRe] = amrex::get<Obs::PhiSqRe>(reduced_observables);
+            red_obs_vec[Obs::PhiSqIm] = amrex::get<Obs::PhiSqIm>(reduced_observables);
+            red_obs_vec[Obs::DensRe]  = amrex::get<Obs::DensRe>(reduced_observables);
+            red_obs_vec[Obs::DensIm]  = amrex::get<Obs::DensIm>(reduced_observables);
+            red_obs_vec[Obs::LzRe]    = amrex::get<Obs::LzRe>(reduced_observables);
+            red_obs_vec[Obs::LzIm]    = amrex::get<Obs::LzIm>(reduced_observables);
+            red_obs_vec[Obs::SRe]     = amrex::get<Obs::SRe>(reduced_observables);
+            red_obs_vec[Obs::SIm]     = amrex::get<Obs::SIm>(reduced_observables);
 
             // Write reduced observables
             if (ParallelDescriptor::IOProcessor())
