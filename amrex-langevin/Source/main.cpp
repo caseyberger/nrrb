@@ -43,18 +43,6 @@ void main_main ()
     domain_lo_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
     domain_hi_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
 
-    struct NRRBParameters {
-        Real m;
-        Real l;
-        Real w;
-        Real w_t;
-        Real dtau;
-        Real mu;
-        Real eps;
-        int seed_init;
-        int seed_run;
-    };
-
     NRRBParameters nrrb_parm;
     nrrb_parm.m = 1.0;
     nrrb_parm.l = 0.0;
@@ -229,8 +217,6 @@ void main_main ()
 
         MultiFab::Copy(lattice_old, lattice_new, 0, 0, Ncomp, Nghost);
 
-        // make this return source term
-        // do saxpy
         // Advance lattice
         for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
         {
@@ -248,21 +234,66 @@ void main_main ()
                                bx, Ncomp, L_old, L_new, geom.data());
         }
 
-        // fill ghost cells
+        // Fill ghost cells
         lattice_new.FillBoundary(geom.periodicity());
         FillDomainBoundary(lattice_new, geom, lattice_bc);
 
-        // Calculate observables WITH THE NEW LATTICE
-        if (n % autocorrelation_step == 0) {
+        // Calculate observables
+        if (n % autocorrelation_step == 0)
+        {
+            ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum> reduce_operations;
+            ReduceData<Real, Real, Real, Real, Real, Real, Real, Real> reduce_data(reduce_operations);
+            using ReduceTuple = typename decltype(reduce_data)::Type;
+
             for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
             {
-                // This gets the index bounding box corresponding to the current MFIter object mfi.
                 const Box& bx = mfi.validbox();
-                // This gets an Array4, a light wrapper for the underlying data that mfi points to.  The Array4 object provides accessor functions so it can be treated like a 4-D array with dimensions (x, y, z, component).
                 Array4<Real> const& L_new = lattice_new.array(mfi);
 
-                std::string test_file = "test.log";
-                compute_observables(nrrb_parm.m, nrrb_parm.l, nrrb_parm.w, nrrb_parm.w_t, nrrb_parm.dtau, nrrb_parm.mu, n, 0.0, test_file, bx, Ncomp, L_new, geom.data());
+                reduce_operations.eval(bx, reduce_data,
+                        [=] (Box const& bx) -> ReduceTuple
+                        {
+                            const auto observables = compute_observables(bx, Ncomp, L_new, geom.data(), nrrb_parm);
+                            return {observables[0],
+                                    observables[1],
+                                    observables[2],
+                                    observables[3],
+                                    observables[4],
+                                    observables[5],
+                                    observables[6],
+                                    observables[7]};
+                        });
+            }
+
+            ReduceTuple reduced_observables = reduce_data.value();
+
+            // MPI reduction to the IO Processor
+            const int IOProc = ParallelDescriptor::IOProcessorNumber();
+            ParallelDescriptor::ReduceRealSum(amrex::get<0>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<1>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<2>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<3>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<4>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<5>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<6>(reduced_observables), IOProc);
+            ParallelDescriptor::ReduceRealSum(amrex::get<7>(reduced_observables), IOProc);
+
+            Vector<Real> red_obs_vec(Obs::NumObservables, 0.0);
+            red_obs_vec[0] = amrex::get<0>(reduced_observables);
+            red_obs_vec[1] = amrex::get<1>(reduced_observables);
+            red_obs_vec[2] = amrex::get<2>(reduced_observables);
+            red_obs_vec[3] = amrex::get<3>(reduced_observables);
+            red_obs_vec[4] = amrex::get<4>(reduced_observables);
+            red_obs_vec[5] = amrex::get<5>(reduced_observables);
+            red_obs_vec[6] = amrex::get<6>(reduced_observables);
+            red_obs_vec[7] = amrex::get<7>(reduced_observables);
+
+            // Write reduced observables
+            if (ParallelDescriptor::IOProcessor())
+            {
+                for (int i = 0; i < Obs::NumObservables; ++i) {
+                    Print() << "observable " << i << " = " << red_obs_vec[i] << std::endl;
+                }
             }
         }
 
