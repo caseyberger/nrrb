@@ -94,12 +94,11 @@ void main_main ()
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
     }
 
+#ifdef TEST_SEED_RNG
     // if we set a random seed to use, then reinitialize the random number generator with it
-    if (nrrb_parm.seed_init != -1)
-    {
-        Print() << "got seed_init = " << nrrb_parm.seed_init << std::endl;
-        amrex::ResetRandomSeed(nrrb_parm.seed_init);
-    }
+    Print() << "Resetting random seed using seed_init = " << nrrb_parm.seed_init << std::endl;
+    amrex::ResetRandomSeed(nrrb_parm.seed_init);
+#endif
 
     // make BoxArray and Geometry
     BoxArray ba;
@@ -208,12 +207,11 @@ void main_main ()
 
     for (int n = 1; n <= nsteps; ++n)
     {
+#ifdef TEST_SEED_RNG
         // if we set a random seed to use, then reinitialize the random number generator with it
-        if (nrrb_parm.seed_run != -1)
-        {
-            Print() << "got seed_run = " << nrrb_parm.seed_run << std::endl;
-            amrex::ResetRandomSeed(nrrb_parm.seed_run);
-        }
+        Print() << "Resetting random seed using seed_run = " << nrrb_parm.seed_run << std::endl;
+        amrex::ResetRandomSeed(nrrb_parm.seed_run);
+#endif
 
         MultiFab::Copy(lattice_old, lattice_new, 0, 0, Ncomp, Nghost);
 
