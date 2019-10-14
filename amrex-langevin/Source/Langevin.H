@@ -1,12 +1,19 @@
+#ifndef LANGEVIN_H
+#define LANGEVIN_H
+
 #include <math.h>
 #include <AMReX_REAL.H>
 #include <AMReX_Box.H>
 #include <AMReX_Geometry.H>
 #include <AMReX_Array4.H>
 #include <AMReX_Utility.H>
-
-#ifndef LANGEVIN_H
-#define LANGEVIN_H
+#include <AMReX_Tuple.H>
+#include <AMReX_PlotFileUtil.H>
+#include <AMReX_ParmParse.H>
+#include <AMReX_Print.H>
+#include <AMReX_BC_TYPES.H>
+#include <AMReX_BCRec.H>
+#include <AMReX_BCUtil.H>
 
 enum class C { Re = 0, Im };
 
@@ -75,8 +82,13 @@ amrex::Real K_a_Re(amrex::Real m, amrex::Real l,amrex::Real w, amrex::Real w_t, 
 
 amrex::Real K_a_Im(amrex::Real m, amrex::Real l,amrex::Real w, amrex::Real w_t, int a, amrex::Real dtau, amrex::Real mu, amrex::Array4<amrex::Real> const& Lattice, const amrex::GeometryData& geom, int i, int j, int t);
 
+void initialize_observables(const std::string);
+
+void update_observables(const int, const amrex::MultiFab&, const amrex::GeometryData &,
+                        const NRRBParameters&, const std::string);
+
 amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int Ncomp,
-                                               amrex::Array4<amrex::Real> const& Lattice,
+                                               const amrex::Array4<const amrex::Real>& Lattice,
                                                const amrex::GeometryData& geom,
                                                const NRRBParameters nrrb_parm);
 #endif

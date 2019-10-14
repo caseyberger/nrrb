@@ -1,9 +1,3 @@
-#include <AMReX_PlotFileUtil.H>
-#include <AMReX_ParmParse.H>
-#include <AMReX_Print.H>
-#include <AMReX_BC_TYPES.H>
-#include <AMReX_BCRec.H>
-#include <AMReX_BCUtil.H>
 #include "Langevin.H"
 
 using namespace amrex;
@@ -51,6 +45,7 @@ void langevin_main()
     nrrb_parm.seed_run = -1;
 
     int autocorrelation_step = 1;
+    std::string observable_log_file = "observables.log";
 
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
@@ -77,6 +72,8 @@ void langevin_main()
         pp.queryarr("is_periodic", is_periodic);
         pp.queryarr("domain_lo_bc_types", domain_lo_bc_types);
         pp.queryarr("domain_hi_bc_types", domain_hi_bc_types);
+
+        pp.query("observable_log_file", observable_log_file);
 
         ParmParse pp_nrrb("nrrb");
         pp_nrrb.get("m", nrrb_parm.m);
@@ -201,6 +198,8 @@ void langevin_main()
         WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
     }
 
+    initialize_observables(observable_log_file);
+
     for (int n = 1; n <= nsteps; ++n)
     {
 #ifdef TEST_SEED_RNG
@@ -239,63 +238,7 @@ void langevin_main()
         // Calculate observables
         if (n % autocorrelation_step == 0)
         {
-            ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum> reduce_operations;
-            ReduceData<Real, Real, Real, Real, Real, Real, Real, Real> reduce_data(reduce_operations);
-            using ReduceTuple = typename decltype(reduce_data)::Type;
-
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
-            for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
-            {
-                const Box& bx = mfi.validbox();
-                Array4<Real> const& L_new = lattice_new.array(mfi);
-
-                reduce_operations.eval(bx, reduce_data,
-                        [=] (Box const& bx) -> ReduceTuple
-                        {
-                            const auto observables = compute_observables(bx, Ncomp, L_new, geom.data(), nrrb_parm);
-                            return {observables[Obs::PhiSqRe],
-                                    observables[Obs::PhiSqIm],
-                                    observables[Obs::DensRe],
-                                    observables[Obs::DensIm],
-                                    observables[Obs::LzRe],
-                                    observables[Obs::LzIm],
-                                    observables[Obs::SRe],
-                                    observables[Obs::SIm]};
-                        });
-            }
-
-            ReduceTuple reduced_observables = reduce_data.value();
-
-            // MPI reduction to the IO Processor
-            const int IOProc = ParallelDescriptor::IOProcessorNumber();
-            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::PhiSqRe>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::PhiSqIm>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::DensRe>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::DensIm>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::LzRe>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::LzIm>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SRe>(reduced_observables), IOProc);
-            ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SIm>(reduced_observables), IOProc);
-
-            Vector<Real> red_obs_vec(Obs::NumObservables, 0.0);
-            red_obs_vec[Obs::PhiSqRe] = amrex::get<Obs::PhiSqRe>(reduced_observables);
-            red_obs_vec[Obs::PhiSqIm] = amrex::get<Obs::PhiSqIm>(reduced_observables);
-            red_obs_vec[Obs::DensRe]  = amrex::get<Obs::DensRe>(reduced_observables);
-            red_obs_vec[Obs::DensIm]  = amrex::get<Obs::DensIm>(reduced_observables);
-            red_obs_vec[Obs::LzRe]    = amrex::get<Obs::LzRe>(reduced_observables);
-            red_obs_vec[Obs::LzIm]    = amrex::get<Obs::LzIm>(reduced_observables);
-            red_obs_vec[Obs::SRe]     = amrex::get<Obs::SRe>(reduced_observables);
-            red_obs_vec[Obs::SIm]     = amrex::get<Obs::SIm>(reduced_observables);
-
-            // Write reduced observables
-            if (ParallelDescriptor::IOProcessor())
-            {
-                for (int i = 0; i < Obs::NumObservables; ++i) {
-                    Print() << "observable " << i << " = " << red_obs_vec[i] << std::endl;
-                }
-            }
+            update_observables(n, lattice_new, geom.data(), nrrb_parm, observable_log_file);
         }
 
         Ltime = Ltime + nrrb_parm.eps;
