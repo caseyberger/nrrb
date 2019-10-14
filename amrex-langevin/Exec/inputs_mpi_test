@@ -35,7 +35,8 @@ domain_hi_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic
 nsteps = 10
 
 # Frequency for computing observables
-autocorrelation_step = 99999999
+autocorrelation_step = 1
 
 # I/O
 plot_int = 1
+observable_log_file = "observables_mpi_test.log"
