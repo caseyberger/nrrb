@@ -432,6 +432,7 @@ std::vector<double> Action(double *** Lattice, int size, int Nx, int Nt, int dim
 	mu = dtau*mu;
 	m = m/dtau;
 	w = dtau*w;
+	w_t = dtau*w_t;
 	l = dtau*l;
 	double wt2 = 1.0*w_t*w_t;
 	bool new_lat = true;
