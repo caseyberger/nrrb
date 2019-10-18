@@ -51,10 +51,10 @@ void Langevin_evolution(double m, double l, double w, double w_t, double dtau, d
 	for(int i = 0; i<size; i++){
 		for (int t = 0; t<Nt;t++){
 			clock_t rn_0 = clock();
-			//std::normal_distribution<double> noise1(0.,sqrt(2.));
-			//std::normal_distribution<double> noise2(0.,sqrt(2.));
-			std::uniform_real_distribution<double> noise1(-1.,1.);
-			std::uniform_real_distribution<double> noise2(-1.,1.);
+			std::normal_distribution<double> noise1(0.,sqrt(2.));
+			std::normal_distribution<double> noise2(0.,sqrt(2.));
+			// std::uniform_real_distribution<double> noise1(-1.,1.);
+			// std::uniform_real_distribution<double> noise2(-1.,1.);
 			double eta_1 = noise1(generator);
 			double eta_2 = noise2(generator);
 			clock_t rn_f = clock();
