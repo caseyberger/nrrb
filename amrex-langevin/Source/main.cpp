@@ -155,7 +155,7 @@ void langevin_main()
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-    for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
+    for (MFIter mfi(lattice_old, TilingIfNotGPU()); mfi.isValid(); ++mfi)
     {
         // This gets the index bounding box corresponding to the current MFIter object mfi.
         const Box& bx = mfi.validbox();
@@ -215,7 +215,7 @@ void langevin_main()
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-        for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
+        for (MFIter mfi(lattice_old, TilingIfNotGPU()); mfi.isValid(); ++mfi)
         {
             // This gets the index bounding box corresponding to the current MFIter object mfi.
             const Box& bx = mfi.validbox();
