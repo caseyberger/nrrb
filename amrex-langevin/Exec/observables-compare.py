@@ -8,7 +8,7 @@ parser.add_argument("-c", type=str, required=True, help="Name of original NRRB o
 args = parser.parse_args()
 
 # Read AMReX observable file
-data_amrex = np.genfromtxt(args.a, unpack=True)
+data_amrex = np.genfromtxt(args.a, unpack=True, skip_header=1)
 
 # Read original observable file
 data_original = np.genfromtxt(args.c, unpack=True, skip_header=3, skip_footer=1)

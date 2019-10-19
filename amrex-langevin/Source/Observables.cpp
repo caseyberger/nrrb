@@ -1,75 +1,149 @@
-#include "Langevin.H"
-#include "AMReX_Print.H"
 #include <iomanip>
+#include "AMReX_Print.H"
+#include "Langevin.H"
 
 using namespace amrex;
 
 /*
 Computes and prints Real and Imaginary parts of observables
 
-don't forget to modify mu, m, w, wtr, and l by dtau if they appear in observables: 
+don't forget to modify mu, m, w, wtr, and l by dtau if they appear in observables:
 mu = dtau*mu; m = m/dtau; w = dtau*w; wtr = dtau* wtr; l = dtau*l;
 */
 //void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename);
-double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<amrex::Real> const& Lattice);
-double S_tau_Im(int i,int j,int t,int a, double mu,amrex::Array4<amrex::Real> const& Lattice);
-double S_del_Re(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom);
-double S_del_Im(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom);
-double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice);
-double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice);
-double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<amrex::Real> const& Lattice);
-double S_w_Im(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<amrex::Real> const& Lattice);
-double S_int_Re(int i,int j,int t,int a,double l, amrex::Array4<amrex::Real> const& Lattice);
-double S_int_Im(int i,int j,int t,int a,double l, amrex::Array4<amrex::Real> const& Lattice);
-void Circulation(amrex::Array4<amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom, 
+Real S_tau_Re(int i,int j,int t,int a, Real mu, amrex::Array4<const amrex::Real> const& Lattice);
+Real S_tau_Im(int i,int j,int t,int a, Real mu, amrex::Array4<const amrex::Real> const& Lattice);
+Real S_del_Re(int i,int j,int t,int a, Real m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom);
+Real S_del_Im(int i,int j,int t,int a, Real m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom);
+Real S_trap_Re(int i,int j,int t,int a, Real w_t, const Real r2, amrex::Array4<const amrex::Real> const& Lattice);
+Real S_trap_Im(int i,int j,int t,int a, Real w_t, const Real r2, amrex::Array4<const amrex::Real> const& Lattice);
+Real S_w_Re(int i,int j,int t,int a, Real w, const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice);
+Real S_w_Im(int i,int j,int t,int a, Real w, const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice);
+Real S_int_Re(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> const& Lattice);
+Real S_int_Im(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> const& Lattice);
+void Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom,
 			long int Nt, int radius, std::string filename);
 
-void compute_observables(double m, double l, double w, double w_t, double dtau, double mu, int nL,
-						double delta_t, std::string filename,
-						const amrex::Box& box, const int Ncomp, 
-                        amrex::Array4<amrex::Real> const& Lattice,
-                        const amrex::GeometryData& geom){
-	//n is number of steps in Langevin time
-	std::ofstream logfile;
-	logfile.open(filename, std::fstream::app);
+void initialize_observables(const std::string observable_log_file)
+{
+    // Write observables header file
+    if (ParallelDescriptor::IOProcessor())
+    {
+	    std::ofstream obsFile;
+	    obsFile.open(observable_log_file, std::fstream::trunc);
+        obsFile << "#step  ";
+        obsFile << "Re[phi^{*}phi]      ";
+        obsFile << "Im[phi^{*}phi]      ";
+        obsFile << "Re[<n>]             ";
+        obsFile << "Im[<n>]             ";
+        obsFile << "Re[<Lz>]            ";
+        obsFile << "Im[<Lz>]            ";
+        obsFile << "Re[<S>]             ";
+        obsFile << "Im[<S>]             ";
+        obsFile << "dt (sec)" << std::endl;
+        obsFile.close();
+    }
+}
 
+void update_observables(const int nL, const amrex::MultiFab& Lattice, const amrex::GeometryData& geom,
+                        const NRRBParameters& nrrb_parm, const std::string observable_log_file)
+{
+    const int Ncomp = Lattice.nComp();
+
+    ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum> reduce_operations;
+    ReduceData<Real, Real, Real, Real, Real, Real, Real, Real> reduce_data(reduce_operations);
+    using ReduceTuple = typename decltype(reduce_data)::Type;
+
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
+    for ( MFIter mfi(Lattice); mfi.isValid(); ++mfi )
+    {
+        const Box& bx = mfi.validbox();
+        const Array4<const Real>& L_obs = Lattice.array(mfi);
+
+        reduce_operations.eval(bx, reduce_data,
+                [=] (Box const& bx) -> ReduceTuple
+                {
+                    const auto observables = compute_observables(bx, Ncomp, L_obs, geom, nrrb_parm);
+                    return {observables[Obs::PhiSqRe],
+                            observables[Obs::PhiSqIm],
+                            observables[Obs::DensRe],
+                            observables[Obs::DensIm],
+                            observables[Obs::LzRe],
+                            observables[Obs::LzIm],
+                            observables[Obs::SRe],
+                            observables[Obs::SIm]};
+                });
+    }
+
+    ReduceTuple reduced_observables = reduce_data.value();
+
+    // MPI reduction to the IO Processor
+    const int IOProc = ParallelDescriptor::IOProcessorNumber();
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::PhiSqRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::PhiSqIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::DensRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::DensIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::LzRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::LzIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SIm>(reduced_observables), IOProc);
+
+    // Write reduced observables
+    if (ParallelDescriptor::IOProcessor())
+    {
+	    std::ofstream obsFile;
+	    obsFile.open(observable_log_file, std::fstream::app);
+        obsFile << std::setw(6)  << std::left << nL << ' ';
+        obsFile << std::setw(19) << std::left << amrex::get<Obs::PhiSqRe>(reduced_observables) << ' ';
+        obsFile << std::setw(19) << std::left << amrex::get<Obs::PhiSqIm>(reduced_observables) << ' ';
+        obsFile << std::setw(19) << std::left << amrex::get<Obs::DensRe>(reduced_observables) << ' ';
+        obsFile << std::setw(19) << std::left << amrex::get<Obs::DensIm>(reduced_observables) << ' ';
+        obsFile << std::setw(19) << std::left << amrex::get<Obs::LzRe>(reduced_observables) << ' ';
+        obsFile << std::setw(19) << std::left << amrex::get<Obs::LzIm>(reduced_observables) << ' ';
+        obsFile << std::setw(19) << std::left << amrex::get<Obs::SRe>(reduced_observables) << ' ';
+        obsFile << std::setw(19) << std::left << amrex::get<Obs::SIm>(reduced_observables) << ' ';
+        obsFile << std::setw(11) << std::left << 0.0 << std::endl;
+        obsFile.close();
+    }
+}
+
+amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int Ncomp,
+                                               const amrex::Array4<const amrex::Real>& Lattice,
+                                               const amrex::GeometryData& geom,
+                                               const NRRBParameters nrrb_parm){
     const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
-
-	long int volume = box.volume();
-	Print() << "in Observables" << std::endl;
-	Print() << "volume = " << volume << std::endl;
 	long int Nt = box.length(2);
-	Print() << "Nt = " << Nt << std::endl;
-
-	//create logfile for density profiles
-	std::fstream dpfile;
-	std::string dp_filename = "dp_"+filename.substr(8);
-	dpfile.open(dp_filename, std::fstream::app);
 
 	//Initialize observable variables
-	double densRe = 0;
-	double densIm = 0;
-	double phisqRe = 0.;
-	double phisqIm = 0.;
-	double LzRe = 0.;
-	double LzIm = 0.;
-    double S_Re = 0.;
-    double S_Im = 0.;
+    amrex::Vector<amrex::Real> observables(Obs::NumObservables, 0.0);
+	Real dens_Re = 0;
+	Real dens_Im = 0;
+	Real phisq_Re = 0.;
+	Real phisq_Im = 0.;
+	Real Lz_Re = 0.;
+	Real Lz_Im = 0.;
+    Real S_Re = 0.;
+    Real S_Im = 0.;
 
 	//modify parameters by dtau
-	mu = dtau*mu;
-	m = m/dtau;
-	w_t = dtau*w_t;
-	w = dtau*w;
-	l = dtau*l;
+	const Real mu = nrrb_parm.dtau * nrrb_parm.mu;
+	const Real m = nrrb_parm.m / nrrb_parm.dtau;
+	const Real w_t = nrrb_parm.dtau * nrrb_parm.w_t;
+	const Real w = nrrb_parm.dtau * nrrb_parm.w;
+	const Real l = nrrb_parm.dtau * nrrb_parm.l;
 
 	//define spacing parameters (x, y r^2, etc)
 	const auto domain_xlo = geom.ProbLo();
     const auto domain_xhi = geom.ProbHi();
+
     const auto domain_box = geom.Domain();
     const auto domain_lo = amrex::lbound(domain_box);
     const auto domain_hi = amrex::ubound(domain_box);
+	long int domain_volume = domain_box.volume();
+
     const Real x_center = 0.5 * (domain_xlo[0] + domain_xhi[0]);
     const Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
     const Real dx_cell = geom.CellSize(0);
@@ -83,24 +157,24 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
             const Real r2 = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
 
             //density profiles are averaged over time loop only
-			double dpRe = 0.;
-			double dpIm = 0.;
+			Real dp_Re = 0.;
+			Real dp_Im = 0.;
             for (int t = lo.z; t <= hi.z; ++t){
-                for (int a = 1; a <=2; a++){
+                for (int a = 1; a <= 2; a++){
                     //Field modulus squared
-                    phisqRe += 0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
-                    phisqRe += -0.5 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
-                    phisqIm += Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
-                    for (int b = 1; b <=2; b++){
+                    phisq_Re += 0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
+                    phisq_Re += -0.5 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
+                    phisq_Im += Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
+                    for (int b = 1; b <= 2; b++){
 						//Density
-						dpRe += delta(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dpRe += -delta(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
-						dpRe += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dpRe += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
-						dpIm += delta(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dpIm += delta(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
-						dpIm += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dpIm += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+						dp_Re += delta(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+						dp_Re += -delta(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+						dp_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+						dp_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+						dp_Im += delta(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+						dp_Im += delta(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+						dp_Im += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+						dp_Im += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
 					}//loop over b = 1,2
 				}//loop over a = 1,2
 				//Angular momentum
@@ -109,50 +183,50 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 					//define x and y
 					const Real x = x_cell - x_center;
 	    			const Real y = y_cell - y_center;
-					for (int a = 1; a <=2; a++){//loop over a
+					for (int a = 1; a <= 2; a++){//loop over a
 						//real sum over a only
-						LzRe += 0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Im));
-						LzRe += 0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Re));
-						LzRe += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Im));
-						LzRe += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Re));
-						LzRe += y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
-						LzRe += -x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
+						Lz_Re += 0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Im));
+						Lz_Re += 0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Re));
+						Lz_Re += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Im));
+						Lz_Re += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Re));
+						Lz_Re += y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
+						Lz_Re += -x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
 						//imaginary sum over a only
-						LzIm += -0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Re));
-						LzIm += 0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Im ));
-						LzIm += 0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Re));
-						LzIm += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Im));
-						LzIm += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
-						LzIm += 0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
-						LzIm += 0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
-						LzIm += -0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
-						for (int b = 1; b <=2; b++){//loop over b
+						Lz_Im += -0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Re));
+						Lz_Im += 0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Im));
+						Lz_Im += 0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Re));
+						Lz_Im += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Im));
+						Lz_Im += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
+						Lz_Im += 0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
+						Lz_Im += 0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
+						Lz_Im += -0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
+						for (int b = 1; b <= 2; b++){//loop over b
 							//real sum over a and b
-							LzRe += 0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Re)); 
-							LzRe += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Im));
-							LzRe += 0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im))* Lattice(i-1,j,t-1,Field(b,C::Im));
-							LzRe += -0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re))* Lattice(i-1,j,t-1,Field(b,C::Re));
+							Lz_Re += 0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Re));
+							Lz_Re += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Im));
+							Lz_Re += 0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Im));
+							Lz_Re += -0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Re));
 							//imaginary sum over a and b
-							LzIm += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Im));
-							LzIm += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Re));
-							LzIm += 0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Im));
-							LzIm += 0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
+							Lz_Im += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Im));
+							Lz_Im += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Re));
+							Lz_Im += 0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Im));
+							Lz_Im += 0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
 						}//loop over b for Lz
 					}//loop over a for Lz
 				}//if dim+1 = 3
 				//#endif
 				//ACTION
-				for (int a =1; a<=2; a++){
-					//S_tau 
+				for (int a = 1; a <= 2; a++){
+					//S_tau
 					S_Re += S_tau_Re(i,j,t,a,mu,Lattice);
 					S_Im += S_tau_Im(i,j,t,a,mu,Lattice);
-					//S_del 
+					//S_del
 					S_Re += S_del_Re(i,j,t,a,m,Lattice,geom);
 					S_Im += S_del_Im(i,j,t,a,m,Lattice,geom);
 					//S_trap
 					S_Re += S_trap_Re(i,j,t,a,w_t,r2,Lattice);
 					S_Im += S_trap_Im(i,j,t,a,w_t,r2,Lattice);
-					//S_w	
+					//S_w
 					//#if (AMREX_SPACEDIM == 3)
 					if (AMREX_SPACEDIM == 3){
 						const Real x = x_cell - x_center;
@@ -166,48 +240,36 @@ void compute_observables(double m, double l, double w, double w_t, double dtau, 
 					S_Im += S_int_Im(i,j,t,a,l,Lattice);
 				}//loop over a (for the Action)
             }//loop over t
-			dpRe = 0.5*exp(mu)*dpRe;
-			dpIm = 0.5*exp(mu)*dpIm;
+			dp_Re = 0.5 * exp(mu) * dp_Re;
+			dp_Im = 0.5 * exp(mu) * dp_Im;
 			//add local density to avg density variables
-			densRe += dpRe;
-			densIm += dpIm;
-			//write dp to logfile
-			if (dpIm < 0){
-				dpfile << "(" << dpRe/(1.0*Nt) << dpIm/(1.0*Nt) << "j)" << ",";
-				}
-			else{
-				dpfile << "(" << dpRe/(1.0*Nt) << "+" << dpIm/(1.0*Nt) << "j)" << ",";
-				}		
+			dens_Re += dp_Re;
+			dens_Im += dp_Im;
 		}//loop over x
 	}//loop over y
-	dpfile << std::endl;
-	dpfile.close();
 
 	//std::cout << "Phi^{*}phi successfully computed: " << phisq[0] << " + i" << phisq[1] << std::endl;
 	//Equal_Time_Correlators(Lattice, size, Nx, Nt, filename);
-	
+
 	//std::cout << "Lz successfully computed: Lz = " << Lz[0] << " + i" << Lz[1] << std::endl;
 	//compute circulation
-	long int Nx = box.length(0);
-	Circulation(Lattice, box, geom, Nt, Nx/4, filename);
-	Circulation(Lattice, box, geom, Nt, Nx/2 - 1, filename);
+	/* long int Nx = box.length(0); */
+	/* Circulation(Lattice, box, geom, Nt, Nx/4, filename); */
+	/* Circulation(Lattice, box, geom, Nt, Nx/2 - 1, filename); */
 
-	//save values to file
-	logfile << std::setw(6) << std::left << nL << ' ';
-	logfile << std::setw(19) << std::left << phisqRe/volume << ' ';
-	logfile << std::setw(19) << std::left << phisqIm/volume << ' ';
-	logfile << std::setw(19) << std::left << densRe/volume << ' ';
-	logfile << std::setw(19) << std::left << densIm/volume << ' ';	
-	logfile << std::setw(19) << std::left << LzRe/volume << ' ';
-	logfile << std::setw(19) << std::left << LzIm/volume << ' ';
-	logfile << std::setw(19) << std::left << S_Re/volume << ' ';	
-	logfile << std::setw(19) << std::left << S_Im/volume << ' ';	
-	logfile << std::setw(11) << std::left << delta_t << std::endl;		
+    observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
+    observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
+    observables[Obs::DensRe] = dens_Re / domain_volume;
+    observables[Obs::DensIm] = dens_Im / domain_volume;
+    observables[Obs::LzRe] = Lz_Re / domain_volume;
+    observables[Obs::LzIm] = Lz_Im / domain_volume;
+    observables[Obs::SRe] = S_Re / domain_volume;
+    observables[Obs::SIm] = S_Im / domain_volume;
 
-	logfile.close();
+    return observables;
 }
 
-double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<amrex::Real> const& Lattice){
+double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<const amrex::Real> const& Lattice){
 	double S_Re = 0.;
 	S_Re += 0.5 * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t,Field(a,C::Re)) ;
 	S_Re += -0.5 * Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j,t,Field(a,C::Im)) ;
@@ -220,7 +282,7 @@ double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<amrex::Real> co
 	return S_Re;
 }
 
-double S_tau_Im(int i,int j,int t,int a,double mu, amrex::Array4<amrex::Real> const& Lattice){
+double S_tau_Im(int i,int j,int t,int a,double mu, amrex::Array4<const amrex::Real> const& Lattice){
 	double S_Im = 0.;
 	S_Im += Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t,Field(a,C::Im)) ;
 	S_Im +=-0.5 * exp(mu) * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t-1,Field(a,C::Im)) ;
@@ -232,7 +294,7 @@ double S_tau_Im(int i,int j,int t,int a,double mu, amrex::Array4<amrex::Real> co
 	return S_Im;
 }
 
-double S_del_Re(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom){
+double S_del_Re(int i,int j,int t,int a,double m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom){
 	const auto domain_box = geom.Domain();
     const auto domain_lo = amrex::lbound(domain_box);
     const auto domain_hi = amrex::ubound(domain_box);
@@ -278,7 +340,7 @@ double S_del_Re(int i,int j,int t,int a,double m, amrex::Array4<amrex::Real> con
 	return S_Re;
 }
 
-double S_del_Im(int i,int j,int t,int a, double m, amrex::Array4<amrex::Real> const& Lattice,const amrex::GeometryData& geom){
+double S_del_Im(int i,int j,int t,int a, double m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom){
 	const auto domain_box = geom.Domain();
     const auto domain_lo = amrex::lbound(domain_box);
     const auto domain_hi = amrex::ubound(domain_box);
@@ -323,7 +385,7 @@ double S_del_Im(int i,int j,int t,int a, double m, amrex::Array4<amrex::Real> co
 	return S_Im;
 }
 
-double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice){
+double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array4<const amrex::Real> const& Lattice){
 	double S_Re = 0.;
 	S_Re += 0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t-1,Field(a,C::Re)) ;
 	S_Re += -0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j,t-1,Field(a,C::Im)) ;
@@ -334,7 +396,7 @@ double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array
 	return S_Re;
 }
 
-double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4<amrex::Real> const& Lattice){
+double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4<const amrex::Real> const& Lattice){
 	double S_Im = 0.;
 	S_Im += 0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t-1,Field(a,C::Im)) ;
 	S_Im += 0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j,t-1,Field(a,C::Re)) ;
@@ -345,7 +407,7 @@ double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4
 	return S_Im;
 }
 
-double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<amrex::Real> const& Lattice){
+double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice){
 	double S_Re = 0.;
 	for (int b = 1; b<=2; b++){
 		S_Re += 0.5 * w * epsilon(a,b) * (x - y) * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j,t-1,Field(b,C::Re)) ;
@@ -365,7 +427,7 @@ double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex:
 	return S_Re;
 }
 
-double S_w_Im(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<amrex::Real> const& Lattice){
+double S_w_Im(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice){
 	double S_Im = 0.;
 	for (int b = 1; b<=2; b++){
 		S_Im += 0.5 * w * epsilon(a,b) * (x-y) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
@@ -384,7 +446,7 @@ double S_w_Im(int i,int j,int t,int a,double w,const Real x,const Real y, amrex:
 	return S_Im;
 }
 							
-double S_int_Re(int i,int j,int t,int a,double l, amrex::Array4<amrex::Real> const& Lattice){
+double S_int_Re(int i,int j,int t,int a,double l, amrex::Array4<const amrex::Real> const& Lattice){
 	double S_Re = 0.;
 	for (int b=1; b<=2; b++){
 		S_Re += 0.25 * l * Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j,t-1,Field(b,C::Re)) *Lattice(i,j,t-1,Field(b,C::Re));
@@ -405,7 +467,7 @@ double S_int_Re(int i,int j,int t,int a,double l, amrex::Array4<amrex::Real> con
 	return S_Re;
 }	
 
-double S_int_Im(int i,int j,int t,int a,double l, amrex::Array4<amrex::Real> const& Lattice){
+double S_int_Im(int i,int j,int t,int a,double l, amrex::Array4<const amrex::Real> const& Lattice){
 	double S_Im = 0.;
 	for (int b=1; b<=2; b++){
 		//S_int
@@ -484,7 +546,7 @@ double S_int_Im(int i,int j,int t,int a,double l, amrex::Array4<amrex::Real> con
 */
 
 //NEW VERSION
-void Circulation(amrex::Array4<amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom, 
+void Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom, 
 			long int Nt, int radius, std::string filename){
 	//find the total circulation over the lattice
 	//open circulation file

@@ -1,14 +1,38 @@
+#ifndef LANGEVIN_H
+#define LANGEVIN_H
+
 #include <math.h>
 #include <AMReX_REAL.H>
 #include <AMReX_Box.H>
 #include <AMReX_Geometry.H>
 #include <AMReX_Array4.H>
 #include <AMReX_Utility.H>
-
-#ifndef LANGEVIN_H
-#define LANGEVIN_H
+#include <AMReX_Tuple.H>
+#include <AMReX_PlotFileUtil.H>
+#include <AMReX_ParmParse.H>
+#include <AMReX_Print.H>
+#include <AMReX_BC_TYPES.H>
+#include <AMReX_BCRec.H>
+#include <AMReX_BCUtil.H>
 
 enum class C { Re = 0, Im };
+
+namespace Obs {
+enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
+                        LzRe, LzIm, SRe, SIm, NumObservables};
+};
+
+struct NRRBParameters {
+    amrex::Real m;
+    amrex::Real l;
+    amrex::Real w;
+    amrex::Real w_t;
+    amrex::Real dtau;
+    amrex::Real mu;
+    amrex::Real eps;
+    int seed_init;
+    int seed_run;
+};
 
 AMREX_INLINE
 int Field(int a, C complex_type) {
@@ -46,6 +70,8 @@ amrex::Real delta(int a, int b){
     else {return 0.;}
 }
 
+void langevin_main();
+
 void Langevin_evolution(amrex::Real m, amrex::Real l, amrex::Real w, amrex::Real w_t, amrex::Real dtau, amrex::Real mu, amrex::Real eps,
                         const amrex::Box& box, const int Ncomp,
                         amrex::Array4<amrex::Real> const& Lattice_old,
@@ -56,9 +82,13 @@ amrex::Real K_a_Re(amrex::Real m, amrex::Real l,amrex::Real w, amrex::Real w_t, 
 
 amrex::Real K_a_Im(amrex::Real m, amrex::Real l,amrex::Real w, amrex::Real w_t, int a, amrex::Real dtau, amrex::Real mu, amrex::Array4<amrex::Real> const& Lattice, const amrex::GeometryData& geom, int i, int j, int t);
 
-void compute_observables(double m, double l, double w, double w_t, double dtau, double mu, int nL,
-                        double delta_t, std::string filename,
-                        const amrex::Box& box, const int Ncomp, 
-                        amrex::Array4<amrex::Real> const& Lattice_new,
-                        const amrex::GeometryData& geom);
+void initialize_observables(const std::string);
+
+void update_observables(const int, const amrex::MultiFab&, const amrex::GeometryData &,
+                        const NRRBParameters&, const std::string);
+
+amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int Ncomp,
+                                               const amrex::Array4<const amrex::Real>& Lattice,
+                                               const amrex::GeometryData& geom,
+                                               const NRRBParameters nrrb_parm);
 #endif

@@ -10,6 +10,22 @@ DIM       = 3
 
 include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
+USE_TEST_CONSTANT_RNG ?= FALSE
+USE_TEST_SEED_RNG ?= FALSE
+USE_TEST_UNIFORM_RNG ?= FALSE
+
+ifeq ($(USE_TEST_CONSTANT_RNG), TRUE)
+	DEFINES += -DTEST_CONSTANT_RNG
+endif
+
+ifeq ($(USE_TEST_SEED_RNG), TRUE)
+	DEFINES += -DTEST_SEED_RNG
+endif
+
+ifeq ($(USE_TEST_UNIFORM_RNG), TRUE)
+	DEFINES += -DTEST_UNIFORM_RNG
+endif
+
 include ../Source/Make.package
 
 VPATH_LOCATIONS   += ../Source

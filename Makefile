@@ -18,9 +18,34 @@
 #
 #===========================================================================
 
+USE_OMP ?= FALSE
+
+USE_TEST_CONSTANT_RNG ?= FALSE
+USE_TEST_SEED_RNG ?= FALSE
+USE_TEST_UNIFORM_RNG ?= FALSE
+
+ifeq ($(USE_TEST_CONSTANT_RNG), TRUE)
+	DEFINES += -DTEST_CONSTANT_RNG
+endif
+
+ifeq ($(USE_TEST_SEED_RNG), TRUE)
+	DEFINES += -DTEST_SEED_RNG
+endif
+
+ifeq ($(USE_TEST_UNIFORM_RNG), TRUE)
+	DEFINES += -DTEST_UNIFORM_RNG
+endif
+
 CXX = g++
-#CXXFLAGS = -Wall -O3 -g -std=c++0x -fopenmp
-CXXFLAGS = -Wall -g -std=c++0x --coverage
+
+ifeq ($(USE_OMP), TRUE)
+	CXXFLAGS = -Wall -O3 -g -std=c++0x -fopenmp
+else
+	CXXFLAGS = -Wall -g -std=c++0x --coverage
+endif
+
+CXXFLAGS += $(DEFINES)
+
 TARGET = v4.2
 #LFLAGS = -L/opt/ddt/lib/64 -Wl,--undefined=malloc -ldmalloc -Wl,--allow-multipledefinition -pgc++libs
 

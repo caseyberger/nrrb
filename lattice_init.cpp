@@ -17,12 +17,15 @@ are generated to initialize the 4 phi vectors.
 */
 
 void lattice_init(double *** Lattice, int size, int time_size){
-	//std::random_device rd;
-	//std::mt19937 mt(rd());
-	//std::uniform_real_distribution<double> distribution(-1.0,1.0);
+#ifdef TEST_SEED_RNG
 	int seed = 8134;
 	std::mt19937 generator(seed);
     std::uniform_real_distribution<double> distribution(-1.,1.);
+#else
+	std::random_device rd;
+	std::mt19937 generator(rd());
+	std::uniform_real_distribution<double> distribution(-1.0,1.0);
+#endif
 	//assign each field a random value, uniformly distributed between -1 and 1
 	for (int k = 0; k<4;k++){
 		for (int j = 0; j<time_size;j++){
@@ -31,8 +34,11 @@ void lattice_init(double *** Lattice, int size, int time_size){
 				int x = i%Nx;
 				int y = ((i - x)/Nx)%Nx;
 				if (k == 0){std::cout << "(" << x << "," << y << ") ";}
+#ifdef TEST_CONSTANT_RNG
+				double r = 1.0;
+#else
 				double r = distribution(generator);
-				//double r = 1.;
+#endif
 				Lattice[i][j][k] = r; //time-evolved fields - for future reference
 				Lattice[i][j][k+4] = r; //old fields - for future reference
 			}

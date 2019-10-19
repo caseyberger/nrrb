@@ -1,16 +1,6 @@
-#include <AMReX_PlotFileUtil.H>
-#include <AMReX_ParmParse.H>
-#include <AMReX_Print.H>
-#include <AMReX_BC_TYPES.H>
-#include <AMReX_BCRec.H>
-#include <AMReX_BCUtil.H>
 #include "Langevin.H"
 
 using namespace amrex;
-
-void main_main    ();
-
-void init_lattice (const amrex::Box&, const int, amrex::Array4<amrex::Real> const&);
 
 int main (int argc, char* argv[])
 {
@@ -18,13 +8,13 @@ int main (int argc, char* argv[])
     // and initialize components of AMReX, including the random number generator.
     amrex::Initialize(argc,argv);
 
-    main_main();
+    langevin_main();
 
     amrex::Finalize();
     return 0;
 }
 
-void main_main ()
+void langevin_main()
 {
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = amrex::second();
@@ -43,18 +33,6 @@ void main_main ()
     domain_lo_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
     domain_hi_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
 
-    struct NRRBParameters {
-        Real m;
-        Real l;
-        Real w;
-        Real w_t;
-        Real dtau;
-        Real mu;
-        Real eps;
-        int seed_init;
-        int seed_run;
-    };
-
     NRRBParameters nrrb_parm;
     nrrb_parm.m = 1.0;
     nrrb_parm.l = 0.0;
@@ -67,6 +45,7 @@ void main_main ()
     nrrb_parm.seed_run = -1;
 
     int autocorrelation_step = 1;
+    std::string observable_log_file = "observables.log";
 
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
@@ -94,6 +73,8 @@ void main_main ()
         pp.queryarr("domain_lo_bc_types", domain_lo_bc_types);
         pp.queryarr("domain_hi_bc_types", domain_hi_bc_types);
 
+        pp.query("observable_log_file", observable_log_file);
+
         ParmParse pp_nrrb("nrrb");
         pp_nrrb.get("m", nrrb_parm.m);
         pp_nrrb.get("l", nrrb_parm.l);
@@ -106,12 +87,11 @@ void main_main ()
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
     }
 
+#ifdef TEST_SEED_RNG
     // if we set a random seed to use, then reinitialize the random number generator with it
-    if (nrrb_parm.seed_init != -1)
-    {
-        Print() << "got seed_init = " << nrrb_parm.seed_init << std::endl;
-        amrex::ResetRandomSeed(nrrb_parm.seed_init);
-    }
+    Print() << "Resetting random seed using seed_init = " << nrrb_parm.seed_init << std::endl;
+    amrex::ResetRandomSeed(nrrb_parm.seed_init);
+#endif
 
     // make BoxArray and Geometry
     BoxArray ba;
@@ -186,7 +166,11 @@ void main_main ()
         Array4<Real> const& L_old = lattice_old.array(mfi);
 
         ParallelFor(bx, Ncomp, [=](int i, int j, int k, int n) {
+#ifdef TEST_CONSTANT_RNG
+            L_old(i, j, k, n) = 1.0;
+#else
             L_old(i, j, k, n) = 2.0 * Random() - 1.0;
+#endif
         });
     }
 
@@ -214,20 +198,23 @@ void main_main ()
         WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
     }
 
+    initialize_observables(observable_log_file);
+
     for (int n = 1; n <= nsteps; ++n)
     {
+#ifdef TEST_SEED_RNG
         // if we set a random seed to use, then reinitialize the random number generator with it
-        if (nrrb_parm.seed_run != -1)
-        {
-            Print() << "got seed_run = " << nrrb_parm.seed_run << std::endl;
-            amrex::ResetRandomSeed(nrrb_parm.seed_run);
-        }
+        Print() << "Resetting random seed using seed_run = " << nrrb_parm.seed_run << std::endl;
+        amrex::ResetRandomSeed(nrrb_parm.seed_run);
+#endif
 
         MultiFab::Copy(lattice_old, lattice_new, 0, 0, Ncomp, Nghost);
 
-        // make this return source term
-        // do saxpy
         // Advance lattice
+
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
         for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
         {
             // This gets the index bounding box corresponding to the current MFIter object mfi.
@@ -244,22 +231,14 @@ void main_main ()
                                bx, Ncomp, L_old, L_new, geom.data());
         }
 
-        // fill ghost cells
+        // Fill ghost cells
         lattice_new.FillBoundary(geom.periodicity());
         FillDomainBoundary(lattice_new, geom, lattice_bc);
 
-        // Calculate observables WITH THE NEW LATTICE
-        if (n % autocorrelation_step == 0) {
-            for ( MFIter mfi(lattice_new); mfi.isValid(); ++mfi )
-            {
-                // This gets the index bounding box corresponding to the current MFIter object mfi.
-                const Box& bx = mfi.validbox();
-                // This gets an Array4, a light wrapper for the underlying data that mfi points to.  The Array4 object provides accessor functions so it can be treated like a 4-D array with dimensions (x, y, z, component).
-                Array4<Real> const& L_new = lattice_new.array(mfi);
-
-                std::string test_file = "test.log";
-                compute_observables(nrrb_parm.m, nrrb_parm.l, nrrb_parm.w, nrrb_parm.w_t, nrrb_parm.dtau, nrrb_parm.mu, n, 0.0, test_file, bx, Ncomp, L_new, geom.data());
-            }
+        // Calculate observables
+        if (n % autocorrelation_step == 0)
+        {
+            update_observables(n, lattice_new, geom.data(), nrrb_parm, observable_log_file);
         }
 
         Ltime = Ltime + nrrb_parm.eps;
