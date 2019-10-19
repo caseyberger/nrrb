@@ -421,7 +421,7 @@ double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex:
 		S_Re += -0.5 * w * x * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i,j-1,t-1,Field(b,C::Im)) ;
 		S_Re += -0.5 * w * x * Lattice(i,j,t,Field(a,C::Im)) *Lattice(i,j-1,t-1,Field(b,C::Re)) ;
 		S_Re += 0.5* w * y * Lattice(i,j,t,Field(a,C::Re)) *Lattice(i-1,j,t-1,Field(b,C::Im));
-		S_Re += Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
+		S_Re += 0.5* w * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
 	}
 
 	return S_Re;

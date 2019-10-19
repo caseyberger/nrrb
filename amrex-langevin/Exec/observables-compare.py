@@ -29,7 +29,7 @@ print("Comparing {} to {} ...".format(args.a, args.c))
 print("  Observable       Abs Inf Norm   Rel Inf Norm   Abs L2 Norm    Rel L2 Norm")
 
 # Compare the observables
-for i in range(1,len(cols)-2):
+for i in range(1,len(cols)-1):
     da = data_amrex[i]
     do = data_original[i]
     delta_abs = da-do
