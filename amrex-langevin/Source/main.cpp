@@ -45,6 +45,8 @@ void langevin_main()
     nrrb_parm.seed_run = -1;
 
     int autocorrelation_step = 1;
+
+
     std::string observable_log_file = "observables.log";
 
     // inputs parameters (these have been read in by amrex::Initialize already)
@@ -262,4 +264,24 @@ void langevin_main()
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
+}
+
+std::string generate_filename(std::string inputs[], int size){
+    std::string str_D = inputs[0];
+    std::string str_Nx = inputs[4];
+    std::string str_Nt = inputs[5];
+    std::string str_dt = inputs[6];
+    std::string str_nL = inputs[7];
+    std::string str_wtr = inputs[8];
+    std::string str_eps = inputs[9];    
+    std::string str_m = inputs[3];
+    std::string str_w = inputs[1];
+    std::string str_l = inputs[2];
+    std::string str_mu = inputs[10];
+    //std::string str_mu = std::to_string(inputs[10]);
+    //mu_stream << std::fixed << std::setprecision(3) << inputs[10]; //truncate mu for filename
+    //std::string str_mu = mu_stream.str();
+    std::string filename = "logfile_D_"+str_D+"_Nx_"+str_Nx+"_Nt_"+str_Nt+"_dt_"+str_dt+"_nL_"+str_nL+"_eps_"+str_eps+"_m_"+str_m+"_wtr_"+str_wtr+"_w_"+str_w+"_l_"+str_l+"_mu_"+str_mu+".log";
+    //std::cout << filename << std::endl;
+    return filename;
 }
