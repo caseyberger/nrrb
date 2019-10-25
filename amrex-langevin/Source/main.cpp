@@ -121,7 +121,7 @@ void langevin_main()
 
     // Ncomp = number of components for each array
     int Ncomp  = 4;
-    const Vector<std::string> component_names = {"phi1", "phi2", "phi3", "phi4"};
+    const Vector<std::string> component_names = {"phi_1_Re", "phi_1_Im", "phi_2_Re", "phi_2_Im"};
 
     // How Boxes are distrubuted among MPI processes
     DistributionMapping dm(ba);

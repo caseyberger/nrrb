@@ -21,13 +21,13 @@ dx = np.max(xs[1:] - xs[:-1])
 dy = np.max(ys[1:] - ys[:-1])
 dt = np.max(ts[1:] - ts[:-1])
 
-phi1 = cg["phi1"][:,:,:].d
-phi2 = cg["phi2"][:,:,:].d
-phi3 = cg["phi3"][:,:,:].d
-phi4 = cg["phi4"][:,:,:].d
+Phi1R = cg["phi_1_Re"][:,:,:].d
+Phi1I = cg["phi_1_Im"][:,:,:].d
+Phi2R = cg["phi_2_Re"][:,:,:].d
+Phi2I = cg["phi_2_Im"][:,:,:].d
 
 def get_fields(i,j,k):
-    return phi1[i,j,k], phi2[i,j,k], phi3[i,j,k], phi4[i,j,k]
+    return Phi1R[i,j,k], Phi1I[i,j,k], Phi2R[i,j,k], Phi2I[i,j,k]
 
 if args.outfile:
     output_file = args.outfile
