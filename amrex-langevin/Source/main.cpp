@@ -157,10 +157,10 @@ void langevin_main()
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-    for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
+    for (MFIter mfi(lattice_old, TilingIfNotGPU()); mfi.isValid(); ++mfi)
     {
         // This gets the index bounding box corresponding to the current MFIter object mfi.
-        const Box& bx = mfi.validbox();
+        const Box& bx = mfi.tilebox();
 
         // This gets an Array4, a light wrapper for the underlying data that mfi points to.
         // The Array4 object provides accessor functions so it can be treated like a 4-D array
@@ -176,8 +176,9 @@ void langevin_main()
         });
     }
 
-    // We initialized the interior of the domain (above, we got bx by calling MFIter::validbox())
-    // so now we should fill the ghost cells using our periodic boundary conditions in the Geometry object geom.
+    // We initialized the interior of the domain
+    // (above, we got bx by calling MFIter::tilebox() and this only gives us a tile in the "valid" region)
+    // so now we should fill the ghost cells using our boundary conditions in the Geometry object geom.
     lattice_old.FillBoundary(geom.periodicity());
     FillDomainBoundary(lattice_old, geom, lattice_bc);
 
@@ -217,10 +218,10 @@ void langevin_main()
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-        for ( MFIter mfi(lattice_old); mfi.isValid(); ++mfi )
+        for (MFIter mfi(lattice_old, TilingIfNotGPU()); mfi.isValid(); ++mfi)
         {
             // This gets the index bounding box corresponding to the current MFIter object mfi.
-            const Box& bx = mfi.validbox();
+            const Box& bx = mfi.tilebox();
 
             // This gets an Array4, a light wrapper for the underlying data that mfi points to.
             // The Array4 object provides accessor functions so it can be treated like a 4-D array

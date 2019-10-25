@@ -57,9 +57,9 @@ void update_observables(const int nL, const amrex::MultiFab& Lattice, const amre
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-    for ( MFIter mfi(Lattice); mfi.isValid(); ++mfi )
+    for (MFIter mfi(Lattice, TilingIfNotGPU()); mfi.isValid(); ++mfi)
     {
-        const Box& bx = mfi.validbox();
+        const Box& bx = mfi.tilebox();
         const Array4<const Real>& L_obs = Lattice.array(mfi);
 
         reduce_operations.eval(bx, reduce_data,
