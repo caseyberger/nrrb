@@ -47,7 +47,7 @@ void langevin_main()
     int autocorrelation_step = 1;
 
 
-    //std::string observable_log_file = "observables.log";
+    std::string observable_log_file;
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -92,9 +92,10 @@ void langevin_main()
         logfile_stream << "_dt_" << nrrb_parm.dtau << "_nL_" << nsteps << "_eps_" << nrrb_parm.eps;
         logfile_stream << "_m_" << nrrb_parm.m << "_wtr_" <<nrrb_parm.w_t ;
         logfile_stream << "_wz_" << nrrb_parm.w << "_l_" << nrrb_parm.l << "_mu_" << nrrb_parm.mu << ".log";
-        std::string observable_log_file = logfile_stream.str();
+        observable_log_file = logfile_stream.str();
 
      pp.query("observable_log_file", observable_log_file);
+     std::cout << "logfile name = " << observable_log_file << std::endl;
     }
 
 #ifdef TEST_SEED_RNG
