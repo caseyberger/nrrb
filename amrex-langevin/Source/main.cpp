@@ -47,8 +47,7 @@ void langevin_main()
     int autocorrelation_step = 1;
 
 
-    std::string observable_log_file = "observables.log";
-
+    //std::string observable_log_file = "observables.log";
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -75,8 +74,6 @@ void langevin_main()
         pp.queryarr("domain_lo_bc_types", domain_lo_bc_types);
         pp.queryarr("domain_hi_bc_types", domain_hi_bc_types);
 
-        pp.query("observable_log_file", observable_log_file);
-
         ParmParse pp_nrrb("nrrb");
         pp_nrrb.get("m", nrrb_parm.m);
         pp_nrrb.get("l", nrrb_parm.l);
@@ -87,6 +84,17 @@ void langevin_main()
         pp_nrrb.get("eps", nrrb_parm.eps);
         pp_nrrb.query("seed_init", nrrb_parm.seed_init);
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
+
+       
+
+        std::ostringstream logfile_stream;
+        logfile_stream << "logfile_D_" << AMREX_SPACEDIM-1 << "_Nx_" << n_cell[0] << "_Nt_" << n_cell[-1];
+        logfile_stream << "_dt_" << nrrb_parm.dtau << "_nL_" << nsteps << "_eps_" << nrrb_parm.eps;
+        logfile_stream << "_m_" << nrrb_parm.m << "_wtr_" <<nrrb_parm.w_t ;
+        logfile_stream << "_wz_" << nrrb_parm.w << "_l_" << nrrb_parm.l << "_mu_" << nrrb_parm.mu << ".log";
+        std::string observable_log_file = logfile_stream.str();
+
+     pp.query("observable_log_file", observable_log_file);
     }
 
 #ifdef TEST_SEED_RNG

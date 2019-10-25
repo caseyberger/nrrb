@@ -1,6 +1,8 @@
 #ifndef LANGEVIN_H
 #define LANGEVIN_H
 
+#include <sstream>
+#include <string>
 #include <math.h>
 #include <AMReX_REAL.H>
 #include <AMReX_Box.H>
