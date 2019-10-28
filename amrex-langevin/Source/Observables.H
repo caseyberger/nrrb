@@ -2,7 +2,8 @@
 
 namespace Obs {
 enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
-                        LzRe, LzIm, SRe, SIm, NumObservables};
+                        LzRe, LzIm, SRe, SIm, Theta1, Theta2,
+                        NumObservables};
 };
 class Observables
 {

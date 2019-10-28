@@ -42,6 +42,16 @@ Observables::Observables(const amrex::GeometryData& geom, const NRRBParameters& 
 	observable_log_file = "logfile_" + logfile_suffix;
 
 	// Initialize circulation radii and logfile names
+	if (nrrb_parm.circ_radii.size() == 0)
+	{
+		nrrb_parm.circ_radii.push_back(length_x/4);
+		nrrb_parm.circ_radii.push_back(length_x/2 - 1);
+	}
+	else if (nrrb_parm.circ_radii.size() > 2)
+	{
+		Error("nrrb.circulation_radii supports only two values at this time.");
+	}
+
 	for (auto& circ_radius : nrrb_parm.circ_radii)
 	{
 		std::string r_string = std::to_string(circ_radius);
@@ -306,8 +316,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 	//std::cout << "Lz successfully computed: Lz = " << Lz[0] << " + i" << Lz[1] << std::endl;
 	//compute circulation
 	/* long int Nx = box.length(0); */
-	/* Circulation(Lattice, box, geom, Nt, Nx/4, filename); */
-	/* Circulation(Lattice, box, geom, Nt, Nx/2 - 1, filename); */
+	Real theta_sum4 = Circulation(Lattice, box, geom, Nt, Nx/4, filename);
+	Real theta_sum2 = Circulation(Lattice, box, geom, Nt, Nx/2 - 1, filename);
 
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
@@ -598,12 +608,12 @@ double S_int_Im(int i,int j,int t,int a,double l, amrex::Array4<const amrex::Rea
 */
 
 //NEW VERSION
-void Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom, 
-			long int Nt, int radius, std::string filename){
+Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom, 
+				 long int Nt, int radius, std::string filename){
 	//find the total circulation over the lattice
 	//open circulation file
-	std::ofstream circ_file;
-	circ_file.open(circ_filename, std::fstream::app);
+	// std::ofstream circ_file;
+	// circ_file.open(circ_filename, std::fstream::app);
 
 	const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
@@ -662,7 +672,9 @@ void Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 		}
 	}
 	//write results to circulation file
-	circ_file << theta_sum/(8.*atan(1.)) << ","; //adding the circulation for one loop to the total circulation
-	circ_file << std::endl;
-	circ_file.close();
+	// circ_file << theta_sum/(8.*atan(1.)) << ","; //adding the circulation for one loop to the total circulation
+	// circ_file << std::endl;
+	// circ_file.close();
+
+	return theta_sum/(8.*atan(1.)); //adding the circulation for one loop to the total circulation
 }
