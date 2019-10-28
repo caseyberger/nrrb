@@ -24,12 +24,43 @@ Real S_int_Im(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> 
 void Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom,
 			long int Nt, int radius, std::string filename);
 
-void initialize_observables(const std::string observable_log_file)
+Observables::Observables(const amrex::GeometryData& geom, const NRRBParameters& nrrb, const int& nsteps)
 {
-    // Write observables header file
+	const auto domain_box = geom.Domain();
+	const int length_x = domain_box.length(0);
+	const int length_t = domain_box.length(AMREX_SPACEDIM);
+
+	// Construct the logfile suffix string using runtime parameters
+	std::ostringstream logfile_stream;
+	logfile_stream << "D_" << AMREX_SPACEDIM-1 << "_Nx_" << length_x << "_Nt_" << length_t;
+	logfile_stream << "_dt_" << nrrb_parm.dtau << "_nL_" << nsteps << "_eps_" << nrrb_parm.eps;
+	logfile_stream << "_m_" << nrrb_parm.m << "_wtr_" <<nrrb_parm.w_t;
+	logfile_stream << "_wz_" << nrrb_parm.w << "_l_" << nrrb_parm.l << "_mu_" << nrrb_parm.mu << ".log";
+	logfile_suffix = logfile_stream.str();
+
+	// Construct the log file names
+	observable_log_file = "logfile_" + logfile_suffix;
+
+	// Initialize circulation radii and logfile names
+	for (auto& circ_radius : nrrb_parm.circ_radii)
+	{
+		std::string r_string = std::to_string(circ_radius);
+		std::string circ_filename = "Circ_loop_" + r_string + "_" + logfile_suffix;
+		circulation_radii_logs.insert(std::make_pair(circ_radius, circ_filename));
+	}
+
+	Print() << "logfile name = logfile_" << logfile_suffix << std::endl;
+
+	initialize_files(geom);
+}
+
+void Observables::initialize_files(const amrex::GeometryData& geom)
+{
     if (ParallelDescriptor::IOProcessor())
     {
 	    std::ofstream obsFile;
+
+		// Write observables file header
 	    obsFile.open(observable_log_file, std::fstream::trunc);
         obsFile << "#step  ";
         obsFile << "Re[phi^{*}phi]      ";
@@ -42,11 +73,32 @@ void initialize_observables(const std::string observable_log_file)
         obsFile << "Im[<S>]             ";
         obsFile << "dt (sec)" << std::endl;
         obsFile.close();
+
+		// Write circulation log files
+		for (const auto& radius_logfile : circulation_radii_logs)
+		{
+			const auto radius = radius_logfile->first;
+			const auto logfile = radius_logfile->second;
+
+			// Get domain center location
+			const auto domain_xlo = geom.ProbLo();
+			const auto domain_xhi = geom.ProbHi();
+			const Real x_center = 0.5 * (domain_xlo[0] + domain_xhi[0]);
+			const Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
+
+			// Create the circulation logfile
+			obsFile.open(logfile, std::fstream::trunc);
+
+			// Print loop center and radius to logfile
+			obsFile << "center = (" << x_center << ","<< y_center << ") and loop radius = " << radius;
+			obsFile << std::endl;
+			obsFile.close();
+		}
     }
 }
 
-void update_observables(const int nL, const amrex::MultiFab& Lattice, const amrex::GeometryData& geom,
-                        const NRRBParameters& nrrb_parm, const std::string observable_log_file)
+void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amrex::GeometryData& geom,
+                         const NRRBParameters& nrrb_parm, const std::string observable_log_file)
 {
     const int Ncomp = Lattice.nComp();
 
@@ -551,8 +603,6 @@ void Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	//find the total circulation over the lattice
 	//open circulation file
 	std::ofstream circ_file;
-	std::string r_string = std::to_string(radius);
-	std::string circ_filename = "Circ_loop_"+r_string+"_"+filename.substr(8);
 	circ_file.open(circ_filename, std::fstream::app);
 
 	const auto lo = amrex::lbound(box);
@@ -574,10 +624,6 @@ void Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
     const Real y_bottom = y_center - radius;
     const Real x_right = x_center + radius;
     const Real y_top = y_center + radius;
-
-	//Print loop center and radius to logfile
-	circ_file << "center = (" << x_center << ","<< y_center << ") and loop radius = " << radius ;
-	circ_file << std::endl;
 
 	//Initialize sum over theta
 	double theta_sum = 0.0;
