@@ -79,7 +79,7 @@ void langevin_main()
         pp_nrrb.get("eps", nrrb_parm.eps);
         pp_nrrb.query("seed_init", nrrb_parm.seed_init);
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
-
+        pp_nrrb.queryarr("circulation_radii", nrrb_parm.circ_radii);
        
 
         std::ostringstream logfile_stream;
