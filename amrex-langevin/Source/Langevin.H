@@ -34,6 +34,19 @@ struct NRRBParameters {
     amrex::Real eps;
     int seed_init;
     int seed_run;
+
+    NRRBParameters()
+    {
+        m = 1.0;
+        l = 0.0;
+        w = 0.0;
+        w_t = 0.0;
+        dtau = 0.0;
+        mu = 0.0;
+        eps = 0.0;
+        seed_init = -1;
+        seed_run = -1;
+    }
 };
 
 AMREX_INLINE

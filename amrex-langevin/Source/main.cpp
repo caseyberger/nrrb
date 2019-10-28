@@ -38,15 +38,6 @@ void langevin_main()
     domain_hi_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
 
     NRRBParameters nrrb_parm;
-    nrrb_parm.m = 1.0;
-    nrrb_parm.l = 0.0;
-    nrrb_parm.w = 0.0;
-    nrrb_parm.w_t = 0.0;
-    nrrb_parm.dtau = 0.0;
-    nrrb_parm.mu = 0.0;
-    nrrb_parm.eps = 0.0;
-    nrrb_parm.seed_init = -1;
-    nrrb_parm.seed_run = -1;
 
     int autocorrelation_step = 1;
 
