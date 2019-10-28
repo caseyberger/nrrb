@@ -21,8 +21,8 @@ Real S_w_Re(int i,int j,int t,int a, Real w, const Real x,const Real y, amrex::A
 Real S_w_Im(int i,int j,int t,int a, Real w, const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice);
 Real S_int_Re(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> const& Lattice);
 Real S_int_Im(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> const& Lattice);
-void Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom,
-			long int Nt, int radius, std::string filename);
+Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
+				 const amrex::GeometryData& geom, int radius);
 
 Observables::Observables(const amrex::GeometryData& geom, const NRRBParameters& nrrb, const int& nsteps)
 {
@@ -87,8 +87,8 @@ void Observables::initialize_files(const amrex::GeometryData& geom)
 		// Write circulation log files
 		for (const auto& radius_logfile : circulation_radii_logs)
 		{
-			const auto radius = radius_logfile->first;
-			const auto logfile = radius_logfile->second;
+			const auto radius = radius_logfile.first;
+			const auto logfile = radius_logfile.second;
 
 			// Get domain center location
 			const auto domain_xlo = geom.ProbLo();
@@ -108,12 +108,12 @@ void Observables::initialize_files(const amrex::GeometryData& geom)
 }
 
 void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amrex::GeometryData& geom,
-                         const NRRBParameters& nrrb_parm, const std::string observable_log_file)
+                         const NRRBParameters& nrrb_parm)
 {
     const int Ncomp = Lattice.nComp();
 
-    ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum> reduce_operations;
-    ReduceData<Real, Real, Real, Real, Real, Real, Real, Real> reduce_data(reduce_operations);
+    ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum> reduce_operations;
+    ReduceData<Real, Real, Real, Real, Real, Real, Real, Real, Real, Real> reduce_data(reduce_operations);
     using ReduceTuple = typename decltype(reduce_data)::Type;
 
 #ifdef _OPENMP
@@ -135,7 +135,9 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
                             observables[Obs::LzRe],
                             observables[Obs::LzIm],
                             observables[Obs::SRe],
-                            observables[Obs::SIm]};
+                            observables[Obs::SIm],
+							observables[Obs::Theta1],
+							observables[Obs::Theta2]};
                 });
     }
 
@@ -151,11 +153,14 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::LzIm>(reduced_observables), IOProc);
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SRe>(reduced_observables), IOProc);
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::Theta1>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::Theta2>(reduced_observables), IOProc);
 
-    // Write reduced observables
     if (ParallelDescriptor::IOProcessor())
     {
 	    std::ofstream obsFile;
+
+		// Write reduced observables
 	    obsFile.open(observable_log_file, std::fstream::app);
         obsFile << std::setw(6)  << std::left << nL << ' ';
         obsFile << std::setw(19) << std::left << amrex::get<Obs::PhiSqRe>(reduced_observables) << ' ';
@@ -168,6 +173,20 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
         obsFile << std::setw(19) << std::left << amrex::get<Obs::SIm>(reduced_observables) << ' ';
         obsFile << std::setw(11) << std::left << 0.0 << std::endl;
         obsFile.close();
+
+		// Write reduced circulation
+		int icirc = 0;
+		for (const auto& radius_log : circulation_radii_logs)
+		{
+			const auto circ_log = radius_log.second;
+			obsFile.open(circ_log, std::fstream::app);
+			if (icirc == 0)
+				obsFile << amrex::get<Obs::Theta1>(reduced_observables);
+			else if (icirc == 1)
+				obsFile << amrex::get<Obs::Theta2>(reduced_observables);
+			obsFile << ",\n";
+			++icirc;
+		}
     }
 }
 
@@ -177,7 +196,7 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
                                                const NRRBParameters nrrb_parm){
     const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
-	long int Nt = box.length(2);
+	const long Nt = box.length(AMREX_SPACEDIM-1);
 
 	//Initialize observable variables
     amrex::Vector<amrex::Real> observables(Obs::NumObservables, 0.0);
@@ -189,6 +208,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 	Real Lz_Im = 0.;
     Real S_Re = 0.;
     Real S_Im = 0.;
+	Real ThetaSum1 = 0.;
+	Real ThetaSum2 = 0.;
 
 	//modify parameters by dtau
 	const Real mu = nrrb_parm.dtau * nrrb_parm.mu;
@@ -314,10 +335,10 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 	//Equal_Time_Correlators(Lattice, size, Nx, Nt, filename);
 
 	//std::cout << "Lz successfully computed: Lz = " << Lz[0] << " + i" << Lz[1] << std::endl;
-	//compute circulation
-	/* long int Nx = box.length(0); */
-	Real theta_sum4 = Circulation(Lattice, box, geom, Nt, Nx/4, filename);
-	Real theta_sum2 = Circulation(Lattice, box, geom, Nt, Nx/2 - 1, filename);
+
+	// compute circulation
+	ThetaSum1 = Circulation(Lattice, box, geom, nrrb_parm.circ_radii[0]);
+	ThetaSum2 = Circulation(Lattice, box, geom, nrrb_parm.circ_radii[1]);
 
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
@@ -327,6 +348,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
     observables[Obs::LzIm] = Lz_Im / domain_volume;
     observables[Obs::SRe] = S_Re / domain_volume;
     observables[Obs::SIm] = S_Im / domain_volume;
+	observables[Obs::Theta1] = ThetaSum1;
+	observables[Obs::Theta2] = ThetaSum2;
 
     return observables;
 }
@@ -608,8 +631,8 @@ double S_int_Im(int i,int j,int t,int a,double l, amrex::Array4<const amrex::Rea
 */
 
 //NEW VERSION
-Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box, const amrex::GeometryData& geom, 
-				 long int Nt, int radius, std::string filename){
+Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
+				 const amrex::GeometryData& geom, int radius){
 	//find the total circulation over the lattice
 	//open circulation file
 	// std::ofstream circ_file;
@@ -617,6 +640,7 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 
 	const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
+	const long Nt = box.length(AMREX_SPACEDIM-1);
 
     const auto domain_xlo = geom.ProbLo();
     const auto domain_xhi = geom.ProbHi();
