@@ -99,7 +99,7 @@ void langevin_main()
         observable_log_file = logfile_stream.str();
 
      pp.query("observable_log_file", observable_log_file);
-     std::cout << "logfile name = " << observable_log_file << std::endl;
+     Print() << "logfile name = " << observable_log_file << std::endl;
     }
 
 #ifdef TEST_SEED_RNG
