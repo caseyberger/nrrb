@@ -4,3 +4,4 @@ CEXE_sources += Ka_Im.cpp
 CEXE_sources += Ka_Re.cpp
 CEXE_sources += Observables.cpp
 CEXE_headers += Langevin.H
+CEXE_headers += Observables.H
