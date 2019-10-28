@@ -292,9 +292,9 @@ void langevin_main()
 
     // Tell the I/O Processor to write out the total runtime,
     // time to advance solution (w/o initialization), and figure of merit.
-    amrex::Print() << "Run time = " << total_time << std::endl;
-    amrex::Print() << "Run time w/o initialization = " << advance_time << std::endl;
-    amrex::Print() << "  Average number of cells advanced per microsecond = " << std::fixed << std::setprecision(3) << run_fom << std::endl;
+    Print() << "Run time = " << total_time << std::endl;
+    Print() << "Run time w/o initialization = " << advance_time << std::endl;
+    Print() << "  Average number of cells advanced per microsecond = " << std::fixed << std::setprecision(3) << run_fom << std::endl;
 }
 
 std::string generate_filename(std::string inputs[], int size){
