@@ -24,7 +24,7 @@ Real S_int_Im(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> 
 Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
 				 const amrex::GeometryData& geom, int radius);
 
-Observables::Observables(const amrex::GeometryData& geom, const NRRBParameters& nrrb, const int& nsteps)
+Observables::Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps)
 {
 	const auto domain_box = geom.Domain();
 	const int length_x = domain_box.length(0);
@@ -64,7 +64,7 @@ Observables::Observables(const amrex::GeometryData& geom, const NRRBParameters& 
 	initialize_files(geom);
 }
 
-void Observables::initialize_files(const amrex::GeometryData& geom)
+void Observables::initialize_files(const amrex::Geometry& geom)
 {
     if (ParallelDescriptor::IOProcessor())
     {
