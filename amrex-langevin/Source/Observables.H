@@ -1,5 +1,9 @@
 #include "Langevin.H"
 
+namespace Obs {
+enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
+                        LzRe, LzIm, SRe, SIm, NumObservables};
+};
 class Observables
 {
 private:

@@ -19,11 +19,6 @@
 
 enum class C { Re = 0, Im };
 
-namespace Obs {
-enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
-                        LzRe, LzIm, SRe, SIm, NumObservables};
-};
-
 struct NRRBParameters {
     amrex::Real m;
     amrex::Real l;
