@@ -1,4 +1,5 @@
 #include "Langevin.H"
+#include "Observables.H"
 
 using namespace amrex;
 
@@ -41,8 +42,6 @@ void langevin_main()
 
     int autocorrelation_step = 1;
 
-
-    std::string observable_log_file;
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -80,17 +79,6 @@ void langevin_main()
         pp_nrrb.query("seed_init", nrrb_parm.seed_init);
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
         pp_nrrb.queryarr("circulation_radii", nrrb_parm.circ_radii);
-       
-
-        std::ostringstream logfile_stream;
-        logfile_stream << "logfile_D_" << AMREX_SPACEDIM-1 << "_Nx_" << n_cell[0] << "_Nt_" << n_cell[-1];
-        logfile_stream << "_dt_" << nrrb_parm.dtau << "_nL_" << nsteps << "_eps_" << nrrb_parm.eps;
-        logfile_stream << "_m_" << nrrb_parm.m << "_wtr_" <<nrrb_parm.w_t ;
-        logfile_stream << "_wz_" << nrrb_parm.w << "_l_" << nrrb_parm.l << "_mu_" << nrrb_parm.mu << ".log";
-        observable_log_file = logfile_stream.str();
-
-     pp.query("observable_log_file", observable_log_file);
-     Print() << "logfile name = " << observable_log_file << std::endl;
     }
 
 #ifdef TEST_SEED_RNG
@@ -130,9 +118,12 @@ void langevin_main()
     // How Boxes are distrubuted among MPI processes
     DistributionMapping dm(ba);
 
-    // we allocate two lattice multifabs; one will store the old state, the other the new.
+    // We allocate two lattice multifabs; one will store the old state, the other the new.
     MultiFab lattice_old(ba, dm, Ncomp, Nghost);
     MultiFab lattice_new(ba, dm, Ncomp, Nghost);
+
+    // Also create an observables object for updating and writing observable log files
+    Observables observables(geom, nrrb_parm, nsteps);
 
     Vector<BCRec> lattice_bc(Ncomp);
     for (int n = 0; n < Ncomp; ++n)
@@ -205,8 +196,6 @@ void langevin_main()
         WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
     }
 
-    initialize_observables(observable_log_file);
-
     // init_time is the current time post-initialization
     Real init_time = amrex::second();
 
@@ -248,7 +237,7 @@ void langevin_main()
         // Calculate observables
         if (n % autocorrelation_step == 0)
         {
-            update_observables(n, lattice_new, geom.data(), nrrb_parm, observable_log_file);
+            observables.update(n, lattice_new, geom.data(), nrrb_parm);
         }
 
         Ltime = Ltime + nrrb_parm.eps;
