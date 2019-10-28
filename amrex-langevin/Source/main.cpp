@@ -19,6 +19,10 @@ void langevin_main()
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = amrex::second();
 
+    // run_fom is the figure of merit for the run
+    // we define as total cells advanced per microsecond
+    Real run_fom = 0.0;
+
     // AMREX_SPACEDIM: number of dimensions (space + time)
     int max_grid_size, nsteps, plot_int;
     Vector<int> n_cell(AMREX_SPACEDIM, 1);
@@ -212,6 +216,9 @@ void langevin_main()
 
     initialize_observables(observable_log_file);
 
+    // init_time is the current time post-initialization
+    Real init_time = amrex::second();
+
     for (int n = 1; n <= nsteps; ++n)
     {
 #ifdef TEST_SEED_RNG
@@ -264,16 +271,30 @@ void langevin_main()
             const std::string& pltfile = amrex::Concatenate("plt",n,5);
             WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
         }
+
+        // Update the figure of merit with the number of cells advanced
+        // We can use BoxArray.numPts() since this is single-level
+        run_fom += ba.numPts();
     }
 
     // Call the timer again and compute the maximum difference between the start time and stop time
     // over all processors
-    Real stop_time = amrex::second() - strt_time;
-    const int IOProc = ParallelDescriptor::IOProcessorNumber();
-    ParallelDescriptor::ReduceRealMax(stop_time,IOProc);
+    Real stop_time = amrex::second();
+    Real total_time = stop_time - strt_time;
+    Real advance_time = stop_time - init_time;
 
-    // Tell the I/O Processor to write out the "run time"
-    amrex::Print() << "Run time = " << stop_time << std::endl;
+    const int IOProc = ParallelDescriptor::IOProcessorNumber();
+    ParallelDescriptor::ReduceRealMax(total_time,IOProc);
+    ParallelDescriptor::ReduceRealMax(advance_time,IOProc);
+
+    // Update the figure of merit, dividing cells advanced by time to advance in microseconds.
+    run_fom = run_fom / advance_time / 1.e6;
+
+    // Tell the I/O Processor to write out the total runtime,
+    // time to advance solution (w/o initialization), and figure of merit.
+    amrex::Print() << "Run time = " << total_time << std::endl;
+    amrex::Print() << "Run time w/o initialization = " << advance_time << std::endl;
+    amrex::Print() << "  Average number of cells advanced per microsecond = " << std::fixed << std::setprecision(3) << run_fom << std::endl;
 }
 
 std::string generate_filename(std::string inputs[], int size){
