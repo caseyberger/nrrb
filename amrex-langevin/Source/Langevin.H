@@ -29,7 +29,6 @@ struct NRRBParameters {
     amrex::Real eps;
     int seed_init;
     int seed_run;
-    amrex::Vector<int> circ_radii;
 
     NRRBParameters()
     {
@@ -42,7 +41,6 @@ struct NRRBParameters {
         eps = 0.0;
         seed_init = -1;
         seed_run = -1;
-        circ_radii.resize(0);
     }
 };
 
