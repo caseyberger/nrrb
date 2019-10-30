@@ -59,7 +59,7 @@ void Observables::initialize_files(const amrex::Geometry& geom)
         obsFile.close();
 
 		// Write circulation log files
-		for (const auto& circ : circulation) circ.init_file(geom);
+		for (auto& circ : circulation) circ.init_file(geom);
     }
 }
 
@@ -134,7 +134,7 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
 		circulation[1].circulation = amrex::get<Obs::Theta2>(reduced_observables);
 
 		// Write reduced circulation
-		for (const auto& circ : circulation) circ.write();
+		for (auto& circ : circulation) circ.write();
     }
 }
 
