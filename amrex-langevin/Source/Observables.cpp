@@ -144,7 +144,6 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
                                                const NRRBParameters nrrb_parm){
     const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
-	const long Nt = box.length(AMREX_SPACEDIM-1);
 
 	//Initialize observable variables
     amrex::Vector<amrex::Real> observables(Obs::NumObservables, 0.0);
