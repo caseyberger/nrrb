@@ -285,8 +285,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 	//std::cout << "Lz successfully computed: Lz = " << Lz[0] << " + i" << Lz[1] << std::endl;
 
 	// compute circulation
-	ThetaSum1 = Circulation(Lattice, box, geom, nrrb_parm.circ_radii[0]);
-	ThetaSum2 = Circulation(Lattice, box, geom, nrrb_parm.circ_radii[1]);
+	ThetaSum1 = Circulation(Lattice, box, geom, length_x/4);
+	ThetaSum2 = Circulation(Lattice, box, geom, length_x/2 - 1);
 
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
