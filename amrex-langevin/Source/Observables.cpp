@@ -21,9 +21,9 @@ Observables::Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb
 	// Construct the logfile suffix string using runtime parameters
 	std::ostringstream logfile_stream;
 	logfile_stream << "D_" << AMREX_SPACEDIM-1 << "_Nx_" << length_x << "_Nt_" << length_t;
-	logfile_stream << "_dt_" << nrrb_parm.dtau << "_nL_" << nsteps << "_eps_" << nrrb_parm.eps;
-	logfile_stream << "_m_" << nrrb_parm.m << "_wtr_" <<nrrb_parm.w_t;
-	logfile_stream << "_wz_" << nrrb_parm.w << "_l_" << nrrb_parm.l << "_mu_" << nrrb_parm.mu << ".log";
+	logfile_stream << "_dt_" << nrrb.dtau << "_nL_" << nsteps << "_eps_" << nrrb.eps;
+	logfile_stream << "_m_" << nrrb.m << "_wtr_" <<nrrb.w_t;
+	logfile_stream << "_wz_" << nrrb.w << "_l_" << nrrb.l << "_mu_" << nrrb.mu << ".log";
 	logfile_suffix = logfile_stream.str();
 
 	// Construct the log file names
@@ -284,6 +284,7 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 	//std::cout << "Lz successfully computed: Lz = " << Lz[0] << " + i" << Lz[1] << std::endl;
 
 	// compute circulation
+	const auto length_x = domain_box.length(0);
 	ThetaSum1 = Circulation(Lattice, box, geom, length_x/4);
 	ThetaSum2 = Circulation(Lattice, box, geom, length_x/2 - 1);
 
