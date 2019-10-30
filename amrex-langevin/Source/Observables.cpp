@@ -11,18 +11,6 @@ don't forget to modify mu, m, w, wtr, and l by dtau if they appear in observable
 mu = dtau*mu; m = m/dtau; w = dtau*w; wtr = dtau* wtr; l = dtau*l;
 */
 //void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename);
-Real S_tau_Re(int i,int j,int t,int a, Real mu, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_tau_Im(int i,int j,int t,int a, Real mu, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_del_Re(int i,int j,int t,int a, Real m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom);
-Real S_del_Im(int i,int j,int t,int a, Real m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom);
-Real S_trap_Re(int i,int j,int t,int a, Real w_t, const Real r2, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_trap_Im(int i,int j,int t,int a, Real w_t, const Real r2, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_w_Re(int i,int j,int t,int a, Real w, const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_w_Im(int i,int j,int t,int a, Real w, const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_int_Re(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_int_Im(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> const& Lattice);
-Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
-				 const amrex::GeometryData& geom, int radius);
 
 Observables::Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps)
 {
