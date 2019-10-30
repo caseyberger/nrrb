@@ -42,22 +42,8 @@ Observables::Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb
 	observable_log_file = "logfile_" + logfile_suffix;
 
 	// Initialize circulation radii and logfile names
-	if (nrrb_parm.circ_radii.size() == 0)
-	{
-		nrrb_parm.circ_radii.push_back(length_x/4);
-		nrrb_parm.circ_radii.push_back(length_x/2 - 1);
-	}
-	else if (nrrb_parm.circ_radii.size() > 2)
-	{
-		Error("nrrb.circulation_radii supports only two values at this time.");
-	}
-
-	for (auto& circ_radius : nrrb_parm.circ_radii)
-	{
-		std::string r_string = std::to_string(circ_radius);
-		std::string circ_filename = "Circ_loop_" + r_string + "_" + logfile_suffix;
-		circulation_radii_logs.insert(std::make_pair(circ_radius, circ_filename));
-	}
+	circulation.emplace_back(length_x/4, logfile_suffix);
+	circulation.emplace_back(length_x/2 - 1, logfile_suffix);
 
 	Print() << "logfile name = logfile_" << logfile_suffix << std::endl;
 
@@ -85,25 +71,7 @@ void Observables::initialize_files(const amrex::Geometry& geom)
         obsFile.close();
 
 		// Write circulation log files
-		for (const auto& radius_logfile : circulation_radii_logs)
-		{
-			const auto radius = radius_logfile.first;
-			const auto logfile = radius_logfile.second;
-
-			// Get domain center location
-			const auto domain_xlo = geom.ProbLo();
-			const auto domain_xhi = geom.ProbHi();
-			const Real x_center = 0.5 * (domain_xlo[0] + domain_xhi[0]);
-			const Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
-
-			// Create the circulation logfile
-			obsFile.open(logfile, std::fstream::trunc);
-
-			// Print loop center and radius to logfile
-			obsFile << "center = (" << x_center << ","<< y_center << ") and loop radius = " << radius;
-			obsFile << std::endl;
-			obsFile.close();
-		}
+		for (const auto& circ : circulation) circ.init_file(geom);
     }
 }
 
@@ -174,19 +142,11 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
         obsFile << std::setw(11) << std::left << 0.0 << std::endl;
         obsFile.close();
 
+		circulation[0].circulation = amrex::get<Obs::Theta1>(reduced_observables);
+		circulation[1].circulation = amrex::get<Obs::Theta2>(reduced_observables);
+
 		// Write reduced circulation
-		int icirc = 0;
-		for (const auto& radius_log : circulation_radii_logs)
-		{
-			const auto circ_log = radius_log.second;
-			obsFile.open(circ_log, std::fstream::app);
-			if (icirc == 0)
-				obsFile << amrex::get<Obs::Theta1>(reduced_observables);
-			else if (icirc == 1)
-				obsFile << amrex::get<Obs::Theta2>(reduced_observables);
-			obsFile << ",\n";
-			++icirc;
-		}
+		for (const auto& circ : circulation) circ.write();
     }
 }
 
