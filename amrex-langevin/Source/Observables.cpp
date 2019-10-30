@@ -588,7 +588,6 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 
 	const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
-	const long Nt = box.length(AMREX_SPACEDIM-1);
 
     const auto domain_xlo = geom.ProbLo();
     const auto domain_xhi = geom.ProbHi();
@@ -600,8 +599,17 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
     const Real dx_cell = geom.CellSize(0);
     const Real dy_cell = geom.CellSize(1);
 
-	//Set coordinates
+	const long Nt = domain_box.length(AMREX_SPACEDIM-1);
+
+	// Set t coordinate where we want to calculate circulation
 	int t = Nt/2;
+
+	// Return 0.0 for this box if t is not inside it
+	if (t < lo.z || t > hi.z)
+	{
+		return 0.0;
+	}
+
 	const Real x_left = x_center - radius;
     const Real y_bottom = y_center - radius;
     const Real x_right = x_center + radius;
