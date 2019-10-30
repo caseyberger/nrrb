@@ -26,8 +26,8 @@ struct RadCirc
         // Get domain center location
         const auto domain_xlo = geom.ProbLo();
         const auto domain_xhi = geom.ProbHi();
-        const Real x_center = 0.5 * (domain_xlo[0] + domain_xhi[0]);
-        const Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
+        const amrex::Real x_center = 0.5 * (domain_xlo[0] + domain_xhi[0]);
+        const amrex::Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
 
         // Create the circulation logfile
         std::ofstream obsFile;
@@ -63,15 +63,15 @@ public:
                 const amrex::GeometryData& geom, const NRRBParameters& nrrb_parm);
 };
 
-Real S_tau_Re(int i,int j,int t,int a, Real mu, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_tau_Im(int i,int j,int t,int a, Real mu, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_del_Re(int i,int j,int t,int a, Real m, amrex::Array4<const amrex::Real> const& Lattice, const amrex::GeometryData& geom);
-Real S_del_Im(int i,int j,int t,int a, Real m, amrex::Array4<const amrex::Real> const& Lattice, const amrex::GeometryData& geom);
-Real S_trap_Re(int i,int j,int t,int a, Real w_t, const Real r2, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_trap_Im(int i,int j,int t,int a, Real w_t, const Real r2, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_w_Re(int i,int j,int t,int a, Real w, const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_w_Im(int i,int j,int t,int a, Real w, const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_int_Re(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> const& Lattice);
-Real S_int_Im(int i,int j,int t,int a, Real l, amrex::Array4<const amrex::Real> const& Lattice);
-Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
-				 const amrex::GeometryData& geom, int radius);
+amrex::Real S_tau_Re(int i,int j,int t,int a, amrex::Real mu, amrex::Array4<const amrex::Real> const& Lattice);
+amrex::Real S_tau_Im(int i,int j,int t,int a, amrex::Real mu, amrex::Array4<const amrex::Real> const& Lattice);
+amrex::Real S_del_Re(int i,int j,int t,int a, amrex::Real m, amrex::Array4<const amrex::Real> const& Lattice, const amrex::GeometryData& geom);
+amrex::Real S_del_Im(int i,int j,int t,int a, amrex::Real m, amrex::Array4<const amrex::Real> const& Lattice, const amrex::GeometryData& geom);
+amrex::Real S_trap_Re(int i,int j,int t,int a, amrex::Real w_t, const amrex::Real r2, amrex::Array4<const amrex::Real> const& Lattice);
+amrex::Real S_trap_Im(int i,int j,int t,int a, amrex::Real w_t, const amrex::Real r2, amrex::Array4<const amrex::Real> const& Lattice);
+amrex::Real S_w_Re(int i,int j,int t,int a, amrex::Real w, const amrex::Real x,const amrex::Real y, amrex::Array4<const amrex::Real> const& Lattice);
+amrex::Real S_w_Im(int i,int j,int t,int a, amrex::Real w, const amrex::Real x,const amrex::Real y, amrex::Array4<const amrex::Real> const& Lattice);
+amrex::Real S_int_Re(int i,int j,int t,int a, amrex::Real l, amrex::Array4<const amrex::Real> const& Lattice);
+amrex::Real S_int_Im(int i,int j,int t,int a, amrex::Real l, amrex::Array4<const amrex::Real> const& Lattice);
+amrex::Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
+				        const amrex::GeometryData& geom, int radius);
