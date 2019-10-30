@@ -6,7 +6,6 @@ enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
                         NumObservables};
 };
 
-namespace {
 struct RadCirc
 {
     amrex::Real radius;
@@ -46,7 +45,6 @@ struct RadCirc
         obsFile << circulation << ",\n";
         obsFile.close();
     }
-};
 };
 
 class Observables
