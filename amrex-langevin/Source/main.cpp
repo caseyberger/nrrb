@@ -121,9 +121,11 @@ void langevin_main()
         // Break up boxarray "ba" into chunks no larger than "max_grid_size" along a direction
         ba.maxSize(max_grid_size);
 
-        // This defines the physical box, [-1,1] in each direction.
+        // This defines the physical box extents in each direction.
         RealBox real_box({AMREX_D_DECL( 0.0, 0.0, 0.0)},
-                         {AMREX_D_DECL( n_cell[0], n_cell[1], n_cell[2])});
+                         {AMREX_D_DECL( static_cast<Real>(n_cell[0]),
+                                        static_cast<Real>(n_cell[1]),
+                                        static_cast<Real>(n_cell[2]))});
 
         // This defines a Geometry object
         geom.define(domain,&real_box,CoordSys::cartesian,is_periodic.data());
