@@ -16,7 +16,7 @@ Observables::Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb
 {
 	const auto domain_box = geom.Domain();
 	const int length_x = domain_box.length(0);
-	const int length_t = domain_box.length(AMREX_SPACEDIM);
+	const int length_t = domain_box.length(AMREX_SPACEDIM-1);
 
 	// Construct the logfile suffix string using runtime parameters
 	std::ostringstream logfile_stream;
