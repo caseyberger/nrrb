@@ -33,6 +33,7 @@ void langevin_main()
     Vector<int> is_periodic(AMREX_SPACEDIM, 0);
     Vector<int> domain_lo_bc_types(AMREX_SPACEDIM, BCType::ext_dir);
     Vector<int> domain_hi_bc_types(AMREX_SPACEDIM, BCType::ext_dir);
+
     // Set periodicity and BCs for time
     is_periodic[AMREX_SPACEDIM-1] = 1;
     domain_lo_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
@@ -55,7 +56,7 @@ void langevin_main()
         pp.get("max_grid_size",max_grid_size);
 
         // Default plot_int to -1, allow us to set it to something else in the inputs file
-        //  If plot_int < 0 then no plot files will be writtenq
+        //  If plot_int < 0 then no plot files will be written
         plot_int = -1;
         pp.query("plot_int",plot_int);
 
