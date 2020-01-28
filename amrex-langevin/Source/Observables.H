@@ -8,11 +8,11 @@ enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
 
 struct RadCirc
 {
-    amrex::Real radius;
+    int radius;
     amrex::Real circulation;
     std::string logfile;
 
-    RadCirc(amrex::Real circ_radius, std::string logfile_suffix)
+    RadCirc(int circ_radius, std::string logfile_suffix)
     {
         // Initialize struct data
         radius = circ_radius;
