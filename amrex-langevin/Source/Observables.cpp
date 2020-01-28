@@ -30,7 +30,8 @@ Observables::Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb
 	observable_log_file = "logfile_" + logfile_suffix;
 
 	// Initialize circulation radii and logfile names
-	circulation.emplace_back(length_x/4, logfile_suffix);
+	// circulation.emplace_back(length_x/4, logfile_suffix);
+	circulation.emplace_back(2, logfile_suffix);
 	circulation.emplace_back(length_x/2 - 1, logfile_suffix);
 
 	Print() << "logfile name = logfile_" << logfile_suffix << std::endl;
@@ -285,7 +286,7 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 
 	// compute circulation
 	const auto length_x = domain_box.length(0);
-	ThetaSum1 = Circulation(Lattice, box, geom, length_x/4);
+	ThetaSum1 = Circulation(Lattice, box, geom, 2);
 	ThetaSum2 = Circulation(Lattice, box, geom, length_x/2 - 1);
 
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
@@ -580,29 +581,34 @@ double S_int_Im(int i,int j,int t,int a,double l, amrex::Array4<const amrex::Rea
 
 //NEW VERSION
 Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
-				 const amrex::GeometryData& geom, int radius){
-	//find the total circulation over the lattice
-	//open circulation file
-	// std::ofstream circ_file;
-	// circ_file.open(circ_filename, std::fstream::app);
-
+				 const amrex::GeometryData& geom, int radius) {
+	// Box and Domain geometry
 	const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
 
-    const auto domain_xlo = geom.ProbLo();
-    const auto domain_xhi = geom.ProbHi();
     const auto domain_box = geom.Domain();
     const auto domain_lo = amrex::lbound(domain_box);
     const auto domain_hi = amrex::ubound(domain_box);
-    const Real x_center = 0.5 * (domain_xlo[0] + domain_xhi[0]);
-    const Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
-    const Real dx_cell = geom.CellSize(0);
-    const Real dy_cell = geom.CellSize(1);
 
+	// For this to work properly, the following must be true:
+	// - the domain sizes in x and y must be odd
+	// - the center of the domain must satisfy the following:
+    const int x_center = 0.5 * (domain_lo.x + domain_hi.x);
+    const int y_center = 0.5 * (domain_lo.y + domain_hi.y);
+
+	// Loop left/right edges in the x-dimension
+	const int i_left = x_center - radius;
+    const int i_right = x_center + radius;
+
+	// Loop bottom/top edges in the y-dimension
+    const int j_bottom = y_center - radius;
+    const int j_top = y_center + radius;
+
+	// Number of points in the t-dimension in the domain
 	const long Nt = domain_box.length(AMREX_SPACEDIM-1);
 
 	// Set t coordinate where we want to calculate circulation
-	int t = Nt/2;
+	const int t = Nt/2;
 
 	// Return 0.0 for this box if t is not inside it
 	if (t < lo.z || t > hi.z)
@@ -610,51 +616,52 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 		return 0.0;
 	}
 
-	const Real x_left = x_center - radius;
-    const Real y_bottom = y_center - radius;
-    const Real x_right = x_center + radius;
-    const Real y_top = y_center + radius;
-
 	//Initialize sum over theta
-	double theta_sum = 0.0;
+	Real theta_sum = 0.0;
 
-	//std::cout << "center = (" << x_center << ","<< y_center << ") and loop radius = " << radius << std::endl;
-	//std::cout << "{(i,j)}s = ";
-	//figure out how to pick out i, j for that distance from the center
+	// Loop over y-dimension to add contributions from left/right edges
+	// of the loop contained in this box
 	for (int j = lo.y; j <= hi.y; ++j){
-		const Real y = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
-		if (y >= y_bottom && y <= y_top){
-			int i_left = (x_left - domain_xlo[0]) / dx_cell - 0.5 + domain_lo.x;
-			int i_right = (x_right - domain_xlo[0]) / dx_cell - 0.5 + domain_lo.x;
-			//check loop indices
-			//std::cout << "(" << i_left << "," << j << "), ";
-			//std::cout << "(" << i_right << "," << j << "), ";
-			//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-			theta_sum += Lattice(i_left,j,t,Field(1,C::Im)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
-			theta_sum += Lattice(i_left,j,t,Field(2,C::Re)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
-			theta_sum += Lattice(i_right,j,t,Field(1,C::Im)) / (Lattice(i_right,j,t,Field(1,C::Re)) - Lattice(i_right,j,t,Field(2,C::Im)));
-			theta_sum += Lattice(i_right,j,t,Field(2,C::Re)) / (Lattice(i_right,j,t,Field(1,C::Re)) - Lattice(i_right,j,t,Field(2,C::Im)));
-		}
-	}
-	for (int i = lo.x; i <= hi.x; ++i){
-		const Real x = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
-		if (x >= x_left && x <= x_right){
-			int j_top = (y_top - domain_xlo[1]) / dy_cell - 0.5 + domain_lo.y;
-			int j_bottom = (y_bottom - domain_xlo[1]) / dy_cell - 0.5 + domain_lo.y;
-			//check loop indices
-			//std::cout << "(" << i << "," << j_top << "), ";
-			//std::cout << "(" << i << "," << j_bottom << "), ";
-			//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-			theta_sum += Lattice(i,j_top,t,Field(1,C::Im)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
-			theta_sum += Lattice(i,j_top,t,Field(2,C::Re)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
-			theta_sum += Lattice(i,j_bottom,t,Field(1,C::Im)) / (Lattice(i,j_bottom,t,Field(1,C::Re)) - Lattice(i,j_bottom,t,Field(2,C::Im)));
-			theta_sum += Lattice(i,j_bottom,t,Field(2,C::Re)) / (Lattice(i,j_bottom,t,Field(1,C::Re)) - Lattice(i,j_bottom,t,Field(2,C::Im)));
-		}
-	}
-	//write results to circulation file
-	// circ_file << theta_sum/(8.*atan(1.)) << ","; //adding the circulation for one loop to the total circulation
-	// circ_file << std::endl;
-	// circ_file.close();
+		// Note: this includes corners and we do not double count them in the next loop over i
+		if (j >= j_bottom && j <= j_top){
+			// if left cell at this y is within the box, add its theta
+			if (i_left >= lo.x && i_left <= hi.x) {
+				// theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
+				theta_sum += Lattice(i_left,j,t,Field(1,C::Im)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
+				theta_sum += Lattice(i_left,j,t,Field(2,C::Re)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
+			}
 
-	return theta_sum/(8.*atan(1.)); //adding the circulation for one loop to the total circulation
+			// if right cell at this y is within the box, add its theta
+			if (i_right >= lo.x && i_right <= hi.x) {
+				// theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
+				theta_sum += Lattice(i_right,j,t,Field(1,C::Im)) / (Lattice(i_right,j,t,Field(1,C::Re)) - Lattice(i_right,j,t,Field(2,C::Im)));
+				theta_sum += Lattice(i_right,j,t,Field(2,C::Re)) / (Lattice(i_right,j,t,Field(1,C::Re)) - Lattice(i_right,j,t,Field(2,C::Im)));
+			}
+		}
+	}
+
+	// Loop over x-dimension to add contributions from bottom/top edges
+	// of the loop contained in this box
+	for (int i = lo.x; i <= hi.x; ++i){
+		// Note: in the following if (...), we do not include corners
+		// because the above loop over j already accounted for them
+		if (i > i_left && i < i_right) {
+			// if top cell at this x is within the box, add its theta
+			if (j_top >= lo.y && j_top <= hi.y) {
+				//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
+				theta_sum += Lattice(i,j_top,t,Field(1,C::Im)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
+				theta_sum += Lattice(i,j_top,t,Field(2,C::Re)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
+			}
+
+			// if bottom cell at this x is within the box, add its theta
+			if (j_bottom >= lo.y && j_bottom <= hi.y) {
+				//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
+				theta_sum += Lattice(i,j_bottom,t,Field(1,C::Im)) / (Lattice(i,j_bottom,t,Field(1,C::Re)) - Lattice(i,j_bottom,t,Field(2,C::Im)));
+				theta_sum += Lattice(i,j_bottom,t,Field(2,C::Re)) / (Lattice(i,j_bottom,t,Field(1,C::Re)) - Lattice(i,j_bottom,t,Field(2,C::Im)));
+			}
+		}
+	}
+
+	// adding the circulation for one loop and one box to the total circulation for this loop
+	return theta_sum/(8.*atan(1.));
 }
