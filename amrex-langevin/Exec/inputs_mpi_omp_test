@@ -7,6 +7,10 @@ nrrb.dtau = 0.05
 nrrb.mu = -0.1
 nrrb.eps = 0.01
 
+# Circulation observable radii in units of lattice sites
+nrrb.circulation_radius_1 = 2
+nrrb.circulation_radius_2 = 9
+
 # Set a seed for the random number generator
 nrrb.seed_init = 8134
 nrrb.seed_run = 61
