@@ -635,7 +635,7 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	//
 	// (e.g. starting from the point S:)
 	// ^ y
-	// |      ^----> 
+	// |      ^---->
 	// |      |    |
 	// |      S<---v
 	// |
@@ -691,7 +691,7 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	// of the loop contained in this box.
 	// Note: in the following if (...), we do not include corners
 	// because the above loop over j already accounted for them.
-	for (int i = lo.x; i <= hi.x; ++i){
+	for (int i = lo.x; i <= hi.x; ++i) {
 		if (i > i_left && i < i_right) {
 			// if top cell at this x is within the box, add its theta
 			if (j_top >= lo.y && j_top <= hi.y) {
