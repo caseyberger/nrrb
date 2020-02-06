@@ -614,7 +614,6 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	// Return 0.0 for this box if t is not inside it
 	if (t < lo.z || t > hi.z)
 	{
-		amrex::Print() << "t out of bounds for Circulation\n";
 		return 0.0;
 	}
 
@@ -646,45 +645,24 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	// Loop over y-dimension to add contributions from left/right edges
 	// of the loop contained in this box.
 	// Note: this includes corners and we do not double count them in the next loop over i
-	amrex::Print() << "t in bounds with radius = " << radius << "\n";
-	amrex::Print() << "box lo = " << lo << std::endl;
-	amrex::Print() << "box hi = " << hi << std::endl;
-	amrex::Print() << "center = " << x_center << " " << y_center << "\n";
-	amrex::Print() << "i_left = " << i_left << std::endl;
-	amrex::Print() << "i_right = " << i_right << std::endl;
-	amrex::Print() << "j_top = " << j_top << std::endl;
-	amrex::Print() << "j_bottom = " << j_bottom << std::endl;
-
 	for (int j = lo.y; j <= hi.y; ++j) {
 		// if left cell at this y is within the box, add its theta
 		if (i_left >= lo.x && i_left <= hi.x) {
 			if (j >= j_bottom && j < j_top) {
-				amrex::Print() << "adding i = " << i_left << ", j = " << j << std::endl;
-				Real tdiff = Theta(i_left, j+1, t) - Theta(i_left, j, t);
-				theta_sum += tdiff;
-				amrex::Print() << "tdiff = " << tdiff << std::endl;
+				theta_sum += Theta(i_left, j+1, t) - Theta(i_left, j, t);
 			}
 			else if (j == j_top) {
-				amrex::Print() << "adding i = " << i_left << ", j = " << j << std::endl;
-				Real tdiff = Theta(i_left+1, j, t) - Theta(i_left, j, t);
-				theta_sum += tdiff;
-				amrex::Print() << "tdiff = " << tdiff << std::endl;
+				theta_sum += Theta(i_left+1, j, t) - Theta(i_left, j, t);
 			}
 		}
 
 		// if right cell at this y is within the box, add its theta
 		if (i_right >= lo.x && i_right <= hi.x) {
 			if (j > j_bottom && j <= j_top) {
-				amrex::Print() << "adding i = " << i_right << ", j = " << j << std::endl;
-				Real tdiff = Theta(i_right, j-1, t) - Theta(i_right, j, t);
-				theta_sum += tdiff;
-				amrex::Print() << "tdiff = " << tdiff << std::endl;
+				theta_sum += Theta(i_right, j-1, t) - Theta(i_right, j, t);
 			}
 			else if (j == j_bottom) {
-				amrex::Print() << "adding i = " << i_right << ", j = " << j << std::endl;
-				Real tdiff = Theta(i_right-1, j, t) - Theta(i_right, j, t);
-				theta_sum += tdiff;
-				amrex::Print() << "tdiff = " << tdiff << std::endl;
+				theta_sum += Theta(i_right-1, j, t) - Theta(i_right, j, t);
 			}
 		}
 	}
@@ -697,25 +675,17 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 		if (i > i_left && i < i_right) {
 			// if top cell at this x is within the box, add its theta
 			if (j_top >= lo.y && j_top <= hi.y) {
-				amrex::Print() << "adding i = " << i << ", j = " << j_top << std::endl;
-				Real tdiff = Theta(i+1, j_top, t) - Theta(i, j_top, t);
-				theta_sum += tdiff;
-				amrex::Print() << "tdiff = " << tdiff << std::endl;
+				theta_sum += Theta(i+1, j_top, t) - Theta(i, j_top, t);
 			}
 
 			// if bottom cell at this x is within the box, add its theta
 			if (j_bottom >= lo.y && j_bottom <= hi.y) {
-				amrex::Print() << "adding i = " << i << ", j = " << j_bottom << std::endl;
-				Real tdiff = Theta(i-1, j_bottom, t) - Theta(i, j_bottom, t);
-				theta_sum += tdiff;
-				amrex::Print() << "tdiff = " << tdiff << std::endl;
+				theta_sum += Theta(i-1, j_bottom, t) - Theta(i, j_bottom, t);
 			}
 		}
 	}
 
 	// adding the circulation for one loop and one box to the total circulation for this loop
-	amrex::Print() << "theta_sum = " << theta_sum << std::endl;
 	Real circ = theta_sum/(8.*atan(1.));
-	amrex::Print() << "t in bounds for Circulation = " << circ << " with radius = " << radius << "\n";
 	return circ;
 }
