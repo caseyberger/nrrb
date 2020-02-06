@@ -27,6 +27,10 @@ struct NRRBParameters {
     amrex::Real dtau;
     amrex::Real mu;
     amrex::Real eps;
+
+    int circulation_radius_1;
+    int circulation_radius_2;
+
     int seed_init;
     int seed_run;
 
@@ -39,6 +43,10 @@ struct NRRBParameters {
         dtau = 0.0;
         mu = 0.0;
         eps = 0.0;
+
+        circulation_radius_1 = 2;
+        circulation_radius_2 = 9;
+
         seed_init = -1;
         seed_run = -1;
     }

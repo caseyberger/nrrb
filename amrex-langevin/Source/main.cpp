@@ -77,6 +77,10 @@ void langevin_main()
         pp_nrrb.get("dtau", nrrb_parm.dtau);
         pp_nrrb.get("mu", nrrb_parm.mu);
         pp_nrrb.get("eps", nrrb_parm.eps);
+
+        pp_nrrb.get("circulation_radius_1", nrrb_parm.circulation_radius_1);
+        pp_nrrb.get("circulation_radius_2", nrrb_parm.circulation_radius_2);
+
         pp_nrrb.query("seed_init", nrrb_parm.seed_init);
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
     }

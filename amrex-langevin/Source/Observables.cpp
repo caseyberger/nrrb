@@ -30,9 +30,8 @@ Observables::Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb
 	observable_log_file = "logfile_" + logfile_suffix;
 
 	// Initialize circulation radii and logfile names
-	// circulation.emplace_back(length_x/4, logfile_suffix);
-	circulation.emplace_back(2, logfile_suffix);
-	circulation.emplace_back(length_x/2 - 1, logfile_suffix);
+	circulation.emplace_back(nrrb.circulation_radius_1, logfile_suffix);
+	circulation.emplace_back(nrrb.circulation_radius_2, logfile_suffix);
 
 	Print() << "logfile name = logfile_" << logfile_suffix << std::endl;
 
@@ -132,9 +131,6 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
         obsFile << std::setw(11) << std::left << 0.0 << std::endl;
         obsFile.close();
 
-		amrex::Print() << "Theta1 = " << amrex::get<Obs::Theta1>(reduced_observables) << "\n";
-		amrex::Print() << "Theta2 = " << amrex::get<Obs::Theta2>(reduced_observables) << "\n";
-
 		circulation[0].set_circulation(amrex::get<Obs::Theta1>(reduced_observables));
 		circulation[1].set_circulation(amrex::get<Obs::Theta2>(reduced_observables));
 
@@ -146,7 +142,7 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
 amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int Ncomp,
                                                const amrex::Array4<const amrex::Real>& Lattice,
                                                const amrex::GeometryData& geom,
-                                               const NRRBParameters nrrb_parm){
+                                               const NRRBParameters nrrb_parm) {
     const auto lo = amrex::lbound(box);
     const auto hi = amrex::ubound(box);
 
@@ -288,8 +284,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 
 	// compute circulation
 	const auto length_x = domain_box.length(0);
-	Real ThetaSum1 = Circulation(Lattice, box, geom, 2);
-	Real ThetaSum2 = Circulation(Lattice, box, geom, length_x/2 - 1);
+	Real ThetaSum1 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_1);
+	Real ThetaSum2 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_2);
 
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
