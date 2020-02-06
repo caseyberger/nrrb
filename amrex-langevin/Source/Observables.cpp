@@ -623,9 +623,8 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 
 	auto Theta = [&](int i, int j, int k) -> Real {
 		// theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-		Real theta = Lattice(i,j,k,Field(1,C::Im)) + Lattice(i,j,k,Field(2,C::Re));
-		theta = theta / (Lattice(i,j,k,Field(1,C::Re)) - Lattice(i,j,k,Field(2,C::Im)));
-		return theta;
+		return atan( ( Lattice(i,j,k,Field(1,C::Im)) + Lattice(i,j,k,Field(2,C::Re)) ) /
+					 ( Lattice(i,j,k,Field(1,C::Re)) - Lattice(i,j,k,Field(2,C::Im)) ) );
 	};
 
 	// We are summing contributions from theta_t_l+1 - theta_t_l
@@ -633,11 +632,14 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	// and l+1 denotes (x, y) for the next lattice site on the loop
 	// chosen by a loop traversal in the -z direction using the right-hand-rule.
 	//
-	// (e.g. starting from the point S:)
+	// The loop starts from the point S, around the center of the domain C:
+	//
 	// ^ y
-	// |      ^---->
-	// |      |    |
-	// |      S<---v
+	// |      ^------->
+	// |      |       |
+	// |      |   C   |
+	// |      |       |
+	// |      S<------v
 	// |
 	// .-----------> x
 
