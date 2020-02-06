@@ -76,7 +76,8 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-    for (MFIter mfi(Lattice, TilingIfNotGPU()); mfi.isValid(); ++mfi)
+    // for (MFIter mfi(Lattice, TilingIfNotGPU()); mfi.isValid(); ++mfi)
+    for (MFIter mfi(Lattice, false); mfi.isValid(); ++mfi)
     {
         const Box& bx = mfi.tilebox();
         const Array4<const Real>& L_obs = Lattice.array(mfi);
@@ -131,8 +132,11 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
         obsFile << std::setw(11) << std::left << 0.0 << std::endl;
         obsFile.close();
 
-		circulation[0].circulation = amrex::get<Obs::Theta1>(reduced_observables);
-		circulation[1].circulation = amrex::get<Obs::Theta2>(reduced_observables);
+		amrex::Print() << "Theta1 = " << amrex::get<Obs::Theta1>(reduced_observables) << "\n";
+		amrex::Print() << "Theta2 = " << amrex::get<Obs::Theta2>(reduced_observables) << "\n";
+
+		circulation[0].set_circulation(amrex::get<Obs::Theta1>(reduced_observables));
+		circulation[1].set_circulation(amrex::get<Obs::Theta2>(reduced_observables));
 
 		// Write reduced circulation
 		for (auto& circ : circulation) circ.write();
@@ -156,8 +160,6 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 	Real Lz_Im = 0.;
     Real S_Re = 0.;
     Real S_Im = 0.;
-	Real ThetaSum1 = 0.;
-	Real ThetaSum2 = 0.;
 
 	//modify parameters by dtau
 	const Real mu = nrrb_parm.dtau * nrrb_parm.mu;
@@ -286,8 +288,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 
 	// compute circulation
 	const auto length_x = domain_box.length(0);
-	ThetaSum1 = Circulation(Lattice, box, geom, 2);
-	ThetaSum2 = Circulation(Lattice, box, geom, length_x/2 - 1);
+	Real ThetaSum1 = Circulation(Lattice, box, geom, 2);
+	Real ThetaSum2 = Circulation(Lattice, box, geom, length_x/2 - 1);
 
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
@@ -579,7 +581,6 @@ double S_int_Im(int i,int j,int t,int a,double l, amrex::Array4<const amrex::Rea
 }//updated 2.1.19
 */
 
-//NEW VERSION
 Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
 				 const amrex::GeometryData& geom, int radius) {
 	// Box and Domain geometry
@@ -613,55 +614,106 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	// Return 0.0 for this box if t is not inside it
 	if (t < lo.z || t > hi.z)
 	{
+		amrex::Print() << "t out of bounds for Circulation\n";
 		return 0.0;
 	}
 
 	//Initialize sum over theta
 	Real theta_sum = 0.0;
 
-	// Loop over y-dimension to add contributions from left/right edges
-	// of the loop contained in this box
-	for (int j = lo.y; j <= hi.y; ++j){
-		// Note: this includes corners and we do not double count them in the next loop over i
-		if (j >= j_bottom && j <= j_top){
-			// if left cell at this y is within the box, add its theta
-			if (i_left >= lo.x && i_left <= hi.x) {
-				// theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-				theta_sum += Lattice(i_left,j,t,Field(1,C::Im)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
-				theta_sum += Lattice(i_left,j,t,Field(2,C::Re)) / (Lattice(i_left,j,t,Field(1,C::Re)) - Lattice(i_left,j,t,Field(2,C::Im)));
-			}
+	auto Theta = [&](int i, int j, int k) -> Real {
+		// theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
+		Real theta = Lattice(i,j,k,Field(1,C::Im)) + Lattice(i,j,k,Field(2,C::Re));
+		theta = theta / (Lattice(i,j,k,Field(1,C::Re)) - Lattice(i,j,k,Field(2,C::Im)));
+		return theta;
+	};
 
-			// if right cell at this y is within the box, add its theta
-			if (i_right >= lo.x && i_right <= hi.x) {
-				// theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-				theta_sum += Lattice(i_right,j,t,Field(1,C::Im)) / (Lattice(i_right,j,t,Field(1,C::Re)) - Lattice(i_right,j,t,Field(2,C::Im)));
-				theta_sum += Lattice(i_right,j,t,Field(2,C::Re)) / (Lattice(i_right,j,t,Field(1,C::Re)) - Lattice(i_right,j,t,Field(2,C::Im)));
+	// We are summing contributions from theta_t_l+1 - theta_t_l
+	// where l denotes (x_l, y_l) for a loop lattice site
+	// and l+1 denotes (x, y) for the next lattice site on the loop
+	// chosen by a loop traversal in the -z direction using the right-hand-rule.
+	//
+	// (e.g. starting from the point S:)
+	// ^ y
+	// |      ^----> 
+	// |      |    |
+	// |      S<---v
+	// |
+	// .-----------> x
+
+	// Loop over y-dimension to add contributions from left/right edges
+	// of the loop contained in this box.
+	// Note: this includes corners and we do not double count them in the next loop over i
+	amrex::Print() << "t in bounds with radius = " << radius << "\n";
+	amrex::Print() << "box lo = " << lo << std::endl;
+	amrex::Print() << "box hi = " << hi << std::endl;
+	amrex::Print() << "center = " << x_center << " " << y_center << "\n";
+	amrex::Print() << "i_left = " << i_left << std::endl;
+	amrex::Print() << "i_right = " << i_right << std::endl;
+	amrex::Print() << "j_top = " << j_top << std::endl;
+	amrex::Print() << "j_bottom = " << j_bottom << std::endl;
+
+	for (int j = lo.y; j <= hi.y; ++j) {
+		// if left cell at this y is within the box, add its theta
+		if (i_left >= lo.x && i_left <= hi.x) {
+			if (j >= j_bottom && j < j_top) {
+				amrex::Print() << "adding i = " << i_left << ", j = " << j << std::endl;
+				Real tdiff = Theta(i_left, j+1, t) - Theta(i_left, j, t);
+				theta_sum += tdiff;
+				amrex::Print() << "tdiff = " << tdiff << std::endl;
+			}
+			else if (j == j_top) {
+				amrex::Print() << "adding i = " << i_left << ", j = " << j << std::endl;
+				Real tdiff = Theta(i_left+1, j, t) - Theta(i_left, j, t);
+				theta_sum += tdiff;
+				amrex::Print() << "tdiff = " << tdiff << std::endl;
+			}
+		}
+
+		// if right cell at this y is within the box, add its theta
+		if (i_right >= lo.x && i_right <= hi.x) {
+			if (j > j_bottom && j <= j_top) {
+				amrex::Print() << "adding i = " << i_right << ", j = " << j << std::endl;
+				Real tdiff = Theta(i_right, j-1, t) - Theta(i_right, j, t);
+				theta_sum += tdiff;
+				amrex::Print() << "tdiff = " << tdiff << std::endl;
+			}
+			else if (j == j_bottom) {
+				amrex::Print() << "adding i = " << i_right << ", j = " << j << std::endl;
+				Real tdiff = Theta(i_right-1, j, t) - Theta(i_right, j, t);
+				theta_sum += tdiff;
+				amrex::Print() << "tdiff = " << tdiff << std::endl;
 			}
 		}
 	}
 
 	// Loop over x-dimension to add contributions from bottom/top edges
-	// of the loop contained in this box
+	// of the loop contained in this box.
+	// Note: in the following if (...), we do not include corners
+	// because the above loop over j already accounted for them.
 	for (int i = lo.x; i <= hi.x; ++i){
-		// Note: in the following if (...), we do not include corners
-		// because the above loop over j already accounted for them
 		if (i > i_left && i < i_right) {
 			// if top cell at this x is within the box, add its theta
 			if (j_top >= lo.y && j_top <= hi.y) {
-				//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-				theta_sum += Lattice(i,j_top,t,Field(1,C::Im)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
-				theta_sum += Lattice(i,j_top,t,Field(2,C::Re)) / (Lattice(i,j_top,t,Field(1,C::Re)) - Lattice(i,j_top,t,Field(2,C::Im)));
+				amrex::Print() << "adding i = " << i << ", j = " << j_top << std::endl;
+				Real tdiff = Theta(i+1, j_top, t) - Theta(i, j_top, t);
+				theta_sum += tdiff;
+				amrex::Print() << "tdiff = " << tdiff << std::endl;
 			}
 
 			// if bottom cell at this x is within the box, add its theta
 			if (j_bottom >= lo.y && j_bottom <= hi.y) {
-				//theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-				theta_sum += Lattice(i,j_bottom,t,Field(1,C::Im)) / (Lattice(i,j_bottom,t,Field(1,C::Re)) - Lattice(i,j_bottom,t,Field(2,C::Im)));
-				theta_sum += Lattice(i,j_bottom,t,Field(2,C::Re)) / (Lattice(i,j_bottom,t,Field(1,C::Re)) - Lattice(i,j_bottom,t,Field(2,C::Im)));
+				amrex::Print() << "adding i = " << i << ", j = " << j_bottom << std::endl;
+				Real tdiff = Theta(i-1, j_bottom, t) - Theta(i, j_bottom, t);
+				theta_sum += tdiff;
+				amrex::Print() << "tdiff = " << tdiff << std::endl;
 			}
 		}
 	}
 
 	// adding the circulation for one loop and one box to the total circulation for this loop
-	return theta_sum/(8.*atan(1.));
+	amrex::Print() << "theta_sum = " << theta_sum << std::endl;
+	Real circ = theta_sum/(8.*atan(1.));
+	amrex::Print() << "t in bounds for Circulation = " << circ << " with radius = " << radius << "\n";
+	return circ;
 }

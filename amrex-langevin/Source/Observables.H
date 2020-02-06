@@ -17,16 +17,22 @@ struct RadCirc
         // Initialize struct data
         radius = circ_radius;
         circulation = 0.0;
+
         logfile = "Circ_loop_" + std::to_string(radius) + "_" + logfile_suffix;
     }
 
     void init_file(const amrex::Geometry& geom)
     {
         // Get domain center location
-        const auto domain_xlo = geom.ProbLo();
-        const auto domain_xhi = geom.ProbHi();
-        const amrex::Real x_center = 0.5 * (domain_xlo[0] + domain_xhi[0]);
-        const amrex::Real y_center = 0.5 * (domain_xlo[1] + domain_xhi[1]);
+        const auto domain_box = geom.Domain();
+        const auto domain_lo = amrex::lbound(domain_box);
+        const auto domain_hi = amrex::ubound(domain_box);
+
+        // For this to work properly, the following must be true:
+        // - the domain sizes in x and y must be odd
+        // - the center of the domain must satisfy the following:
+        const int x_center = 0.5 * (domain_lo.x + domain_hi.x);
+        const int y_center = 0.5 * (domain_lo.y + domain_hi.y);
 
         // Create the circulation logfile
         std::ofstream obsFile;
@@ -36,6 +42,11 @@ struct RadCirc
         obsFile << "center = (" << x_center << ","<< y_center << ") and loop radius = " << radius;
         obsFile << std::endl;
         obsFile.close();
+    }
+
+    void set_circulation(const amrex::Real loop_circ)
+    {
+        circulation = loop_circ;
     }
 
     void write()
