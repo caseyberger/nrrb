@@ -38,13 +38,13 @@ Real K_a_Re(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	//\phi_{a,r}^{R} - e^{\mu}/2 (\phi_{a,r-t}^{R} + \phi_{a,r+t}^{R})
 	//no special conditions here because we have periodic boundary conditions in time
 	Ka += Lattice(i,j,t,Field(a,C::Re));
-	Ka += -0.5 * exp(mu) * Lattice(i,j,t-1,Field(a,C::Re));
-	Ka += -0.5 * exp(mu) * Lattice(i,j,t+1,Field(a,C::Re));
+	Ka += -0.5 * std::exp(mu) * Lattice(i,j,t-1,Field(a,C::Re));
+	Ka += -0.5 * std::exp(mu) * Lattice(i,j,t+1,Field(a,C::Re));
 
 	for (int b=1; b<=2; b++){
 		//\eps_{ab} e^{\mu}/2 (\phi_{b,r-t}^{I}-\phi_{b,r+t}^{I})
-		Ka += epsilon(a,b) * 0.5 * exp(mu) * Lattice(i,j,t-1,Field(b,C::Im));
-		Ka -= epsilon(a,b) * 0.5 * exp(mu) * Lattice(i,j,t+1,Field(b,C::Im));
+		Ka += epsilon(a,b) * 0.5 * std::exp(mu) * Lattice(i,j,t-1,Field(b,C::Im));
+		Ka -= epsilon(a,b) * 0.5 * std::exp(mu) * Lattice(i,j,t+1,Field(b,C::Im));
 	}//last checked on 10.07.19
 
 	//SPATIAL DERIVATIVE PART OF Ka

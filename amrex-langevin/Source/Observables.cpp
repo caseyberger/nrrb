@@ -269,8 +269,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 					S_Im += S_int_Im(i,j,t,a,l,Lattice);
 				}//loop over a (for the Action)
             }//loop over t
-			dp_Re = 0.5 * exp(mu) * dp_Re;
-			dp_Im = 0.5 * exp(mu) * dp_Im;
+			dp_Re = 0.5 * std::exp(mu) * dp_Re;
+			dp_Im = 0.5 * std::exp(mu) * dp_Im;
 			//add local density to avg density variables
 			dens_Re += dp_Re;
 			dens_Im += dp_Im;
@@ -305,11 +305,11 @@ double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<const amrex::Re
 	double S_Re = 0.;
 	S_Re +=  0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
 	S_Re += -0.5 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
-	S_Re += -0.5 * exp(mu) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
-	S_Re +=  0.5 * exp(mu) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
+	S_Re += -0.5 * std::exp(mu) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
+	S_Re +=  0.5 * std::exp(mu) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
 	for (int b=1; b<=2; b++){
-		S_Re += 0.5 * exp(mu) * epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
-		S_Re += 0.5 * exp(mu) * epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+		S_Re += 0.5 * std::exp(mu) * epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+		S_Re += 0.5 * std::exp(mu) * epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
 	}
 	return S_Re;
 }
@@ -317,11 +317,11 @@ double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<const amrex::Re
 double S_tau_Im(int i,int j,int t,int a,double mu, amrex::Array4<const amrex::Real> const& Lattice){
 	double S_Im = 0.;
 	S_Im +=                  Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
-	S_Im += -0.5 * exp(mu) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
-	S_Im += -0.5 * exp(mu) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re));
+	S_Im += -0.5 * std::exp(mu) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
+	S_Im += -0.5 * std::exp(mu) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re));
 	for (int b=1; b<=2; b++){
-		S_Im += -0.5 * exp(mu) * epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
-		S_Im +=  0.5 * exp(mu) * epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+		S_Im += -0.5 * std::exp(mu) * epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+		S_Im +=  0.5 * std::exp(mu) * epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
 	}
 	return S_Im;
 }

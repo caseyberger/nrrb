@@ -39,12 +39,12 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	//\phi_{a,r}^{I} - e^{\mu}/2 (\phi_{a,r+t}^{I} + \phi_{a,r-t}^{I})
 	//no special boundary concerns because we have periodic boundary conditions in time
 	Ka += Lattice(i,j,t,Field(a,C::Im));
-	Ka += - 0.5*exp(mu) * Lattice(i,j,t-1,Field(a,C::Im));
-	Ka += - 0.5*exp(mu) * Lattice(i,j,t+1,Field(a,C::Im));
+	Ka += - 0.5*std::exp(mu) * Lattice(i,j,t-1,Field(a,C::Im));
+	Ka += - 0.5*std::exp(mu) * Lattice(i,j,t+1,Field(a,C::Im));
 	for (int b=1; b<=2; b++){
 		// -\eps_{ab} e^{\mu}/2 ( \phi_{b,r-t}^{R} - \phi_{b,r+t}^{R})
-		Ka -= 0.5*epsilon(a,b)*exp(mu) * Lattice(i,j,t-1,Field(b,C::Re));
-		Ka += 0.5*epsilon(a,b)*exp(mu) * Lattice(i,j,t+1,Field(b,C::Re));
+		Ka -= 0.5*epsilon(a,b)*std::exp(mu) * Lattice(i,j,t-1,Field(b,C::Re));
+		Ka += 0.5*epsilon(a,b)*std::exp(mu) * Lattice(i,j,t+1,Field(b,C::Re));
 	}//checked on 10.14.18
 	//checked again on 1.31.19
 
