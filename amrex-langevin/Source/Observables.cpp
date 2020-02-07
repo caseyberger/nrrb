@@ -93,8 +93,8 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
                             observables[Obs::LzIm],
                             observables[Obs::SRe],
                             observables[Obs::SIm],
-							observables[Obs::Theta1],
-							observables[Obs::Theta2]};
+							observables[Obs::Circ1],
+							observables[Obs::Circ2]};
                 });
     }
 
@@ -110,8 +110,8 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::LzIm>(reduced_observables), IOProc);
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SRe>(reduced_observables), IOProc);
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SIm>(reduced_observables), IOProc);
-    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::Theta1>(reduced_observables), IOProc);
-    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::Theta2>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::Circ1>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::Circ2>(reduced_observables), IOProc);
 
     if (ParallelDescriptor::IOProcessor())
     {
@@ -131,8 +131,8 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
         obsFile << std::setw(11) << std::left << 0.0 << std::endl;
         obsFile.close();
 
-		circulation[0].set_circulation(amrex::get<Obs::Theta1>(reduced_observables));
-		circulation[1].set_circulation(amrex::get<Obs::Theta2>(reduced_observables));
+		circulation[0].set_circulation(amrex::get<Obs::Circ1>(reduced_observables));
+		circulation[1].set_circulation(amrex::get<Obs::Circ2>(reduced_observables));
 
 		// Write reduced circulation
 		for (auto& circ : circulation) circ.write();
@@ -284,8 +284,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 
 	// compute circulation
 	const auto length_x = domain_box.length(0);
-	Real ThetaSum1 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_1);
-	Real ThetaSum2 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_2);
+	Real CircSum1 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_1);
+	Real CircSum2 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_2);
 
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
@@ -295,8 +295,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
     observables[Obs::LzIm]    = Lz_Im    / domain_volume;
     observables[Obs::SRe]     = S_Re     / domain_volume;
     observables[Obs::SIm]     = S_Im     / domain_volume;
-	observables[Obs::Theta1]  = ThetaSum1;
-	observables[Obs::Theta2]  = ThetaSum2;
+	observables[Obs::Circ1]  = CircSum1;
+	observables[Obs::Circ2]  = CircSum2;
 
     return observables;
 }
@@ -613,8 +613,8 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 		return 0.0;
 	}
 
-	//Initialize sum over theta
-	Real theta_sum = 0.0;
+	// Initialize circulation sum for this part of the domain
+	Real circ_sum = 0.0;
 
 	auto Theta = [&](int i, int j, int k) -> Real {
 		// theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
@@ -645,20 +645,20 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 		// if left cell at this y is within the box, add its theta
 		if (i_left >= lo.x && i_left <= hi.x) {
 			if (j >= j_bottom && j < j_top) {
-				theta_sum += Theta(i_left, j+1, t) - Theta(i_left, j, t);
+				circ_sum += Theta(i_left, j+1, t) - Theta(i_left, j, t);
 			}
 			else if (j == j_top) {
-				theta_sum += Theta(i_left+1, j, t) - Theta(i_left, j, t);
+				circ_sum += Theta(i_left+1, j, t) - Theta(i_left, j, t);
 			}
 		}
 
 		// if right cell at this y is within the box, add its theta
 		if (i_right >= lo.x && i_right <= hi.x) {
 			if (j > j_bottom && j <= j_top) {
-				theta_sum += Theta(i_right, j-1, t) - Theta(i_right, j, t);
+				circ_sum += Theta(i_right, j-1, t) - Theta(i_right, j, t);
 			}
 			else if (j == j_bottom) {
-				theta_sum += Theta(i_right-1, j, t) - Theta(i_right, j, t);
+				circ_sum += Theta(i_right-1, j, t) - Theta(i_right, j, t);
 			}
 		}
 	}
@@ -671,17 +671,17 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 		if (i > i_left && i < i_right) {
 			// if top cell at this x is within the box, add its theta
 			if (j_top >= lo.y && j_top <= hi.y) {
-				theta_sum += Theta(i+1, j_top, t) - Theta(i, j_top, t);
+				circ_sum += Theta(i+1, j_top, t) - Theta(i, j_top, t);
 			}
 
 			// if bottom cell at this x is within the box, add its theta
 			if (j_bottom >= lo.y && j_bottom <= hi.y) {
-				theta_sum += Theta(i-1, j_bottom, t) - Theta(i, j_bottom, t);
+				circ_sum += Theta(i-1, j_bottom, t) - Theta(i, j_bottom, t);
 			}
 		}
 	}
 
 	// adding the circulation for one loop and one box to the total circulation for this loop
-	Real circ = theta_sum/(8.*atan(1.));
+	Real circ = circ_sum/(8.*atan(1.));
 	return circ;
 }
