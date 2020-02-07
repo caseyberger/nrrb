@@ -618,8 +618,8 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 
 	auto Theta = [&](int i, int j, int k) -> Real {
 		// theta = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-		return atan( ( Lattice(i,j,k,Field(1,C::Im)) + Lattice(i,j,k,Field(2,C::Re)) ) /
-					 ( Lattice(i,j,k,Field(1,C::Re)) - Lattice(i,j,k,Field(2,C::Im)) ) );
+		return std::atan( ( Lattice(i,j,k,Field(1,C::Im)) + Lattice(i,j,k,Field(2,C::Re)) ) /
+					      ( Lattice(i,j,k,Field(1,C::Re)) - Lattice(i,j,k,Field(2,C::Im)) ) );
 	};
 
 	// We are summing contributions from theta_t_l+1 - theta_t_l
@@ -682,6 +682,6 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	}
 
 	// adding the circulation for one loop and one box to the total circulation for this loop
-	Real circ = circ_sum/(8.*atan(1.));
+	Real circ = circ_sum/(8. * std::atan(1.));
 	return circ;
 }
