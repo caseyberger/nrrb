@@ -294,8 +294,8 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
     observables[Obs::LzIm]    = Lz_Im    / domain_volume;
     observables[Obs::SRe]     = S_Re     / domain_volume;
     observables[Obs::SIm]     = S_Im     / domain_volume;
-	observables[Obs::Circ1]  = CircSum1;
-	observables[Obs::Circ2]  = CircSum2;
+	observables[Obs::Circ1]   = CircSum1;
+	observables[Obs::Circ2]   = CircSum2;
 
     return observables;
 }
