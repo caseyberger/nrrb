@@ -623,7 +623,7 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	};
 
 	// We are summing contributions from theta_t_l+1 - theta_t_l
-	// where l denotes (x_l, y_l) for a loop lattice site
+	// where l denotes (x, y) for a loop lattice site
 	// and l+1 denotes (x, y) for the next lattice site on the loop
 	// chosen by a loop traversal in the -z direction using the right-hand-rule.
 	//
@@ -640,9 +640,10 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 
 	// Loop over y-dimension to add contributions from left/right edges
 	// of the loop contained in this box.
-	// Note: this includes corners and we do not double count them in the next loop over i
+	//
+	// This loop includes corners, so we do not double count them in the next loop over x
 	for (int j = lo.y; j <= hi.y; ++j) {
-		// if left cell at this y is within the box, add its theta
+		// if left cell at this y is within the box, add its phase difference
 		if (i_left >= lo.x && i_left <= hi.x) {
 			if (j >= j_bottom && j < j_top) {
 				circ_sum += Theta(i_left, j+1, t) - Theta(i_left, j, t);
@@ -652,7 +653,7 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 			}
 		}
 
-		// if right cell at this y is within the box, add its theta
+		// if right cell at this y is within the box, add its phase difference
 		if (i_right >= lo.x && i_right <= hi.x) {
 			if (j > j_bottom && j <= j_top) {
 				circ_sum += Theta(i_right, j-1, t) - Theta(i_right, j, t);
@@ -665,16 +666,17 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 
 	// Loop over x-dimension to add contributions from bottom/top edges
 	// of the loop contained in this box.
-	// Note: in the following if (...), we do not include corners
-	// because the above loop over j already accounted for them.
 	for (int i = lo.x; i <= hi.x; ++i) {
+		// In the following `if` statement, we do not include corners
+		// (i.e. we use `>` and `<` instead of `>=` and `<=`)
+		// because the above loop over y already accounted for them.
 		if (i > i_left && i < i_right) {
-			// if top cell at this x is within the box, add its theta
+			// if top cell at this x is within the box, add its phase difference
 			if (j_top >= lo.y && j_top <= hi.y) {
 				circ_sum += Theta(i+1, j_top, t) - Theta(i, j_top, t);
 			}
 
-			// if bottom cell at this x is within the box, add its theta
+			// if bottom cell at this x is within the box, add its phase difference
 			if (j_bottom >= lo.y && j_bottom <= hi.y) {
 				circ_sum += Theta(i-1, j_bottom, t) - Theta(i, j_bottom, t);
 			}
