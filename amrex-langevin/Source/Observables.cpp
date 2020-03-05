@@ -283,7 +283,6 @@ amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int 
 	//std::cout << "Lz successfully computed: Lz = " << Lz[0] << " + i" << Lz[1] << std::endl;
 
 	// compute circulation
-	const auto length_x = domain_box.length(0);
 	Real CircSum1 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_1);
 	Real CircSum2 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_2);
 
