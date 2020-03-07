@@ -19,6 +19,13 @@
 
 enum class C { Re = 0, Im };
 
+namespace Constants {
+    constexpr amrex::Real Pi = 3.1415926535897932384e0;
+    constexpr amrex::Real TwoPi = 2.0 * Pi;
+    constexpr amrex::Real HalfPi = 0.5 * Pi;
+    constexpr amrex::Real ThreeHalvesPi = 1.5 * Pi;
+}
+
 struct NRRBParameters {
     amrex::Real m;
     amrex::Real l;
@@ -33,6 +40,8 @@ struct NRRBParameters {
 
     int seed_init;
     int seed_run;
+
+    int problem_type;
 
     NRRBParameters()
     {
@@ -49,6 +58,10 @@ struct NRRBParameters {
 
         seed_init = -1;
         seed_run = -1;
+
+        // problem_type = 0 is the default setup
+        // other problem types may be, e.g. specialized test cases
+        problem_type = 0;
     }
 };
 
@@ -89,6 +102,11 @@ amrex::Real delta(int a, int b){
 }
 
 void langevin_main();
+
+void Langevin_initialization(amrex::MultiFab& lattice, const amrex::Geometry& geom, const NRRBParameters& parm);
+
+void initialize_fixed_circulation(const amrex::Box& box, const amrex::GeometryData& geom,
+                                  amrex::Array4<amrex::Real> const& Lattice);
 
 void Langevin_evolution(amrex::Real m, amrex::Real l, amrex::Real w, amrex::Real w_t, amrex::Real dtau, amrex::Real mu, amrex::Real eps,
                         const amrex::Box& box, const int Ncomp,

@@ -83,6 +83,9 @@ void langevin_main()
 
         pp_nrrb.query("seed_init", nrrb_parm.seed_init);
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
+
+        // problem type: 0 = default, 1 = fixed phase for circulation testing
+        pp_nrrb.query("problem_type", nrrb_parm.problem_type);
     }
 
 #ifdef TEST_SEED_RNG
@@ -150,36 +153,11 @@ void langevin_main()
         }
     }
 
-    // Initialize lattice_old using an MFIter (MultiFab Iterator)
-    // This loops over the array data corresponding to boxes owned by this MPI rank.
+    // Initialize the valid regions in the domain interior
+    Langevin_initialization(lattice_old, geom, nrrb_parm);
 
-    // We could markup this loop with OpenMP if we like.
-    // The AMReX random number generator interface is threadsafe.
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
-    for (MFIter mfi(lattice_old, TilingIfNotGPU()); mfi.isValid(); ++mfi)
-    {
-        // This gets the index bounding box corresponding to the current MFIter object mfi.
-        const Box& bx = mfi.tilebox();
-
-        // This gets an Array4, a light wrapper for the underlying data that mfi points to.
-        // The Array4 object provides accessor functions so it can be treated like a 4-D array
-        // with dimensions (x, y, z, component).
-        Array4<Real> const& L_old = lattice_old.array(mfi);
-
-        ParallelFor(bx, Ncomp, [=](int i, int j, int k, int n) {
-#ifdef TEST_CONSTANT_RNG
-            L_old(i, j, k, n) = 1.0;
-#else
-            L_old(i, j, k, n) = 2.0 * Random() - 1.0;
-#endif
-        });
-    }
-
-    // We initialized the interior of the domain
-    // (above, we got bx by calling MFIter::tilebox() and this only gives us a tile in the "valid" region)
-    // so now we should fill the ghost cells using our boundary conditions in the Geometry object geom.
+    // We initialized the valid regions in the interior of the domain (and not the ghost cells).
+    // so now we fill the ghost cells using our boundary conditions in the Geometry object geom.
     lattice_old.FillBoundary(geom.periodicity());
     FillDomainBoundary(lattice_old, geom, lattice_bc);
 
@@ -193,7 +171,10 @@ void langevin_main()
     // time = starting time in the simulation
     Real Ltime = 0.0;
 
-    // To check our initialization, we can write out plotfiles ...
+    // Write observables after initialization for reference
+    observables.update(0, lattice_new, geom.data(), nrrb_parm);
+
+    // To check our initialization, we also write a plotfile
     // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
     if (plot_int > 0)
     {
