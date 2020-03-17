@@ -631,6 +631,12 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
         // Returns Theta(ilp, jlp, klp) - Theta(il, jl, kl) = theta_l+1 - theta_l
         Real dtheta = Theta(ilp, jlp, klp) - Theta(il, jl, kl);
 
+        // Put dtheta into the range [-pi, 0] or [0, pi]
+        if (dtheta < -Constants::Pi)
+            dtheta +=  Constants::TwoPi;
+        else if (dtheta > Constants::Pi)
+            dtheta += -Constants::TwoPi;
+
         return dtheta;
     };
 
