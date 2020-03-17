@@ -627,6 +627,13 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 		return theta;
 	};
 
+    auto DeltaTheta = [&](int ilp, int jlp, int klp, int il, int jl, int kl) -> Real {
+        // Returns Theta(ilp, jlp, klp) - Theta(il, jl, kl) = theta_l+1 - theta_l
+        Real dtheta = Theta(ilp, jlp, klp) - Theta(il, jl, kl);
+
+        return dtheta;
+    };
+
 	// We are summing contributions from theta_t_l+1 - theta_t_l
 	// where l denotes (x, y) for a loop lattice site
 	// and l+1 denotes (x, y) for the next lattice site on the loop
@@ -651,20 +658,20 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 		// if left cell at this y is within the box, add its phase difference
 		if (i_left >= lo.x && i_left <= hi.x) {
 			if (j >= j_bottom && j < j_top) {
-				circ_sum += Theta(i_left, j+1, t) - Theta(i_left, j, t);
+				circ_sum += DeltaTheta(i_left, j+1, t, i_left, j, t);
 			}
 			else if (j == j_top) {
-				circ_sum += Theta(i_left+1, j, t) - Theta(i_left, j, t);
+				circ_sum += DeltaTheta(i_left+1, j, t, i_left, j, t);
 			}
 		}
 
 		// if right cell at this y is within the box, add its phase difference
 		if (i_right >= lo.x && i_right <= hi.x) {
 			if (j > j_bottom && j <= j_top) {
-				circ_sum += Theta(i_right, j-1, t) - Theta(i_right, j, t);
+				circ_sum += DeltaTheta(i_right, j-1, t, i_right, j, t);
 			}
 			else if (j == j_bottom) {
-				circ_sum += Theta(i_right-1, j, t) - Theta(i_right, j, t);
+				circ_sum += DeltaTheta(i_right-1, j, t, i_right, j, t);
 			}
 		}
 	}
@@ -678,12 +685,12 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 		if (i > i_left && i < i_right) {
 			// if top cell at this x is within the box, add its phase difference
 			if (j_top >= lo.y && j_top <= hi.y) {
-				circ_sum += Theta(i+1, j_top, t) - Theta(i, j_top, t);
+				circ_sum += DeltaTheta(i+1, j_top, t, i, j_top, t);
 			}
 
 			// if bottom cell at this x is within the box, add its phase difference
 			if (j_bottom >= lo.y && j_bottom <= hi.y) {
-				circ_sum += Theta(i-1, j_bottom, t) - Theta(i, j_bottom, t);
+				circ_sum += DeltaTheta(i-1, j_bottom, t, i, j_bottom, t);
 			}
 		}
 	}
