@@ -26,9 +26,9 @@ void Langevin_initialization(MultiFab& lattice, const Geometry& geom, const NRRB
         // with dimensions (x, y, z, component).
         Array4<Real> const& Lattice = lattice.array(mfi);
 
-        if (parm.problem_type == 1)
+        if (parm.problem_type == 1 || parm.problem_type == 2)
         {
-            initialize_fixed_circulation(bx, geom.data(), Lattice);
+            initialize_fixed_circulation(bx, geom.data(), Lattice, parm.problem_type);
         }
         else if (parm.problem_type == 0)
         {
@@ -49,7 +49,7 @@ void Langevin_initialization(MultiFab& lattice, const Geometry& geom, const NRRB
 
 
 void initialize_fixed_circulation(const amrex::Box& box, const amrex::GeometryData& geom,
-                                  amrex::Array4<amrex::Real> const& Lattice)
+                                  amrex::Array4<amrex::Real> const& Lattice, const int problem_type)
 {
 	// Box and Domain geometry
 	const auto lo = amrex::lbound(box);
@@ -148,15 +148,32 @@ void initialize_fixed_circulation(const amrex::Box& box, const amrex::GeometryDa
                     Lattice(i,j,k,Field(1,C::Re)) = 0.0;
                     Lattice(i,j,k,Field(2,C::Re)) = 0.0;
                 } else {
-                    // Set the field phase at this lattice site so that the phase at S is 0
-                    // After total_loop_length number of phase increments from S we return back to S.
-                    // The phase at S should be the same as when we started (modulo 2*pi),
-                    // so, e.g. Theta(S + total_loop_length) = Theta(S) + 2 * pi
-                    // so the phase increment from one loop site to the next is (2 * pi) / total_loop_length
-                    const Real phase_increment = Constants::TwoPi / total_loop_length;
+                    Real phase_increment = 0.0;
+                    Real phase = 0.0;
 
-                    // since we are setting the phase at S to 0.0, this is just the total phase in the cell
-                    const Real phase = phase_increment * loop_path_length;
+                    if (problem_type == 1) {
+                        // Set the field phase at this lattice site so that the phase at S is 0
+                        // After total_loop_length number of phase increments from S we return back to S.
+                        // The phase at S should be the same as when we started (modulo 2*pi),
+                        // so, e.g. Theta(S + total_loop_length) = Theta(S) + 2 * pi
+                        // so the phase increment from one loop site to the next is (2 * pi) / total_loop_length
+                        phase_increment = Constants::TwoPi / total_loop_length;
+
+                        // since we are setting the phase at S to 0.0, this is just the total phase in the cell
+                        phase = phase_increment * loop_path_length;
+                    } else if (problem_type == 2) {
+                        // Similar to the above case, except this time we take the phase to 2*pi
+                        // in the first half of the loop, then decrement it back to 0 in the second half.
+                        phase_increment = 2.0 * Constants::TwoPi / total_loop_length;
+
+                        // since we are setting the phase at S to 0.0, this is just the total phase in the cell
+                        if (2 * loop_path_length < total_loop_length) {
+                            phase = phase_increment * loop_path_length;
+                        } else {
+                            const Real half_loop = total_loop_length / 2.0;
+                            phase = phase_increment * half_loop - phase_increment * (loop_path_length - half_loop);
+                        }
+                    }
 
                     // sets the field components so the total field is just |phi|*exp(I * theta).
                     // since tan(theta) = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im),

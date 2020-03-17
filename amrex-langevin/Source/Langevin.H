@@ -106,7 +106,7 @@ void langevin_main();
 void Langevin_initialization(amrex::MultiFab& lattice, const amrex::Geometry& geom, const NRRBParameters& parm);
 
 void initialize_fixed_circulation(const amrex::Box& box, const amrex::GeometryData& geom,
-                                  amrex::Array4<amrex::Real> const& Lattice);
+                                  amrex::Array4<amrex::Real> const& Lattice, const int problem_type);
 
 void Langevin_evolution(amrex::Real m, amrex::Real l, amrex::Real w, amrex::Real w_t, amrex::Real dtau, amrex::Real mu, amrex::Real eps,
                         const amrex::Box& box, const int Ncomp,
