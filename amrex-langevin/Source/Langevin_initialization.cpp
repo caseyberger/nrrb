@@ -26,7 +26,7 @@ void Langevin_initialization(MultiFab& lattice, const Geometry& geom, const NRRB
         // with dimensions (x, y, z, component).
         Array4<Real> const& Lattice = lattice.array(mfi);
 
-        if (parm.problem_type == 1 || parm.problem_type == 2)
+        if (parm.problem_type == 1 || parm.problem_type == 2 || parm.problem_type == 3)
         {
             initialize_fixed_circulation(bx, geom.data(), Lattice, parm.problem_type);
         }
@@ -173,6 +173,14 @@ void initialize_fixed_circulation(const amrex::Box& box, const amrex::GeometryDa
                             const Real half_loop = total_loop_length / 2.0;
                             phase = phase_increment * half_loop - phase_increment * (loop_path_length - half_loop);
                         }
+                    } else if (problem_type == 3) {
+                        // Same as problem_type = 1 except the phase increment is negative
+                        // so, e.g. Theta(S + total_loop_length) = Theta(S) - 2 * pi
+                        // and the phase increment from one loop site to the next is (-2 * pi) / total_loop_length
+                        phase_increment = Constants::TwoPi / total_loop_length;
+
+                        // since we are setting the phase at S to 0.0, this is just the total phase in the cell
+                        phase = phase_increment * (total_loop_length - loop_path_length);
                     }
 
                     // sets the field components so the total field is just |phi|*exp(I * theta).
