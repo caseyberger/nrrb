@@ -127,10 +127,6 @@ void reduce_observables(const int i, const int j, const int t,
     dens_Re = 0.5 * std::exp(mu) * dens_Re;
     dens_Im = 0.5 * std::exp(mu) * dens_Im;
 
-	// compute circulation
-	Real CircSum1 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_1);
-	Real CircSum2 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_2);
-
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
     observables[Obs::DensRe]  = dens_Re  / domain_volume;
@@ -139,8 +135,6 @@ void reduce_observables(const int i, const int j, const int t,
     observables[Obs::LzIm]    = Lz_Im    / domain_volume;
     observables[Obs::SRe]     = S_Re     / domain_volume;
     observables[Obs::SIm]     = S_Im     / domain_volume;
-	observables[Obs::Circ1]   = CircSum1;
-	observables[Obs::Circ2]   = CircSum2;
 
     return observables;
 }
