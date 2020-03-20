@@ -92,6 +92,13 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
                         reduce_observables(i, j, t, L_obs, geom, nrrb_parm, observables);
                     });
 
+                    // compute circulation
+                    Real CircSum1 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_1);
+                    Real CircSum2 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_2);
+
+                    observables[Obs::Circ1]   = CircSum1;
+                    observables[Obs::Circ2]   = CircSum2;
+
                     return {observables[Obs::PhiSqRe],
                             observables[Obs::PhiSqIm],
                             observables[Obs::DensRe],
