@@ -11,6 +11,7 @@ on the lattice to one positive or negative step in the direction specified.
 */
 
 //COMPUTING THE IMAGINARY DRIFT FUNCTION
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::Array4<amrex::Real> const& Lattice, const amrex::GeometryData& geom, int i, int j, int t)
 {
     const auto domain_xlo = geom.ProbLo();
