@@ -87,13 +87,6 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
                     // Evaluate observable contributions for this cell (i,j,t)
                     const auto observables = local_observables(i, j, t, L_obs, geom, nrrb_parm);
 
-                    // compute circulation
-                    Real CircSum1 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_1);
-                    Real CircSum2 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_2);
-
-                    observables[Obs::Circ1]   = CircSum1;
-                    observables[Obs::Circ2]   = CircSum2;
-
                     return {observables[Obs::PhiSqRe],
                             observables[Obs::PhiSqIm],
                             observables[Obs::DensRe],
