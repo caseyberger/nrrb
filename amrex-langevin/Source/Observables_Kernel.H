@@ -318,7 +318,7 @@ Real Circulation(const int i, const int j, const int t,
 
 	// This left/right section includes the 4 corners of the loop
     // if at left and left cell at this y is within the box, add its phase difference
-    if (i == i_left && i_left >= lo.x && i_left <= hi.x) {
+    if (i == i_left) {
         if (j >= j_bottom && j < j_top) {
             circ_sum += DeltaTheta(Lattice, i_left, j+1, t, i_left, j, t);
         }
@@ -328,7 +328,7 @@ Real Circulation(const int i, const int j, const int t,
     }
 
     // if at right and right cell at this y is within the box, add its phase difference
-    if (i == i_right && i_right >= lo.x && i_right <= hi.x) {
+    if (i == i_right) {
         if (j > j_bottom && j <= j_top) {
             circ_sum += DeltaTheta(Lattice, i_right, j-1, t, i_right, j, t);
         }
@@ -343,12 +343,12 @@ Real Circulation(const int i, const int j, const int t,
     // because the above left/right sections already accounted for them.
     if (i > i_left && i < i_right) {
         // if top cell at this x is within the box, add its phase difference
-        if (j == j_top && j_top >= lo.y && j_top <= hi.y) {
+        if (j == j_top) {
             circ_sum += DeltaTheta(Lattice, i+1, j_top, t, i, j_top, t);
         }
 
         // if bottom cell at this x is within the box, add its phase difference
-        if (j == j_bottom && j_bottom >= lo.y && j_bottom <= hi.y) {
+        if (j == j_bottom) {
             circ_sum += DeltaTheta(Lattice, i-1, j_bottom, t, i, j_bottom, t);
         }
     }
