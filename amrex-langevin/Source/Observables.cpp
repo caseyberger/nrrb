@@ -1,6 +1,7 @@
 #include <iomanip>
 #include "AMReX_Print.H"
 #include "Observables.H"
+#include "Observables_Kernel.H"
 
 using namespace amrex;
 
