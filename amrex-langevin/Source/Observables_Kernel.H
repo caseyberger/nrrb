@@ -66,8 +66,8 @@ void reduce_observables(const amrex::Box& box, const int Ncomp,
 						dens_Im += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
 					}//loop over b = 1,2
 				}//loop over a = 1,2
+
 				//Angular momentum
-				//#if (AMREX_SPACEDIM == 3)
 				if (AMREX_SPACEDIM == 3){
 					//define x and y
 					const Real x = x_cell - x_center;
@@ -103,31 +103,34 @@ void reduce_observables(const amrex::Box& box, const int Ncomp,
 						}//loop over b for Lz
 					}//loop over a for Lz
 				}//if dim+1 = 3
-				//#endif
+
 				//ACTION
 				for (int a = 1; a <= 2; a++){
 					//S_tau
 					S_Re += S_tau_Re(i,j,t,a,mu,Lattice);
 					S_Im += S_tau_Im(i,j,t,a,mu,Lattice);
+
 					//S_del
 					S_Re += S_del_Re(i,j,t,a,m,Lattice,geom);
 					S_Im += S_del_Im(i,j,t,a,m,Lattice,geom);
+
 					//S_trap
 					S_Re += S_trap_Re(i,j,t,a,w_t,r2,Lattice);
 					S_Im += S_trap_Im(i,j,t,a,w_t,r2,Lattice);
+
 					//S_w
-					//#if (AMREX_SPACEDIM == 3)
 					if (AMREX_SPACEDIM == 3){
 						const Real x = x_cell - x_center;
 	    				const Real y = y_cell - y_center;
 						S_Re += S_w_Re(i,j,t,a,w,x,y,Lattice);
 						S_Im += S_w_Im(i,j,t,a,w,x,y,Lattice);
 					}
-					//#endif
+
 					//S_int
 					S_Re += S_int_Re(i,j,t,a,l,Lattice);
 					S_Im += S_int_Im(i,j,t,a,l,Lattice);
 				}//loop over a (for the Action)
+
             }//loop over x
 		}//loop over y
 	}//loop over t
