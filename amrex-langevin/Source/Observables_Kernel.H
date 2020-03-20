@@ -141,8 +141,8 @@ local_observables(const int i, const int j, const int t,
     return observables;
 }
 
-double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<const amrex::Real> const& Lattice){
-	double S_Re = 0.;
+Real S_tau_Re(int i,int j,int t,int a, Real mu,amrex::Array4<const amrex::Real> const& Lattice){
+	Real S_Re = 0.;
 	S_Re +=  0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
 	S_Re += -0.5 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
 	S_Re += -0.5 * std::exp(mu) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
@@ -154,8 +154,8 @@ double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<const amrex::Re
 	return S_Re;
 }
 
-double S_tau_Im(int i,int j,int t,int a,double mu, amrex::Array4<const amrex::Real> const& Lattice){
-	double S_Im = 0.;
+Real S_tau_Im(int i,int j,int t,int a,Real mu, amrex::Array4<const amrex::Real> const& Lattice){
+	Real S_Im = 0.;
 	S_Im +=                  Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
 	S_Im += -0.5 * std::exp(mu) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
 	S_Im += -0.5 * std::exp(mu) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re));
@@ -166,11 +166,11 @@ double S_tau_Im(int i,int j,int t,int a,double mu, amrex::Array4<const amrex::Re
 	return S_Im;
 }
 
-double S_del_Re(int i,int j,int t,int a,double m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom){
+Real S_del_Re(int i,int j,int t,int a,Real m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom){
 	const auto domain_box = geom.Domain();
     const auto domain_lo = amrex::lbound(domain_box);
     const auto domain_hi = amrex::ubound(domain_box);
-    double S_Re = 0.;
+    Real S_Re = 0.;
 	S_Re +=  0.5 * m * (AMREX_SPACEDIM-1) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
 	S_Re += -0.5 * m * (AMREX_SPACEDIM-1) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
 	for (int d = 1; d <= AMREX_SPACEDIM-1; d++) { //loop over adjacent spatial sites!
@@ -212,11 +212,11 @@ double S_del_Re(int i,int j,int t,int a,double m, amrex::Array4<const amrex::Rea
 	return S_Re;
 }
 
-double S_del_Im(int i,int j,int t,int a, double m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom){
+Real S_del_Im(int i,int j,int t,int a, Real m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom){
 	const auto domain_box = geom.Domain();
     const auto domain_lo = amrex::lbound(domain_box);
     const auto domain_hi = amrex::ubound(domain_box);
-    double S_Im = 0.;
+    Real S_Im = 0.;
 	S_Im += m * (AMREX_SPACEDIM-1) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
 	for (int d = 1; d <= AMREX_SPACEDIM-1; d++) { //loop over adjacent spatial sites!
 		//if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
@@ -257,8 +257,8 @@ double S_del_Im(int i,int j,int t,int a, double m, amrex::Array4<const amrex::Re
 	return S_Im;
 }
 
-double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array4<const amrex::Real> const& Lattice){
-	double S_Re = 0.;
+Real S_trap_Re(int i,int j,int t,int a, Real w_t,const Real r2, amrex::Array4<const amrex::Real> const& Lattice){
+	Real S_Re = 0.;
 	S_Re +=  0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
 	S_Re += -0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
 	for (int b=1; b<=2; b++){
@@ -268,8 +268,8 @@ double S_trap_Re(int i,int j,int t,int a, double w_t,const Real r2, amrex::Array
 	return S_Re;
 }
 
-double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4<const amrex::Real> const& Lattice){
-	double S_Im = 0.;
+Real S_trap_Im(int i,int j,int t,int a,Real w_t,const Real r2, amrex::Array4<const amrex::Real> const& Lattice){
+	Real S_Im = 0.;
 	S_Im += 0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
 	S_Im += 0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re));
 	for (int b=1; b<=2; b++){
@@ -279,8 +279,8 @@ double S_trap_Im(int i,int j,int t,int a,double w_t,const Real r2, amrex::Array4
 	return S_Im;
 }
 
-double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice){
-	double S_Re = 0.;
+Real S_w_Re(int i,int j,int t,int a,Real w,const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice){
+	Real S_Re = 0.;
 	for (int b = 1; b<=2; b++){
 		S_Re +=  0.5 * w * epsilon(a,b) * (x - y) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
 		S_Re += -0.5 * w * epsilon(a,b) * (x - y) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
@@ -299,8 +299,8 @@ double S_w_Re(int i,int j,int t,int a,double w,const Real x,const Real y, amrex:
 	return S_Re;
 }
 
-double S_w_Im(int i,int j,int t,int a,double w,const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice){
-	double S_Im = 0.;
+Real S_w_Im(int i,int j,int t,int a,Real w,const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice){
+	Real S_Im = 0.;
 	for (int b = 1; b<=2; b++){
 		S_Im +=  0.5 * w * epsilon(a,b) * (x-y) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
 		S_Im +=  0.5 * w * epsilon(a,b) * (x-y) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
@@ -318,8 +318,8 @@ double S_w_Im(int i,int j,int t,int a,double w,const Real x,const Real y, amrex:
 	return S_Im;
 }
 							
-double S_int_Re(int i,int j,int t,int a,double l, amrex::Array4<const amrex::Real> const& Lattice){
-	double S_Re = 0.;
+Real S_int_Re(int i,int j,int t,int a,Real l, amrex::Array4<const amrex::Real> const& Lattice){
+	Real S_Re = 0.;
 	for (int b=1; b<=2; b++){
 		S_Re +=  0.25 * l * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
 		S_Re += -0.25 * l * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
@@ -339,8 +339,8 @@ double S_int_Re(int i,int j,int t,int a,double l, amrex::Array4<const amrex::Rea
 	return S_Re;
 }	
 
-double S_int_Im(int i,int j,int t,int a,double l, amrex::Array4<const amrex::Real> const& Lattice){
-	double S_Im = 0.;
+Real S_int_Im(int i,int j,int t,int a,Real l, amrex::Array4<const amrex::Real> const& Lattice){
+	Real S_Im = 0.;
 	for (int b=1; b<=2; b++){
 		//S_int
 		S_Im += 0.5 * l * ( Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im)) - Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re)) );
