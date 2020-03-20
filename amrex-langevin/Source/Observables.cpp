@@ -82,15 +82,10 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
         const Array4<const Real>& L_obs = Lattice.array(mfi);
 
         reduce_operations.eval(bx, reduce_data,
-                [=] AMREX_GPU_DEVICE (Box const& bx) -> ReduceTuple
+                [=] AMREX_GPU_DEVICE (const int i, const int j, const int t) -> ReduceTuple
                 {
-                    //Initialize observable variables
-                    amrex::GpuArray<amrex::Real, Obs::NumObservables> observables(0.0);
-
-                    ParallelFor(bx,
-                    [&](int i, int j, int t) {
-                        reduce_observables(i, j, t, L_obs, geom, nrrb_parm, observables);
-                    });
+                    // Evaluate observable contributions for this cell (i,j,t)
+                    const auto observables = local_observables(i, j, t, L_obs, geom, nrrb_parm);
 
                     // compute circulation
                     Real CircSum1 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_1);
