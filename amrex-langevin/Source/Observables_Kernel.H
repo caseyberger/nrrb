@@ -3,11 +3,11 @@
 using namespace amrex;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void reduce_observables(const int i, const int j, const int t,
-						const amrex::Array4<const amrex::Real>& Lattice,
-						const amrex::GeometryData& geom,
-						const NRRBParameters nrrb_parm,
-						amrex::GpuArray<amrex::Real, Obs::NumObservables>& observables) {
+amrex::GpuArray<amrex::Real, Obs::NumObservables>
+local_observables(const int i, const int j, const int t,
+                  const amrex::Array4<const amrex::Real>& Lattice,
+                  const amrex::GeometryData& geom,
+                  const NRRBParameters nrrb_parm) {
 	Real dens_Re = 0;
 	Real dens_Im = 0;
 	Real phisq_Re = 0.;
@@ -127,14 +127,18 @@ void reduce_observables(const int i, const int j, const int t,
     dens_Re = 0.5 * std::exp(mu) * dens_Re;
     dens_Im = 0.5 * std::exp(mu) * dens_Im;
 
-    HostDevice::Atomic::Add(&observables[Obs::PhiSqRe], phisq_Re / domain_volume);
-    HostDevice::Atomic::Add(&observables[Obs::PhiSqIm], phisq_Im / domain_volume);
-    HostDevice::Atomic::Add(&observables[Obs::DensRe],  dens_Re  / domain_volume);
-    HostDevice::Atomic::Add(&observables[Obs::DensIm],  dens_Im  / domain_volume);
-    HostDevice::Atomic::Add(&observables[Obs::LzRe],    Lz_Re    / domain_volume);
-    HostDevice::Atomic::Add(&observables[Obs::LzIm],    Lz_Im    / domain_volume);
-    HostDevice::Atomic::Add(&observables[Obs::SRe],     S_Re     / domain_volume);
-    HostDevice::Atomic::Add(&observables[Obs::SIm],     S_Im     / domain_volume);
+    GpuArray<Real, Obs::NumObservables> observables(0.0);
+
+    observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
+    observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
+    observables[Obs::DensRe]  = dens_Re  / domain_volume;
+    observables[Obs::DensIm]  = dens_Im  / domain_volume;
+    observables[Obs::LzRe]    = Lz_Re    / domain_volume;
+    observables[Obs::LzIm]    = Lz_Im    / domain_volume;
+    observables[Obs::SRe]     = S_Re     / domain_volume;
+    observables[Obs::SIm]     = S_Im     / domain_volume;
+
+    return observables;
 }
 
 double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<const amrex::Real> const& Lattice){
