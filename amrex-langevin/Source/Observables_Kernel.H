@@ -127,16 +127,14 @@ void reduce_observables(const int i, const int j, const int t,
     dens_Re = 0.5 * std::exp(mu) * dens_Re;
     dens_Im = 0.5 * std::exp(mu) * dens_Im;
 
-    observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
-    observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
-    observables[Obs::DensRe]  = dens_Re  / domain_volume;
-    observables[Obs::DensIm]  = dens_Im  / domain_volume;
-    observables[Obs::LzRe]    = Lz_Re    / domain_volume;
-    observables[Obs::LzIm]    = Lz_Im    / domain_volume;
-    observables[Obs::SRe]     = S_Re     / domain_volume;
-    observables[Obs::SIm]     = S_Im     / domain_volume;
-
-    return observables;
+    HostDevice::Atomic::Add(&observables[Obs::PhiSqRe], phisq_Re / domain_volume);
+    HostDevice::Atomic::Add(&observables[Obs::PhiSqIm], phisq_Im / domain_volume);
+    HostDevice::Atomic::Add(&observables[Obs::DensRe],  dens_Re  / domain_volume);
+    HostDevice::Atomic::Add(&observables[Obs::DensIm],  dens_Im  / domain_volume);
+    HostDevice::Atomic::Add(&observables[Obs::LzRe],    Lz_Re    / domain_volume);
+    HostDevice::Atomic::Add(&observables[Obs::LzIm],    Lz_Im    / domain_volume);
+    HostDevice::Atomic::Add(&observables[Obs::SRe],     S_Re     / domain_volume);
+    HostDevice::Atomic::Add(&observables[Obs::SIm],     S_Im     / domain_volume);
 }
 
 double S_tau_Re(int i,int j,int t,int a, double mu,amrex::Array4<const amrex::Real> const& Lattice){
