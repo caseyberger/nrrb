@@ -138,6 +138,10 @@ local_observables(const int i, const int j, const int t,
     observables[Obs::SRe]     = S_Re     / domain_volume;
     observables[Obs::SIm]     = S_Im     / domain_volume;
 
+    // compute circulation contributions from this cell
+    observables[Obs::Circ1] = Circulation(i, j, t, Lattice, geom, nrrb_parm.circulation_radius_1);
+    observables[Obs::Circ2] = Circulation(i, j, t, Lattice, geom, nrrb_parm.circulation_radius_2);
+
     return observables;
 }
 
@@ -427,7 +431,41 @@ Real S_int_Im(int i,int j,int t,int a,Real l, amrex::Array4<const amrex::Real> c
 }//updated 2.1.19
 */
 
-Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real Theta(amrex::Array4<const amrex::Real> const& Lattice,
+           int i, int j, int k)
+{
+    // tan(theta) = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
+    Real theta = std::atan2(Lattice(i,j,k,Field(1,C::Im)) + Lattice(i,j,k,Field(2,C::Re)),
+                            Lattice(i,j,k,Field(1,C::Re)) - Lattice(i,j,k,Field(2,C::Im)));
+
+    // return theta in the range [0, 2*pi]
+    if (theta < 0.0)
+        theta = theta + Constants::TwoPi;
+
+    return theta;
+};
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real DeltaTheta(amrex::Array4<const amrex::Real> const& Lattice,
+                int ilp, int jlp, int klp,
+                int il, int jl, int kl)
+{
+    // Returns Theta(ilp, jlp, klp) - Theta(il, jl, kl) = theta_l+1 - theta_l
+    Real dtheta = Theta(Lattice, ilp, jlp, klp) - Theta(Lattice, il, jl, kl);
+
+    // Put dtheta into the range [-pi, 0] or [0, pi]
+    if (dtheta < -Constants::Pi)
+        dtheta +=  Constants::TwoPi;
+    else if (dtheta > Constants::Pi)
+        dtheta += -Constants::TwoPi;
+
+    return dtheta;
+};
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real Circulation(const int i, const int j, const int t,
+                 amrex::Array4<const amrex::Real> const& Lattice,
 				 const amrex::GeometryData& geom, int radius) {
 	// Box and Domain geometry
 	const auto lo = amrex::lbound(box);
@@ -454,42 +492,14 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	// Number of points in the t-dimension in the domain
 	const long Nt = domain_box.length(AMREX_SPACEDIM-1);
 
-	// Set t coordinate where we want to calculate circulation
-	const int t = Nt/2;
-
-	// Return 0.0 for this box if t is not inside it
-	if (t < lo.z || t > hi.z)
+	// Return 0.0 for this box if t is not in the center of the domain
+	if (t != Nt/2)
 	{
 		return 0.0;
 	}
 
-	// Initialize circulation sum for this part of the domain
+	// Initialize circulation sum for this cell
 	Real circ_sum = 0.0;
-
-	auto Theta = [&](int i, int j, int k) -> Real {
-		// tan(theta) = (phi_1_Im + phi_2_Re)/(phi_1_Re - phi_2_Im);
-		Real theta = std::atan2(Lattice(i,j,k,Field(1,C::Im)) + Lattice(i,j,k,Field(2,C::Re)),
-					            Lattice(i,j,k,Field(1,C::Re)) - Lattice(i,j,k,Field(2,C::Im)));
-
-		// return theta in the range [0, 2*pi]
-		if (theta < 0.0)
-			theta = theta + Constants::TwoPi;
-
-		return theta;
-	};
-
-    auto DeltaTheta = [&](int ilp, int jlp, int klp, int il, int jl, int kl) -> Real {
-        // Returns Theta(ilp, jlp, klp) - Theta(il, jl, kl) = theta_l+1 - theta_l
-        Real dtheta = Theta(ilp, jlp, klp) - Theta(il, jl, kl);
-
-        // Put dtheta into the range [-pi, 0] or [0, pi]
-        if (dtheta < -Constants::Pi)
-            dtheta +=  Constants::TwoPi;
-        else if (dtheta > Constants::Pi)
-            dtheta += -Constants::TwoPi;
-
-        return dtheta;
-    };
 
 	// We are summing contributions from theta_t_l+1 - theta_t_l
 	// where l denotes (x, y) for a loop lattice site
@@ -507,52 +517,44 @@ Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::B
 	// |
 	// .-----------> x
 
-	// Loop over y-dimension to add contributions from left/right edges
-	// of the loop contained in this box.
-	//
-	// This loop includes corners, so we do not double count them in the next loop over x
-	for (int j = lo.y; j <= hi.y; ++j) {
-		// if left cell at this y is within the box, add its phase difference
-		if (i_left >= lo.x && i_left <= hi.x) {
-			if (j >= j_bottom && j < j_top) {
-				circ_sum += DeltaTheta(i_left, j+1, t, i_left, j, t);
-			}
-			else if (j == j_top) {
-				circ_sum += DeltaTheta(i_left+1, j, t, i_left, j, t);
-			}
-		}
+	// This left/right section includes the 4 corners of the loop
+    // if at left and left cell at this y is within the box, add its phase difference
+    if (i == i_left && i_left >= lo.x && i_left <= hi.x) {
+        if (j >= j_bottom && j < j_top) {
+            circ_sum += DeltaTheta(Lattice, i_left, j+1, t, i_left, j, t);
+        }
+        else if (j == j_top) {
+            circ_sum += DeltaTheta(Lattice, i_left+1, j, t, i_left, j, t);
+        }
+    }
 
-		// if right cell at this y is within the box, add its phase difference
-		if (i_right >= lo.x && i_right <= hi.x) {
-			if (j > j_bottom && j <= j_top) {
-				circ_sum += DeltaTheta(i_right, j-1, t, i_right, j, t);
-			}
-			else if (j == j_bottom) {
-				circ_sum += DeltaTheta(i_right-1, j, t, i_right, j, t);
-			}
-		}
-	}
+    // if at right and right cell at this y is within the box, add its phase difference
+    if (i == i_right && i_right >= lo.x && i_right <= hi.x) {
+        if (j > j_bottom && j <= j_top) {
+            circ_sum += DeltaTheta(Lattice, i_right, j-1, t, i_right, j, t);
+        }
+        else if (j == j_bottom) {
+            circ_sum += DeltaTheta(Lattice, i_right-1, j, t, i_right, j, t);
+        }
+    }
 
-	// Loop over x-dimension to add contributions from bottom/top edges
-	// of the loop contained in this box.
-	for (int i = lo.x; i <= hi.x; ++i) {
-		// In the following `if` statement, we do not include corners
-		// (i.e. we use `>` and `<` instead of `>=` and `<=`)
-		// because the above loop over y already accounted for them.
-		if (i > i_left && i < i_right) {
-			// if top cell at this x is within the box, add its phase difference
-			if (j_top >= lo.y && j_top <= hi.y) {
-				circ_sum += DeltaTheta(i+1, j_top, t, i, j_top, t);
-			}
+	// Add contributions from bottom/top edges of the loop
+    // In the following `if` statement, we do not include corners
+    // (i.e. we use `>` and `<` instead of `>=` and `<=`)
+    // because the above left/right sections already accounted for them.
+    if (i > i_left && i < i_right) {
+        // if top cell at this x is within the box, add its phase difference
+        if (j == j_top && j_top >= lo.y && j_top <= hi.y) {
+            circ_sum += DeltaTheta(Lattice, i+1, j_top, t, i, j_top, t);
+        }
 
-			// if bottom cell at this x is within the box, add its phase difference
-			if (j_bottom >= lo.y && j_bottom <= hi.y) {
-				circ_sum += DeltaTheta(i-1, j_bottom, t, i, j_bottom, t);
-			}
-		}
-	}
+        // if bottom cell at this x is within the box, add its phase difference
+        if (j == j_bottom && j_bottom >= lo.y && j_bottom <= hi.y) {
+            circ_sum += DeltaTheta(Lattice, i-1, j_bottom, t, i, j_bottom, t);
+        }
+    }
 
-	// adding the circulation for one loop and one box to the total circulation for this loop
+	// Return the circulation contribution from this cell
 	Real circ = circ_sum / Constants::TwoPi;
 	return circ;
 }
