@@ -3,7 +3,7 @@
 using namespace amrex;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void reduce_observables(const amrex::Box& box, const int Ncomp,
+void reduce_observables(const amrex::Box& box,
 						const amrex::Array4<const amrex::Real>& Lattice,
 						const amrex::GeometryData& geom,
 						const NRRBParameters nrrb_parm,
