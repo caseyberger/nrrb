@@ -89,7 +89,7 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
 
                     ParallelFor(bx,
                     [&](int i, int j, int t) {
-                        reduce_observables(i, j, t, Ncomp, L_obs, geom, nrrb_parm, observables);
+                        reduce_observables(i, j, t, L_obs, geom, nrrb_parm, observables);
                     });
 
                     return {observables[Obs::PhiSqRe],
