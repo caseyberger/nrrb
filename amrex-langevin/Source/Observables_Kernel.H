@@ -42,16 +42,13 @@ void reduce_observables(const amrex::Box& box, const int Ncomp,
     const Real dy_cell = geom.CellSize(1);
 
 	//loop over lattice
-	for (int j = lo.y; j <= hi.y; ++j){
-		for (int i = lo.x; i <= hi.x; ++i){
-            const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
-            const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
-            const Real r2 = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
+    for (int t = lo.z; t <= hi.z; ++t){
+        for (int j = lo.y; j <= hi.y; ++j){
+            for (int i = lo.x; i <= hi.x; ++i){
+                const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
+                const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
+                const Real r2 = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
 
-            //density profiles are averaged over time loop only
-			Real dp_Re = 0.;
-			Real dp_Im = 0.;
-            for (int t = lo.z; t <= hi.z; ++t){
                 for (int a = 1; a <= 2; a++){
                     //Field modulus squared
                     phisq_Re +=  0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
@@ -59,14 +56,14 @@ void reduce_observables(const amrex::Box& box, const int Ncomp,
                     phisq_Im += Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
                     for (int b = 1; b <= 2; b++){
 						//Density
-						dp_Re +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dp_Re += -delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
-						dp_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dp_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
-						dp_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dp_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
-						dp_Im +=  epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dp_Im += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+						dens_Re +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+						dens_Re += -delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+						dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+						dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+						dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+						dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+						dens_Im +=  epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+						dens_Im += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
 					}//loop over b = 1,2
 				}//loop over a = 1,2
 				//Angular momentum
@@ -131,19 +128,12 @@ void reduce_observables(const amrex::Box& box, const int Ncomp,
 					S_Re += S_int_Re(i,j,t,a,l,Lattice);
 					S_Im += S_int_Im(i,j,t,a,l,Lattice);
 				}//loop over a (for the Action)
-            }//loop over t
-			dp_Re = 0.5 * std::exp(mu) * dp_Re;
-			dp_Im = 0.5 * std::exp(mu) * dp_Im;
-			//add local density to avg density variables
-			dens_Re += dp_Re;
-			dens_Im += dp_Im;
-		}//loop over x
-	}//loop over y
+            }//loop over x
+		}//loop over y
+	}//loop over t
 
-	//std::cout << "Phi^{*}phi successfully computed: " << phisq[0] << " + i" << phisq[1] << std::endl;
-	//Equal_Time_Correlators(Lattice, size, Nx, Nt, filename);
-
-	//std::cout << "Lz successfully computed: Lz = " << Lz[0] << " + i" << Lz[1] << std::endl;
+    dens_Re = 0.5 * std::exp(mu) * dens_Re;
+    dens_Im = 0.5 * std::exp(mu) * dens_Im;
 
 	// compute circulation
 	Real CircSum1 = Circulation(Lattice, box, geom, nrrb_parm.circulation_radius_1);
