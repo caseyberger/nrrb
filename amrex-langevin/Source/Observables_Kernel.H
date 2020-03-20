@@ -269,10 +269,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real Circulation(const int i, const int j, const int t,
                  amrex::Array4<const amrex::Real> const& Lattice,
 				 const amrex::GeometryData& geom, int radius) {
-	// Box and Domain geometry
-	const auto lo = amrex::lbound(box);
-    const auto hi = amrex::ubound(box);
-
+	// Domain geometry
     const auto domain_box = geom.Domain();
     const auto domain_lo = amrex::lbound(domain_box);
     const auto domain_hi = amrex::ubound(domain_box);
