@@ -1,3 +1,6 @@
+#ifndef _OBSERVABLES_H
+#define _OBSERVABLES_H
+
 #include "Langevin.H"
 
 namespace Obs {
@@ -72,15 +75,4 @@ public:
                 const amrex::GeometryData& geom, const NRRBParameters& nrrb_parm);
 };
 
-amrex::Real S_tau_Re(int i,int j,int t,int a, amrex::Real mu, amrex::Array4<const amrex::Real> const& Lattice);
-amrex::Real S_tau_Im(int i,int j,int t,int a, amrex::Real mu, amrex::Array4<const amrex::Real> const& Lattice);
-amrex::Real S_del_Re(int i,int j,int t,int a, amrex::Real m, amrex::Array4<const amrex::Real> const& Lattice, const amrex::GeometryData& geom);
-amrex::Real S_del_Im(int i,int j,int t,int a, amrex::Real m, amrex::Array4<const amrex::Real> const& Lattice, const amrex::GeometryData& geom);
-amrex::Real S_trap_Re(int i,int j,int t,int a, amrex::Real w_t, const amrex::Real r2, amrex::Array4<const amrex::Real> const& Lattice);
-amrex::Real S_trap_Im(int i,int j,int t,int a, amrex::Real w_t, const amrex::Real r2, amrex::Array4<const amrex::Real> const& Lattice);
-amrex::Real S_w_Re(int i,int j,int t,int a, amrex::Real w, const amrex::Real x,const amrex::Real y, amrex::Array4<const amrex::Real> const& Lattice);
-amrex::Real S_w_Im(int i,int j,int t,int a, amrex::Real w, const amrex::Real x,const amrex::Real y, amrex::Array4<const amrex::Real> const& Lattice);
-amrex::Real S_int_Re(int i,int j,int t,int a, amrex::Real l, amrex::Array4<const amrex::Real> const& Lattice);
-amrex::Real S_int_Im(int i,int j,int t,int a, amrex::Real l, amrex::Array4<const amrex::Real> const& Lattice);
-amrex::Real Circulation(amrex::Array4<const amrex::Real> const& Lattice, const amrex::Box& box,
-				        const amrex::GeometryData& geom, int radius);
+#endif

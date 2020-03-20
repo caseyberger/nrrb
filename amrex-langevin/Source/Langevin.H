@@ -118,9 +118,4 @@ void initialize_observables(const std::string);
 
 void update_observables(const int, const amrex::MultiFab&, const amrex::GeometryData &,
                         const NRRBParameters&, const std::string);
-
-amrex::Vector<amrex::Real> compute_observables(const amrex::Box& box, const int Ncomp,
-                                               const amrex::Array4<const amrex::Real>& Lattice,
-                                               const amrex::GeometryData& geom,
-                                               const NRRBParameters nrrb_parm);
 #endif

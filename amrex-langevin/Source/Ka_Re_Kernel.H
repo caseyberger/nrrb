@@ -1,3 +1,6 @@
+#ifndef _KA_RE_K_H
+#define _KA_RE_K_H
+
 #include "Langevin.H"
 
 using namespace amrex;
@@ -185,3 +188,4 @@ Real K_a_Re(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	return -1.*Ka;
 }
 
+#endif
