@@ -65,7 +65,7 @@ struct NRRBParameters {
     }
 };
 
-AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int Field(int a, C complex_type) {
     if (a == 1) {
         if (complex_type == C::Re)
@@ -86,7 +86,7 @@ int Field(int a, C complex_type) {
 }
 
 //ANTI-SYMMETRIC TENSOR
-AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real epsilon(int a, int b){
 	if (a == b){return 0.;}
 	else if (a == 1 and b ==2){return 1.;}
@@ -95,7 +95,7 @@ amrex::Real epsilon(int a, int b){
 }
 
 //DIRAC DELTA
-AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real delta(int a, int b){
     if (a == b){return 1.;}
     else {return 0.;}
@@ -113,10 +113,6 @@ void Langevin_evolution(amrex::Real m, amrex::Real l, amrex::Real w, amrex::Real
                         amrex::Array4<amrex::Real> const& Lattice_old,
                         amrex::Array4<amrex::Real> const& Lattice_new,
                         const amrex::GeometryData& geom);
-
-amrex::Real K_a_Re(amrex::Real m, amrex::Real l,amrex::Real w, amrex::Real w_t, int a, amrex::Real dtau, amrex::Real mu, amrex::Array4<amrex::Real> const& Lattice, const amrex::GeometryData& geom, int i, int j, int t);
-
-amrex::Real K_a_Im(amrex::Real m, amrex::Real l,amrex::Real w, amrex::Real w_t, int a, amrex::Real dtau, amrex::Real mu, amrex::Array4<amrex::Real> const& Lattice, const amrex::GeometryData& geom, int i, int j, int t);
 
 void initialize_observables(const std::string);
 
