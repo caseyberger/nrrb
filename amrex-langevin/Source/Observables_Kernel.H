@@ -373,64 +373,6 @@ Real S_int_Im(int i,int j,int t,int a,Real l, amrex::Array4<const amrex::Real> c
 	return S_Im;
 }
 
-
-/*void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename){
-	//compute the equal time correlator for each point on the lattice to each other point
-	bool new_lat = true;
-	int t = Nt/2;
-	std::ofstream Gfile;
-	std::string G_filename = "G_"+logfilename.substr(8);
-	Gfile.open(G_filename, std::fstream::app);
-	std::ofstream G2file;
-	std::string G2_filename = "G2_"+logfilename.substr(8);
-	G2file.open(G2_filename, std::fstream::app);
-	//std::cout << "t = " << t << std::endl;
-	for (int i = 0; i < size; i++){
-		for (int j = 0; j < size; j++){	
-			double GijRe = 0.;
-			double GijIm = 0.;
-			double G2ijRe = 0.;
-			double G2ijIm = 0.;
-			for (int a = 1; a <= 2; a++){
-				std::vector<double> phia_i = phi_a(Lattice, i, t, a,new_lat);
-				for (int b = 1; b <=2; b++){
-					std::vector<double> phib_j = phi_a(Lattice, j, t, b, new_lat);
-					GijRe += 0.5*delta(a,b)*phia_i[0]*phib_j[0]-0.5*delta(a,b)*phia_i[1]*phib_j[1];
-					GijRe += -0.5*epsilon(a,b)*phia_i[0]*phib_j[1]-0.5*epsilon(a,b)*phia_i[1]*phib_j[0];
-					GijIm += 0.5*delta(a,b)*phia_i[0]*phib_j[1]+0.5*delta(a,b)*phia_i[1]*phib_j[0];
-					GijIm += 0.5*epsilon(a,b)*phia_i[0]*phib_j[0]-0.5*epsilon(a,b)*phia_i[1]*phib_j[1];
-					G2ijRe += 0.25*phia_i[0]*phia_i[0]*phib_j[0]*phib_j[0];
-					G2ijRe -= 0.25*phia_i[0]*phia_i[0]*phib_j[1]*phib_j[1];
-					G2ijRe -= 0.25*phia_i[1]*phia_i[1]*phib_j[0]*phib_j[0];
-					G2ijRe += 0.25*phia_i[1]*phia_i[1]*phib_j[1]*phib_j[1];
-					G2ijRe += phia_i[0]*phia_i[1]*phib_j[0]*phib_j[1];
-					G2ijIm += 0.5*phia_i[0]*phia_i[0]*phib_j[0]*phib_j[1];
-					G2ijIm -= 0.5*phia_i[1]*phia_i[1]*phib_j[0]*phib_j[1];
-					G2ijIm += 0.5*phia_i[0]*phia_i[1]*phib_j[0]*phib_j[0];
-					G2ijIm -= 0.5*phia_i[0]*phia_i[1]*phib_j[1]*phib_j[1];
-					}//loop over b
-				}//loop over a
-			if (GijIm >= 0){
-				Gfile << "(" << GijRe << "+" << GijIm << "j)" << ",";
-			}
-			else{
-				Gfile << "(" << GijRe << GijIm << "j)" << ",";
-			}
-			if (G2ijIm >= 0){
-				G2file << "(" << G2ijRe << "+" << G2ijIm << "j)" << ",";
-			}
-			else{
-				G2file << "(" << G2ijRe << G2ijIm << "j)" << ",";
-			}
-		}//loop over x' (j)
-	}//loop over x (i)
-	Gfile << std::endl;
-	G2file << std::endl;
-	Gfile.close();
-	G2file.close();
-}//updated 2.1.19
-*/
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real Theta(amrex::Array4<const amrex::Real> const& Lattice,
            int i, int j, int k)
