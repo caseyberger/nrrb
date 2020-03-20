@@ -3,14 +3,11 @@
 using namespace amrex;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void reduce_observables(const amrex::Box& box,
+void reduce_observables(const int i, const int j, const int t,
 						const amrex::Array4<const amrex::Real>& Lattice,
 						const amrex::GeometryData& geom,
 						const NRRBParameters nrrb_parm,
 						amrex::GpuArray<amrex::Real, Obs::NumObservables>& observables) {
-    const auto lo = amrex::lbound(box);
-    const auto hi = amrex::ubound(box);
-
 	Real dens_Re = 0;
 	Real dens_Im = 0;
 	Real phisq_Re = 0.;
@@ -41,99 +38,91 @@ void reduce_observables(const amrex::Box& box,
     const Real dx_cell = geom.CellSize(0);
     const Real dy_cell = geom.CellSize(1);
 
-	//loop over lattice
-    for (int t = lo.z; t <= hi.z; ++t){
-        for (int j = lo.y; j <= hi.y; ++j){
-            for (int i = lo.x; i <= hi.x; ++i){
-                const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
-                const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
-                const Real r2 = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
+    const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
+    const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
+    const Real r2 = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
 
-                for (int a = 1; a <= 2; a++){
-                    //Field modulus squared
-                    phisq_Re +=  0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
-                    phisq_Re += -0.5 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
-                    phisq_Im += Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
-                    for (int b = 1; b <= 2; b++){
-						//Density
-						dens_Re +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dens_Re += -delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
-						dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
-						dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
-						dens_Im +=  epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
-						dens_Im += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
-					}//loop over b = 1,2
-				}//loop over a = 1,2
+    for (int a = 1; a <= 2; a++){
+        //Field modulus squared
+        phisq_Re +=  0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
+        phisq_Re += -0.5 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
+        phisq_Im += Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
+        for (int b = 1; b <= 2; b++){
+            //Density
+            dens_Re +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+            dens_Re += -delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+            dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+            dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+            dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+            dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+            dens_Im +=  epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+            dens_Im += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+        }//loop over b = 1,2
+    }//loop over a = 1,2
 
-				//Angular momentum
-				if (AMREX_SPACEDIM == 3){
-					//define x and y
-					const Real x = x_cell - x_center;
-	    			const Real y = y_cell - y_center;
-					for (int a = 1; a <= 2; a++){//loop over a
-						//real sum over a only
-						Lz_Re +=  0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Im));
-						Lz_Re +=  0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Re));
-						Lz_Re += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Im));
-						Lz_Re += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Re));
-						Lz_Re +=        y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
-						Lz_Re +=       -x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
-						//imaginary sum over a only
-						Lz_Im += -0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Re));
-						Lz_Im +=  0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Im));
-						Lz_Im +=  0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Re));
-						Lz_Im += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Im));
-						Lz_Im += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
-						Lz_Im +=  0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
-						Lz_Im +=  0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
-						Lz_Im += -0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
-						for (int b = 1; b <= 2; b++){//loop over b
-							//real sum over a and b
-							Lz_Re +=  0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Re));
-							Lz_Re += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Im));
-							Lz_Re +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Im));
-							Lz_Re += -0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Re));
-							//imaginary sum over a and b
-							Lz_Im += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Im));
-							Lz_Im += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Re));
-							Lz_Im +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Im));
-							Lz_Im +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
-						}//loop over b for Lz
-					}//loop over a for Lz
-				}//if dim+1 = 3
+    //Angular momentum
+    if (AMREX_SPACEDIM == 3){
+        //define x and y
+        const Real x = x_cell - x_center;
+        const Real y = y_cell - y_center;
+        for (int a = 1; a <= 2; a++){//loop over a
+            //real sum over a only
+            Lz_Re +=  0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Im));
+            Lz_Re +=  0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Re));
+            Lz_Re += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Im));
+            Lz_Re += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Re));
+            Lz_Re +=        y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
+            Lz_Re +=       -x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
+            //imaginary sum over a only
+            Lz_Im += -0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Re));
+            Lz_Im +=  0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Im));
+            Lz_Im +=  0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Re));
+            Lz_Im += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Im));
+            Lz_Im += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
+            Lz_Im +=  0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
+            Lz_Im +=  0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
+            Lz_Im += -0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
+            for (int b = 1; b <= 2; b++){//loop over b
+                //real sum over a and b
+                Lz_Re +=  0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Re));
+                Lz_Re += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Im));
+                Lz_Re +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Im));
+                Lz_Re += -0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Re));
+                //imaginary sum over a and b
+                Lz_Im += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Im));
+                Lz_Im += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Re));
+                Lz_Im +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Im));
+                Lz_Im +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
+            }//loop over b for Lz
+        }//loop over a for Lz
+    }//if dim+1 = 3
 
-				//ACTION
-				for (int a = 1; a <= 2; a++){
-					//S_tau
-					S_Re += S_tau_Re(i,j,t,a,mu,Lattice);
-					S_Im += S_tau_Im(i,j,t,a,mu,Lattice);
+    //ACTION
+    for (int a = 1; a <= 2; a++){
+        //S_tau
+        S_Re += S_tau_Re(i,j,t,a,mu,Lattice);
+        S_Im += S_tau_Im(i,j,t,a,mu,Lattice);
 
-					//S_del
-					S_Re += S_del_Re(i,j,t,a,m,Lattice,geom);
-					S_Im += S_del_Im(i,j,t,a,m,Lattice,geom);
+        //S_del
+        S_Re += S_del_Re(i,j,t,a,m,Lattice,geom);
+        S_Im += S_del_Im(i,j,t,a,m,Lattice,geom);
 
-					//S_trap
-					S_Re += S_trap_Re(i,j,t,a,w_t,r2,Lattice);
-					S_Im += S_trap_Im(i,j,t,a,w_t,r2,Lattice);
+        //S_trap
+        S_Re += S_trap_Re(i,j,t,a,w_t,r2,Lattice);
+        S_Im += S_trap_Im(i,j,t,a,w_t,r2,Lattice);
 
-					//S_w
-					if (AMREX_SPACEDIM == 3){
-						const Real x = x_cell - x_center;
-	    				const Real y = y_cell - y_center;
-						S_Re += S_w_Re(i,j,t,a,w,x,y,Lattice);
-						S_Im += S_w_Im(i,j,t,a,w,x,y,Lattice);
-					}
+        //S_w
+        if (AMREX_SPACEDIM == 3){
+            const Real x = x_cell - x_center;
+            const Real y = y_cell - y_center;
+            S_Re += S_w_Re(i,j,t,a,w,x,y,Lattice);
+            S_Im += S_w_Im(i,j,t,a,w,x,y,Lattice);
+        }
 
-					//S_int
-					S_Re += S_int_Re(i,j,t,a,l,Lattice);
-					S_Im += S_int_Im(i,j,t,a,l,Lattice);
-				}//loop over a (for the Action)
-
-            }//loop over x
-		}//loop over y
-	}//loop over t
+        //S_int
+        S_Re += S_int_Re(i,j,t,a,l,Lattice);
+        S_Im += S_int_Im(i,j,t,a,l,Lattice);
+    }//loop over a (for the Action)
 
     dens_Re = 0.5 * std::exp(mu) * dens_Re;
     dens_Im = 0.5 * std::exp(mu) * dens_Im;
