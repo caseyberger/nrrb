@@ -32,7 +32,8 @@ void Langevin_initialization(MultiFab& lattice, const Geometry& geom, const NRRB
         }
         else if (parm.problem_type == 0)
         {
-            ParallelFor(bx, lattice.nComp(), [=](int i, int j, int k, int n) {
+            ParallelFor(bx, lattice.nComp(),
+            [=] AMREX_GPU_DEVICE (int i, int j, int k, int n) {
 #ifdef TEST_CONSTANT_RNG
                 Lattice(i, j, k, n) = 1.0;
 #else
