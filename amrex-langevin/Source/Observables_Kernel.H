@@ -1,3 +1,6 @@
+#ifndef _OBSERVABLES_K_H
+#define _OBSERVABLES_K_H
+
 #include "Observables.H"
 
 using namespace amrex;
@@ -127,7 +130,7 @@ local_observables(const int i, const int j, const int t,
     dens_Re = 0.5 * std::exp(mu) * dens_Re;
     dens_Im = 0.5 * std::exp(mu) * dens_Im;
 
-    GpuArray<Real, Obs::NumObservables> observables(0.0);
+    GpuArray<Real, Obs::NumObservables> observables;
 
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
@@ -500,3 +503,5 @@ Real Circulation(const int i, const int j, const int t,
 	Real circ = circ_sum / Constants::TwoPi;
 	return circ;
 }
+
+#endif

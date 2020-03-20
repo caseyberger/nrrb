@@ -1,3 +1,6 @@
+#ifndef _KA_IM_K_H
+#define _KA_IM_K_H
+
 #include "Langevin.H"
 
 using namespace amrex;
@@ -183,3 +186,5 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	}//last update 2.22.19 to make a gauge interaction
 	return -1.*Ka;
 }
+
+#endif
