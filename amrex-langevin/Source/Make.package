@@ -4,5 +4,6 @@ CEXE_sources += Langevin_evolution.cpp
 CEXE_headers += Ka_Im_Kernel.H
 CEXE_headers += Ka_Re_Kernel.H
 CEXE_sources += Observables.cpp
+CEXE_headers += Observables_Kernel.H
 CEXE_headers += Langevin.H
 CEXE_headers += Observables.H
