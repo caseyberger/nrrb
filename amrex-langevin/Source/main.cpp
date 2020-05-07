@@ -1,4 +1,5 @@
 #include "Langevin.H"
+#include "Observables.H"
 
 using namespace amrex;
 
@@ -32,26 +33,16 @@ void langevin_main()
     Vector<int> is_periodic(AMREX_SPACEDIM, 0);
     Vector<int> domain_lo_bc_types(AMREX_SPACEDIM, BCType::ext_dir);
     Vector<int> domain_hi_bc_types(AMREX_SPACEDIM, BCType::ext_dir);
+
     // Set periodicity and BCs for time
     is_periodic[AMREX_SPACEDIM-1] = 1;
     domain_lo_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
     domain_hi_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
 
     NRRBParameters nrrb_parm;
-    nrrb_parm.m = 1.0;
-    nrrb_parm.l = 0.0;
-    nrrb_parm.w = 0.0;
-    nrrb_parm.w_t = 0.0;
-    nrrb_parm.dtau = 0.0;
-    nrrb_parm.mu = 0.0;
-    nrrb_parm.eps = 0.0;
-    nrrb_parm.seed_init = -1;
-    nrrb_parm.seed_run = -1;
 
     int autocorrelation_step = 1;
 
-
-    std::string observable_log_file;
     // inputs parameters (these have been read in by amrex::Initialize already)
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -65,7 +56,7 @@ void langevin_main()
         pp.get("max_grid_size",max_grid_size);
 
         // Default plot_int to -1, allow us to set it to something else in the inputs file
-        //  If plot_int < 0 then no plot files will be writtenq
+        //  If plot_int < 0 then no plot files will be written
         plot_int = -1;
         pp.query("plot_int",plot_int);
 
@@ -86,20 +77,15 @@ void langevin_main()
         pp_nrrb.get("dtau", nrrb_parm.dtau);
         pp_nrrb.get("mu", nrrb_parm.mu);
         pp_nrrb.get("eps", nrrb_parm.eps);
+
+        pp_nrrb.get("circulation_radius_1", nrrb_parm.circulation_radius_1);
+        pp_nrrb.get("circulation_radius_2", nrrb_parm.circulation_radius_2);
+
         pp_nrrb.query("seed_init", nrrb_parm.seed_init);
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
 
-       
-
-        std::ostringstream logfile_stream;
-        logfile_stream << "logfile_D_" << AMREX_SPACEDIM-1 << "_Nx_" << n_cell[0] << "_Nt_" << n_cell[-1];
-        logfile_stream << "_dt_" << nrrb_parm.dtau << "_nL_" << nsteps << "_eps_" << nrrb_parm.eps;
-        logfile_stream << "_m_" << nrrb_parm.m << "_wtr_" <<nrrb_parm.w_t ;
-        logfile_stream << "_wz_" << nrrb_parm.w << "_l_" << nrrb_parm.l << "_mu_" << nrrb_parm.mu << ".log";
-        observable_log_file = logfile_stream.str();
-
-     pp.query("observable_log_file", observable_log_file);
-     Print() << "logfile name = " << observable_log_file << std::endl;
+        // problem type: 0 = default, 1 = fixed phase for circulation testing
+        pp_nrrb.query("problem_type", nrrb_parm.problem_type);
     }
 
 #ifdef TEST_SEED_RNG
@@ -141,9 +127,12 @@ void langevin_main()
     // How Boxes are distrubuted among MPI processes
     DistributionMapping dm(ba);
 
-    // we allocate two lattice multifabs; one will store the old state, the other the new.
+    // We allocate two lattice multifabs; one will store the old state, the other the new.
     MultiFab lattice_old(ba, dm, Ncomp, Nghost);
     MultiFab lattice_new(ba, dm, Ncomp, Nghost);
+
+    // Also create an observables object for updating and writing observable log files
+    Observables observables(geom, nrrb_parm, nsteps);
 
     Vector<BCRec> lattice_bc(Ncomp);
     for (int n = 0; n < Ncomp; ++n)
@@ -164,36 +153,11 @@ void langevin_main()
         }
     }
 
-    // Initialize lattice_old using an MFIter (MultiFab Iterator)
-    // This loops over the array data corresponding to boxes owned by this MPI rank.
+    // Initialize the valid regions in the domain interior
+    Langevin_initialization(lattice_old, geom, nrrb_parm);
 
-    // We could markup this loop with OpenMP if we like.
-    // The AMReX random number generator interface is threadsafe.
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
-    for (MFIter mfi(lattice_old, TilingIfNotGPU()); mfi.isValid(); ++mfi)
-    {
-        // This gets the index bounding box corresponding to the current MFIter object mfi.
-        const Box& bx = mfi.tilebox();
-
-        // This gets an Array4, a light wrapper for the underlying data that mfi points to.
-        // The Array4 object provides accessor functions so it can be treated like a 4-D array
-        // with dimensions (x, y, z, component).
-        Array4<Real> const& L_old = lattice_old.array(mfi);
-
-        ParallelFor(bx, Ncomp, [=](int i, int j, int k, int n) {
-#ifdef TEST_CONSTANT_RNG
-            L_old(i, j, k, n) = 1.0;
-#else
-            L_old(i, j, k, n) = 2.0 * Random() - 1.0;
-#endif
-        });
-    }
-
-    // We initialized the interior of the domain
-    // (above, we got bx by calling MFIter::tilebox() and this only gives us a tile in the "valid" region)
-    // so now we should fill the ghost cells using our boundary conditions in the Geometry object geom.
+    // We initialized the valid regions in the interior of the domain (and not the ghost cells).
+    // so now we fill the ghost cells using our boundary conditions in the Geometry object geom.
     lattice_old.FillBoundary(geom.periodicity());
     FillDomainBoundary(lattice_old, geom, lattice_bc);
 
@@ -207,7 +171,10 @@ void langevin_main()
     // time = starting time in the simulation
     Real Ltime = 0.0;
 
-    // To check our initialization, we can write out plotfiles ...
+    // Write observables after initialization for reference
+    observables.update(0, lattice_new, geom.data(), nrrb_parm);
+
+    // To check our initialization, we also write a plotfile
     // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
     if (plot_int > 0)
     {
@@ -215,8 +182,6 @@ void langevin_main()
         const std::string& pltfile = amrex::Concatenate("plt",n,5);
         WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
     }
-
-    initialize_observables(observable_log_file);
 
     // init_time is the current time post-initialization
     Real init_time = amrex::second();
@@ -259,7 +224,7 @@ void langevin_main()
         // Calculate observables
         if (n % autocorrelation_step == 0)
         {
-            update_observables(n, lattice_new, geom.data(), nrrb_parm, observable_log_file);
+            observables.update(n, lattice_new, geom.data(), nrrb_parm);
         }
 
         Ltime = Ltime + nrrb_parm.eps;

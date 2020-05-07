@@ -8,24 +8,23 @@ nrrb.mu = -0.1
 nrrb.eps = 0.01
 
 # Circulation observable radii in units of lattice sites
-nrrb.circulation_radius_1 = 2
-nrrb.circulation_radius_2 = 9
-
-# Set a seed for the random number generator
-nrrb.seed_init = 8134
-nrrb.seed_run = 61
+nrrb.circulation_radius_1 = 16
+nrrb.circulation_radius_2 = 64
 
 # Domain Size and Grid Decomposition
-n_cell = 21 21 80
-max_grid_size = 8
+# Note this isn't evenly divisible by 2 in X, Y
+# But this code requires an odd number of lattice
+# sites in X, Y so the center lies on a lattice site.
+n_cell = 255 255 256
+max_grid_size = 32
 
-# Set Fab tile size (default is 1024000 x 8 x 8 for 3D)
-# since this test inputs has max_grid_size = 8,
-# using 4 x 4 tiles means e.g., an 8 x 8 x 8 grid will
-# be tiled into 4 tiles of 8 x 4 x 4 so there will be work
-# for 4 OpenMP threads even if that 8 x 8 x 8 grid is the only
+# Do not set Fab tile size (default is 1024000 x 8 x 8 for 3D)
+# since this inputs has max_grid_size = 32,
+# using 8 x 8 tiles means e.g., an 32 x 32 x 32 grid will
+# be tiled into 16 tiles of 32 x 8 x 8 so there will be work
+# for 16 OpenMP threads even if that 32 x 32 x 32 grid is the only
 # grid owned by an MPI rank.
-fabarray.mfiter_tile_size = 1024000 4 4
+# fabarray.mfiter_tile_size = 1024000 4 4
 
 # Periodicity and Domain Boundary Conditions
 #
@@ -44,14 +43,15 @@ domain_lo_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic
 domain_hi_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic) in time
 
 # Stopping criteria
-nsteps = 10
-
-# Frequency for computing observables
-autocorrelation_step = 1
+nsteps = 100
 
 # I/O
-plot_int = 1
-observable_log_file = "observables_mpi_test.log"
+# Frequency for computing observables
+autocorrelation_step = 1
+observable_log_file = "observables.log"
+
+# Turn off writing grid plot files for this scaling test
+plot_int = 100000
 
 # Debugging
 amrex.fpe_trap_invalid = 1
