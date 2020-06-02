@@ -42,43 +42,40 @@ def extract_parameters(work_dir,input_filename):
 	return parameters
 
 def get_raw_data(work_dir, obs_filename):
-	try:
-		obs_file = work_dir+'/'+obs_filename
-		f = open(obs_file, "r")
-		lines = f.readlines()
-		f.close()
-		lines = lines[1:]
-		Re_field_modulus = []
-		Im_field_modulus = []
-		Re_density = []
-		Im_density = []
-		Re_angular_momentum = []
-		Im_angular_momentum = []
-		Re_action = []
-		Im_action = []
-		for line in lines:
-			line = line.strip('\n')
-			temp = line.split(',')
-			Re_field_modulus.append(float(temp[1]))
-			Im_field_modulus.append(float(temp[2]))
-			Re_density.append(float(temp[3]))
-			Im_density.append(float(temp[4]))
-			Re_angular_momentum.append(float(temp[5]))
-			Im_angular_momentum.append(float(temp[6]))
-			Re_action.append(float(temp[7]))
-			Im_action.append(float(temp[8]))
-		data = dict()
-		data["Re Phisq"] = Re_field_modulus
-		data["Im Phisq"] = Im_field_modulus
-		data["Re n"] = Re_density
-		data["Im n"] = Im_density
-		data["Re Lz"] = Re_angular_momentum
-		data["Im Lz"] = Im_angular_momentum
-		data["Re S"] = Re_action
-		data["Im S"] = Im_action
-		return data
-	except:
-		pass
+	obs_file = work_dir+'/'+obs_filename
+	f = open(obs_file, "r")
+	lines = f.readlines()
+	f.close()
+	lines = lines[1:]
+	Re_field_modulus = []
+	Im_field_modulus = []
+	Re_density = []
+	Im_density = []
+	Re_angular_momentum = []
+	Im_angular_momentum = []
+	Re_action = []
+	Im_action = []
+	for line in lines:
+		line = line.strip('\n')
+		temp = line.split(',')
+		Re_field_modulus.append(float(temp[1]))
+		Im_field_modulus.append(float(temp[2]))
+		Re_density.append(float(temp[3]))
+		Im_density.append(float(temp[4]))
+		Re_angular_momentum.append(float(temp[5]))
+		Im_angular_momentum.append(float(temp[6]))
+		Re_action.append(float(temp[7]))
+		Im_action.append(float(temp[8]))
+	data = dict()
+	data["Re Phisq"] = Re_field_modulus
+	data["Im Phisq"] = Im_field_modulus
+	data["Re n"] = Re_density
+	data["Im n"] = Im_density
+	data["Re Lz"] = Re_angular_momentum
+	data["Im Lz"] = Im_angular_momentum
+	data["Re S"] = Re_action
+	data["Im S"] = Im_action
+	return data
 
 def average_observables(work_dir,raw_data,params,Ntherm):
 	avg_file = work_dir+"/averaged_observables.csv"
