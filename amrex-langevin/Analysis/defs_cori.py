@@ -102,6 +102,7 @@ def average_observables(work_dir,raw_data,params,Ntherm):
 	fo.close()
 
 def concatenate_obs_files(curr_dir):
+	empty_dirs = []
 	master_f = open(curr_dir+"/all_averaged_observables.csv",'w')
 	master_header = "Nt,Nx,beta,dt,eps,lambda,m,mu,nL,wtr,wz,Im Lz,Im Lz err,Im Phisq,Im Phisq err,Im S,Im S err,Im n,Im n err,Re Lz,Re Lz err,Re Phisq,Re Phisq err,Re S,Re S err,Re n,Re n err,Ntherm\n"
 	master_f.write(master_header)
@@ -109,11 +110,13 @@ def concatenate_obs_files(curr_dir):
 	data_directories = []
 	for subdir in subdirectories:
 		if subdir.startswith("nrrb_data_"):
+			count = 0
 			files = os.listdir(subdir)
 			for file in files:
 				if file.startswith("averaged_observables"):
 					#print("observable file found")
 					f = open(curr_dir+'/'+subdir+'/'+file,'r')
+					count = count +1
 					data = f.readlines()
 					f.close()
 					if data[0].startswith(master_header):
@@ -122,5 +125,8 @@ def concatenate_obs_files(curr_dir):
 					else:
 						print("Header not correct. Header should be: "+master_header)
 						print("Header is instead: "+str(data[0]))
+			if count == 0:
+				empty_dirs.append(subdir)
 	master_f.close()
+	return empty_dirs
 

@@ -8,6 +8,7 @@ subdirectories = os.listdir(curr_dir)
 data_directories = []
 for subdir in subdirectories:
 	if subdir.startswith("nrrb_data_"):
+		print(subdir)
 		work_dir = curr_dir+subdir
 		if os.path.isdir(work_dir):
 			all_files = os.listdir(work_dir)
@@ -18,7 +19,11 @@ for subdir in subdirectories:
 					input_filename = filename
 				if filename.startswith("logfile"): 
 					obs_filename = filename
-			if input_filename == "null" or obs_filename == "null":
+			if input_filename == "null":
+				print("no input file")
+				pass
+			elif obs_filename == "null":
+				print("no observables file")
 				pass
 			else:
 				p = extract_parameters(work_dir,input_filename)
