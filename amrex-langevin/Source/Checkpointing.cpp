@@ -2,7 +2,7 @@
 
 using namespace amrex;
 
-void WriteCheckpointFile (const MultiFab& lattice, const int step, const Real time, const Real dt)
+void WriteCheckpointFile (const MultiFab& lattice, const int step, const Real time)
 {
     /* Saves the lattice data, step, time, and timestep dt in a checkpoint file. */
 
@@ -62,10 +62,6 @@ void WriteCheckpointFile (const MultiFab& lattice, const int step, const Real ti
         HeaderFile << step << " ";
         HeaderFile << "\n";
 
-        // write out array of dt
-        HeaderFile << dt << " ";
-        HeaderFile << "\n";
-
         // write out array of t_new
         HeaderFile << time << " ";
         HeaderFile << "\n";
@@ -83,7 +79,7 @@ void WriteCheckpointFile (const MultiFab& lattice, const int step, const Real ti
 }
 
 
-void ReadCheckpointFile (const std::string restart_chkfile, MultiFab& lattice_old, MultiFab& lattice_new, int& step, Real& time, Real& dt)
+void ReadCheckpointFile (const std::string restart_chkfile, MultiFab& lattice_old, MultiFab& lattice_new, int& step, Real& time)
 {
     /* Defines lattice_old and lattice_new, and initializes lattice_new
        and the step, time, and timestep dt. */
@@ -123,10 +119,6 @@ void ReadCheckpointFile (const std::string restart_chkfile, MultiFab& lattice_ol
     // read in "new" step
     is >> word;
     step = std::stoi(word);
-
-    // read in "new" dt
-    is >> word;
-    dt = std::stod(word);
 
     // read in "new" time
     lis >> word;
