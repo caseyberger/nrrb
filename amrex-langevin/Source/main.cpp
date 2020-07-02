@@ -39,6 +39,9 @@ void langevin_main()
     domain_lo_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
     domain_hi_bc_types[AMREX_SPACEDIM-1] = BCType::int_dir;
 
+    // Name of a checkpoint file for (optional) restart
+    std::string restart_checkpoint = "";
+
     NRRBParameters nrrb_parm;
 
     int autocorrelation_step = 1;
@@ -68,6 +71,9 @@ void langevin_main()
         pp.queryarr("is_periodic", is_periodic);
         pp.queryarr("domain_lo_bc_types", domain_lo_bc_types);
         pp.queryarr("domain_hi_bc_types", domain_hi_bc_types);
+
+        // Name of a checkpoint file for (optional) restart
+        pp.query("restart", restart_checkpoint);
 
         ParmParse pp_nrrb("nrrb");
         pp_nrrb.get("m", nrrb_parm.m);
@@ -153,40 +159,51 @@ void langevin_main()
         }
     }
 
-    // Initialize the valid regions in the domain interior
-    Langevin_initialization(lattice_old, geom, nrrb_parm);
-
-    // We initialized the valid regions in the interior of the domain (and not the ghost cells).
-    // so now we fill the ghost cells using our boundary conditions in the Geometry object geom.
-    lattice_old.FillBoundary(geom.periodicity());
-    FillDomainBoundary(lattice_old, geom, lattice_bc);
-
-    // AMReX also provides high-level MultiFab operations like Copy
-    // Here we copy Ncomp components from lattice_old to lattice_new
-    // starting at component index 0 in each and with Nghost ghost cells.
-    MultiFab::Copy(lattice_new, lattice_old, 0, 0, Ncomp, Nghost);
-
-    amrex::Print() << "Fields initialized" << std::endl;
-
-    // time = starting time in the simulation
+    // starting time in the simulation
     Real Ltime = 0.0;
 
-    // Write observables after initialization for reference
-    observables.update(0, lattice_new, geom.data(), nrrb_parm);
+    // starting simulation step number
+    int istep = 1;
 
-    // To check our initialization, we also write a plotfile
-    // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
-    if (plot_int > 0)
-    {
-        int n = 0;
-        const std::string& pltfile = amrex::Concatenate("plt",n,5);
-        WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
+    if (restart_checkpoint != "") {
+        // Restart from a checkpoint file if supplied
+
+    } else {
+        // Otherwise, initialize from scratch ...
+
+        // Initialize the valid regions in the domain interior
+        Langevin_initialization(lattice_old, geom, nrrb_parm);
+
+        // We initialized the valid regions in the interior of the domain (and not the ghost cells).
+        // so now we fill the ghost cells using our boundary conditions in the Geometry object geom.
+        lattice_old.FillBoundary(geom.periodicity());
+        FillDomainBoundary(lattice_old, geom, lattice_bc);
+
+        // AMReX also provides high-level MultiFab operations like Copy
+        // Here we copy Ncomp components from lattice_old to lattice_new
+        // starting at component index 0 in each and with Nghost ghost cells.
+        MultiFab::Copy(lattice_new, lattice_old, 0, 0, Ncomp, Nghost);
+
+        amrex::Print() << "Fields initialized" << std::endl;
+
+        // Write observables after initialization for reference
+        observables.update(0, lattice_new, geom.data(), nrrb_parm);
+
+        // To check our initialization, we also write a plotfile
+        // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
+        if (plot_int > 0)
+        {
+            int n = 0;
+            const std::string& pltfile = amrex::Concatenate("plt",n,5);
+            WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
+        }
     }
 
     // init_time is the current time post-initialization
     Real init_time = amrex::second();
 
-    for (int n = 1; n <= nsteps; ++n)
+    // advance from istep to nsteps from valid data in lattice_new at Langevin time Ltime
+    while (istep <= nsteps)
     {
 #ifdef TEST_SEED_RNG
         // if we set a random seed to use, then reinitialize the random number generator with it
@@ -222,26 +239,29 @@ void langevin_main()
         FillDomainBoundary(lattice_new, geom, lattice_bc);
 
         // Calculate observables
-        if (n % autocorrelation_step == 0)
+        if (istep % autocorrelation_step == 0)
         {
-            observables.update(n, lattice_new, geom.data(), nrrb_parm);
+            observables.update(istep, lattice_new, geom.data(), nrrb_parm);
         }
 
         Ltime = Ltime + nrrb_parm.eps;
 
         // Tell the I/O Processor to write out which step we're doing
-        amrex::Print() << "Advanced step " << n << "\n";
+        amrex::Print() << "Advanced step " << istep << "\n";
 
         // Write a plotfile of the current data (plot_int was defined in the inputs file)
-        if (plot_int > 0 && n%plot_int == 0)
+        if (plot_int > 0 && istep % plot_int == 0)
         {
-            const std::string& pltfile = amrex::Concatenate("plt",n,5);
+            const std::string& pltfile = amrex::Concatenate("plt",istep,5);
             WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
         }
 
         // Update the figure of merit with the number of cells advanced
         // We can use BoxArray.numPts() since this is single-level
         run_fom += ba.numPts();
+
+        // Update step number
+        istep++;
     }
 
     // Call the timer again and compute the maximum difference between the start time and stop time
