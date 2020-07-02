@@ -172,17 +172,12 @@ void langevin_main()
         // Otherwise, initialize from scratch ...
 
         // Initialize the valid regions in the domain interior
-        Langevin_initialization(lattice_old, geom, nrrb_parm);
+        Langevin_initialization(lattice_new, geom, nrrb_parm);
 
         // We initialized the valid regions in the interior of the domain (and not the ghost cells).
         // so now we fill the ghost cells using our boundary conditions in the Geometry object geom.
-        lattice_old.FillBoundary(geom.periodicity());
-        FillDomainBoundary(lattice_old, geom, lattice_bc);
-
-        // AMReX also provides high-level MultiFab operations like Copy
-        // Here we copy Ncomp components from lattice_old to lattice_new
-        // starting at component index 0 in each and with Nghost ghost cells.
-        MultiFab::Copy(lattice_new, lattice_old, 0, 0, Ncomp, Nghost);
+        lattice_new.FillBoundary(geom.periodicity());
+        FillDomainBoundary(lattice_new, geom, lattice_bc);
 
         amrex::Print() << "Fields initialized" << std::endl;
 
