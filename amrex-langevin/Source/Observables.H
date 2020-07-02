@@ -69,7 +69,7 @@ private:
     amrex::Vector<RadCirc> circulation;
 
 public:
-    Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps);
+    Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps, bool restart = false);
     void initialize_files(const amrex::Geometry& geom);
     void update(const int nL, const amrex::MultiFab& Lattice, 
                 const amrex::GeometryData& geom, const NRRBParameters& nrrb_parm);

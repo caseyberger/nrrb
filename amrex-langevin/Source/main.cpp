@@ -142,7 +142,7 @@ void langevin_main()
     MultiFab lattice_new(ba, dm, Ncomp, Nghost);
 
     // Also create an observables object for updating and writing observable log files
-    Observables observables(geom, nrrb_parm, nsteps);
+    Observables observables(geom, nrrb_parm, nsteps, restart_checkpoint != "");
 
     Vector<BCRec> lattice_bc(Ncomp);
     for (int n = 0; n < Ncomp; ++n)
@@ -167,11 +167,10 @@ void langevin_main()
     Real Ltime = 0.0;
 
     // starting simulation step number
-    int istep = 1;
+    int istep = 0;
 
     if (restart_checkpoint != "") {
         // Restart from a checkpoint file if supplied
-
         ReadCheckpointFile(restart_checkpoint, lattice_old, lattice_new, istep, Ltime);
     } else {
         // Otherwise, initialize from scratch ...
@@ -193,8 +192,7 @@ void langevin_main()
         // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
         if (plot_int > 0)
         {
-            int n = 0;
-            const std::string& pltfile = amrex::Concatenate("plt",n,5);
+            const std::string& pltfile = amrex::Concatenate("plt",istep,5);
             WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
         }
     }
@@ -203,7 +201,7 @@ void langevin_main()
     Real init_time = amrex::second();
 
     // advance from istep to nsteps from valid data in lattice_new at Langevin time Ltime
-    while (istep <= nsteps)
+    for (++istep; istep <= nsteps; ++istep)
     {
 #ifdef TEST_SEED_RNG
         // if we set a random seed to use, then reinitialize the random number generator with it
@@ -215,7 +213,6 @@ void langevin_main()
         std::swap(lattice_old, lattice_new);
 
         // Advance lattice
-
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
@@ -257,18 +254,15 @@ void langevin_main()
             WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
         }
 
-        // Update the figure of merit with the number of cells advanced
-        // We can use BoxArray.numPts() since this is single-level
-        run_fom += ba.numPts();
-
-        // Update step number
-        istep++;
-
         // Write a checkpoint file of the current data
         if (check_int > 0 && istep % check_int == 0)
         {
             WriteCheckpointFile(lattice_new, istep, Ltime);
         }
+
+        // Update the figure of merit with the number of cells advanced
+        // We can use BoxArray.numPts() since this is single-level
+        run_fom += ba.numPts();
     }
 
     // Call the timer again and compute the maximum difference between the start time and stop time
