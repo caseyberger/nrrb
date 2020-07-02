@@ -206,7 +206,8 @@ void langevin_main()
         amrex::ResetRandomSeed(nrrb_parm.seed_run);
 #endif
 
-        MultiFab::Copy(lattice_old, lattice_new, 0, 0, Ncomp, Nghost);
+        // swap old/new lattice states so we start the evolution with valid data in lattice_old.
+        std::swap(lattice_old, lattice_new);
 
         // Advance lattice
 
