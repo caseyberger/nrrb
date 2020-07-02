@@ -25,7 +25,7 @@ void langevin_main()
     Real run_fom = 0.0;
 
     // AMREX_SPACEDIM: number of dimensions (space + time)
-    int max_grid_size, nsteps, plot_int;
+    int max_grid_size, nsteps, plot_int, check_int;
     Vector<int> n_cell(AMREX_SPACEDIM, 1);
 
     // Periodicity and Boundary Conditions
@@ -59,9 +59,13 @@ void langevin_main()
         pp.get("max_grid_size",max_grid_size);
 
         // Default plot_int to -1, allow us to set it to something else in the inputs file
-        //  If plot_int < 0 then no plot files will be written
+        // If plot_int < 0 then no plot files will be written
         plot_int = -1;
         pp.query("plot_int",plot_int);
+
+        // If check_int < 0 then no checkpoint files will be written
+        check_int = -1;
+        pp.query("check_int",check_int);
 
         // Default nsteps to 10, allow us to set it to something else in the inputs file
         nsteps = 10;
@@ -168,6 +172,7 @@ void langevin_main()
     if (restart_checkpoint != "") {
         // Restart from a checkpoint file if supplied
 
+        ReadCheckpointFile(restart_checkpoint, lattice_old, lattice_new, istep, Ltime);
     } else {
         // Otherwise, initialize from scratch ...
 
@@ -258,6 +263,12 @@ void langevin_main()
 
         // Update step number
         istep++;
+
+        // Write a checkpoint file of the current data
+        if (check_int > 0 && istep % check_int == 0)
+        {
+            WriteCheckpointFile(lattice_new, istep, Ltime);
+        }
     }
 
     // Call the timer again and compute the maximum difference between the start time and stop time
