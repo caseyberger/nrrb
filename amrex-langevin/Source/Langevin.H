@@ -119,8 +119,8 @@ void initialize_observables(const std::string);
 void update_observables(const int, const amrex::MultiFab&, const amrex::GeometryData &,
                         const NRRBParameters&, const std::string);
 
-void WriteCheckpointFile (const MultiFab& lattice, const int step, const Real time);
+void WriteCheckpointFile (const amrex::MultiFab& lattice, const int step, const amrex::Real time);
 
-void ReadCheckpointFile (const std::string restart_chkfile, MultiFab& lattice_old, MultiFab& lattice_new, int& step, Real& time);
+void ReadCheckpointFile (const std::string restart_chkfile, amrex::MultiFab& lattice_old, amrex::MultiFab& lattice_new, int& step, amrex::Real& time);
 
 #endif

@@ -2,6 +2,15 @@
 
 using namespace amrex;
 
+namespace {
+    // utility to skip to next line in Header
+    void GotoNextLine (std::istream& is)
+    {
+        constexpr std::streamsize bl_ignore_max { 100000 };
+        is.ignore(bl_ignore_max, '\n');
+    }
+}
+
 void WriteCheckpointFile (const MultiFab& lattice, const int step, const Real time)
 {
     /* Saves the lattice data, step, time, and timestep dt in a checkpoint file. */
@@ -15,7 +24,7 @@ void WriteCheckpointFile (const MultiFab& lattice, const int step, const Real ti
 
     // checkpoint file name, e.g., chk00010
     const std::string chk_file = "chk";
-    const std::string& checkpointname = amrex::Concatenate(chk_file,istep[0],7);
+    const std::string& checkpointname = amrex::Concatenate(chk_file,step,7);
 
     amrex::Print() << "Writing checkpoint " << checkpointname << "\n";
 
@@ -47,7 +56,7 @@ void WriteCheckpointFile (const MultiFab& lattice, const int step, const Real ti
         HeaderFile.precision(17);
 
         // write out title line
-        HeaderFile << "Checkpoint file for AmrCoreAdv\n";
+        HeaderFile << "Checkpoint file for AMReX-CL\n";
 
         // write out finest_level
         HeaderFile << finest_level << "\n";
@@ -121,7 +130,7 @@ void ReadCheckpointFile (const std::string restart_chkfile, MultiFab& lattice_ol
     step = std::stoi(word);
 
     // read in "new" time
-    lis >> word;
+    is >> word;
     time = std::stod(word);
 
     const int lev = 0;
