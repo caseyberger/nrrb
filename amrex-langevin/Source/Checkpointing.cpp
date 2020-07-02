@@ -67,17 +67,23 @@ void WriteCheckpointFile (const MultiFab& lattice, const int step, const Real ti
         // write the number of ghost cells
         HeaderFile << lattice.nGrow() << "\n";
 
-        // write out array of istep
+        // write out step number
         HeaderFile << step << " ";
         HeaderFile << "\n";
 
-        // write out array of t_new
+        // write out time
         HeaderFile << time << " ";
         HeaderFile << "\n";
 
         // write the BoxArray
         lattice.boxArray().writeOn(HeaderFile);
         HeaderFile << '\n';
+
+        // write the number of OpenMP threads we are using
+        HeaderFile << OpenMP::get_max_threads() << '\n';
+
+        // write the random number generation state
+        amrex::SaveRandomState(HeaderFile);
     }
 
     // write the MultiFab data to, e.g., chk00010/Level_0/
@@ -139,6 +145,14 @@ void ReadCheckpointFile (const std::string restart_chkfile, MultiFab& lattice_ol
     BoxArray ba;
     ba.readFrom(is);
     GotoNextLine(is);
+
+    // read the number of OpenMP threads from the previous run
+    int previous_omp_nthreads = 1;
+    is >> previous_omp_nthreads;
+    GotoNextLine(is);
+
+    // read the random number generation state
+    amrex::RestoreRandomState(is, previous_omp_nthreads, step);
 
     // create a distribution mapping
     DistributionMapping dm { ba, ParallelDescriptor::NProcs() };
