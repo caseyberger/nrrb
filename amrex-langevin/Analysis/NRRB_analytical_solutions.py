@@ -135,7 +135,7 @@ def Udagger_k(Nx, Nt, dim, space, t, k):
 def noninteracting_phisq(dim,m,mu,Nx,Nt,dtau):
 	NxMin = 1 #previously was 1
 	NxMax = Nx+2 #previously was Nx+2
-	volume = float(Nt)*float(np.power(Nx+1,dim))
+	volume = float(Nt)*float(np.power(Nx,dim)) #float(Nt)*float(np.power(Nx+1,dim)) 
 	if dim==1:
 		phisq = complex(0.,0.)
 		count = 0
@@ -189,7 +189,7 @@ def noninteracting_phisq(dim,m,mu,Nx,Nt,dtau):
 def noninteracting_density(dim,m,mu,Nx,Nt,dtau):
 	NxMin = 1 #previously was 1
 	NxMax = Nx+2 #previously was Nx+2
-	volume = float(Nt)*float(np.power(Nx+1,dim))
+	volume = float(Nt)*float(np.power(Nx,dim))#float(Nt)*float(np.power(Nx+1,dim))
 	if dim==1:
 		density = complex(0.,0.)
 		count = 0
@@ -250,7 +250,7 @@ def noninteracting_density(dim,m,mu,Nx,Nt,dtau):
 def noninteracting_energy(dim,m,mu,Nx,Nt,dtau):
 	NxMin = 1 #previously was 1
 	NxMax = Nx+2 #previously was Nx+2
-	volume = float(Nt)*float(np.power(Nx+1,dim))
+	volume = float(Nt)*float(np.power(Nx+1,dim)) #float(Nt)*float(np.power(Nx,dim))
 	if dim==1:
 		energy = complex(0.,0.)
 		count = 0

@@ -119,17 +119,6 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
 
 		// Write reduced observables
 	    obsFile.open(observable_log_file, std::fstream::app);
-	    //delete these commented lines once it works
-        //obsFile << std::setw(6)  << std::left << nL << ' ';
-        //obsFile << std::setw(19) << std::left << amrex::get<Obs::PhiSqRe>(reduced_observables) << ' ';
-        //obsFile << std::setw(19) << std::left << amrex::get<Obs::PhiSqIm>(reduced_observables) << ' ';
-        //obsFile << std::setw(19) << std::left << amrex::get<Obs::DensRe>(reduced_observables) << ' ';
-        //obsFile << std::setw(19) << std::left << amrex::get<Obs::DensIm>(reduced_observables) << ' ';
-        //obsFile << std::setw(19) << std::left << amrex::get<Obs::LzRe>(reduced_observables) << ' ';
-        //obsFile << std::setw(19) << std::left << amrex::get<Obs::LzIm>(reduced_observables) << ' ';
-        //obsFile << std::setw(19) << std::left << amrex::get<Obs::SRe>(reduced_observables) << ' ';
-        //obsFile << std::setw(19) << std::left << amrex::get<Obs::SIm>(reduced_observables) << ' ';
-        //obsFile << std::setw(11) << std::left << 0.0 << std::endl;
         obsFile << nL << ',';
         obsFile << amrex::get<Obs::PhiSqRe>(reduced_observables) << ',';
         obsFile << amrex::get<Obs::PhiSqIm>(reduced_observables) << ',';
