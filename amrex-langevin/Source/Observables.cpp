@@ -47,16 +47,16 @@ void Observables::initialize_files(const amrex::Geometry& geom)
 
 		// Write observables file header
 	    obsFile.open(observable_log_file, std::fstream::trunc);
-        obsFile << "#step  ";
-        obsFile << "Re[phi^{*}phi]      ";
-        obsFile << "Im[phi^{*}phi]      ";
-        obsFile << "Re[<n>]             ";
-        obsFile << "Im[<n>]             ";
-        obsFile << "Re[<Lz>]            ";
-        obsFile << "Im[<Lz>]            ";
-        obsFile << "Re[<S>]             ";
-        obsFile << "Im[<S>]             ";
-        obsFile << "dt (sec)" << std::endl;
+        obsFile << "#step,";
+        obsFile << "Re[phi^{*}phi],";
+        obsFile << "Im[phi^{*}phi],";
+        obsFile << "Re[<n>],";
+        obsFile << "Im[<n>],";
+        obsFile << "Re[<Lz>],";
+        obsFile << "Im[<Lz>],";
+        obsFile << "Re[<S>],";
+        obsFile << "Im[<S>],";
+        obsFile << std::endl;
         obsFile.close();
 
 		// Write circulation log files
@@ -122,16 +122,16 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
 
 		// Write reduced observables
 	    obsFile.open(observable_log_file, std::fstream::app);
-        obsFile << std::setw(6)  << std::left << nL << ' ';
-        obsFile << std::setw(19) << std::left << amrex::get<Obs::PhiSqRe>(reduced_observables) << ' ';
-        obsFile << std::setw(19) << std::left << amrex::get<Obs::PhiSqIm>(reduced_observables) << ' ';
-        obsFile << std::setw(19) << std::left << amrex::get<Obs::DensRe>(reduced_observables) << ' ';
-        obsFile << std::setw(19) << std::left << amrex::get<Obs::DensIm>(reduced_observables) << ' ';
-        obsFile << std::setw(19) << std::left << amrex::get<Obs::LzRe>(reduced_observables) << ' ';
-        obsFile << std::setw(19) << std::left << amrex::get<Obs::LzIm>(reduced_observables) << ' ';
-        obsFile << std::setw(19) << std::left << amrex::get<Obs::SRe>(reduced_observables) << ' ';
-        obsFile << std::setw(19) << std::left << amrex::get<Obs::SIm>(reduced_observables) << ' ';
-        obsFile << std::setw(11) << std::left << 0.0 << std::endl;
+        obsFile << nL << ',';
+        obsFile << amrex::get<Obs::PhiSqRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::PhiSqIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::DensRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::DensIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::LzRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::LzIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::SRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::SIm>(reduced_observables) << ',';
+        obsFile << std::endl;
         obsFile.close();
 
 		circulation[0].set_circulation(amrex::get<Obs::Circ1>(reduced_observables));

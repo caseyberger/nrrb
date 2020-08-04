@@ -1,0 +1,36 @@
+# Physical Input Parameters
+nrrb.m = 1.0
+nrrb.l = 0.0
+nrrb.w = 0.0
+nrrb.w_t = 0.0
+nrrb.dtau = 0.05
+nrrb.mu = -0.1
+nrrb.eps = 0.001
+nrrb.circulation_radius_1 = 2
+nrrb.circulation_radius_2 = 9
+
+# Set a seed for the random number generator
+nrrb.seed_init = 8134
+nrrb.seed_run = 61
+
+#Domain Size and Grid Decomposition
+n_cell = 21 21 160
+max_grid_size = 8
+
+# Set Fab tile size (default is 1024000 x 8 x 8 for 3D)
+fabarray.mfiter_tile_size = 1024000 4 4
+
+# Periodicity and Domain Boundary Conditions
+is_periodic = 0 0 1 # Non-periodic in space, periodic in time
+domain_lo_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic) in time
+domain_hi_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic) in time
+
+#Stopping criteria
+nsteps = 1000000
+
+#Frequency for computing observables
+autocorrelation_step = 1
+
+#I/O
+plot_int = 1000000
+observable_log_file = "observables_d2_w0.0_wt0.0_lambda0.0_m1.0_Nx21_Nt160_dt0.05_nL1000000_eps0.001_mu-0.1.log"
