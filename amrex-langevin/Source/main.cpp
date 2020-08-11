@@ -124,6 +124,9 @@ void langevin_main()
     int Ncomp  = 4;
     const Vector<std::string> component_names = {"phi_1_Re", "phi_1_Im", "phi_2_Re", "phi_2_Im"};
 
+    // Naux = number of auxiliary components for constructing the Langevin time derivatives of phi
+    const Vector<std::string> auxiliary_names = {"K_1_Re", "K_1_Im", "K_2_Re", "K_2_Im", "eta_1", "eta_2"};
+
     // How Boxes are distrubuted among MPI processes
     DistributionMapping dm(ba);
 
@@ -131,7 +134,11 @@ void langevin_main()
     MultiFab lattice_old(ba, dm, Ncomp, Nghost);
     MultiFab lattice_new(ba, dm, Ncomp, Nghost);
 
-    // Also create an observables object for updating and writing observable log files
+    // Also allocate a multifab for storing auxiliary variables: the drift functions K and RNG eta
+    MultiFab lattice_aux(ba, dm, AIdx::NAux, 0);
+    lattice_aux.setVal(0.0);
+
+    // Create an observables object for updating and writing observable log files
     Observables observables(geom, nrrb_parm, nsteps);
 
     Vector<BCRec> lattice_bc(Ncomp);
@@ -178,9 +185,7 @@ void langevin_main()
     // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
     if (plot_int > 0)
     {
-        int n = 0;
-        const std::string& pltfile = amrex::Concatenate("plt",n,5);
-        WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
+        WritePlotfile(0, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom);
     }
 
     // init_time is the current time post-initialization
@@ -210,11 +215,16 @@ void langevin_main()
             // The Array4 object provides accessor functions so it can be treated like a 4-D array
             // with dimensions (x, y, z, component).
             Array4<Real> const& L_old = lattice_old.array(mfi);
+            Array4<Real> const& L_aux = lattice_aux.array(mfi);
             Array4<Real> const& L_new = lattice_new.array(mfi);
 
-            Langevin_evolution(nrrb_parm.m, nrrb_parm.l, nrrb_parm.w, nrrb_parm.w_t,
-                               nrrb_parm.dtau, nrrb_parm.mu, nrrb_parm.eps,
-                               bx, Ncomp, L_old, L_new, geom.data());
+            // First, calculate the auxiliary quantities we need to construct the Langevin right hand side
+            Langevin_auxiliary(nrrb_parm.m, nrrb_parm.l, nrrb_parm.w,
+                               nrrb_parm.w_t, nrrb_parm.dtau, nrrb_parm.mu,
+                               bx, Ncomp, L_old, L_aux, geom.data());
+
+            // Then update the lattice using the Langevin right hand side terms and the stepsize eps
+            Langevin_evolution(nrrb_parm.eps, bx, L_old, L_aux, L_new);
         }
 
         // Fill ghost cells
@@ -233,10 +243,9 @@ void langevin_main()
         amrex::Print() << "Advanced step " << n << "\n";
 
         // Write a plotfile of the current data (plot_int was defined in the inputs file)
-        if (plot_int > 0 && n%plot_int == 0)
+        if (plot_int > 0 && n % plot_int == 0)
         {
-            const std::string& pltfile = amrex::Concatenate("plt",n,5);
-            WriteSingleLevelPlotfile(pltfile, lattice_new, component_names, geom, Ltime, 0);
+            WritePlotfile(n, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom);
         }
 
         // Update the figure of merit with the number of cells advanced

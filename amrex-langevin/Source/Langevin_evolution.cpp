@@ -12,10 +12,11 @@ using namespace amrex;
    on the lattice to one positive or negative step in the direction specified.
 */
 
-void Langevin_evolution(Real m, Real l, Real w, Real w_t, Real dtau, Real mu, Real eps,
+void Langevin_auxiliary(Real m, Real l, Real w,
+                        Real w_t, Real dtau, Real mu,
                         const amrex::Box& box, const int Ncomp,
                         amrex::Array4<amrex::Real> const& Lattice_old,
-                        amrex::Array4<amrex::Real> const& Lattice_new,
+                        amrex::Array4<amrex::Real> const& Lattice_aux,
                         const amrex::GeometryData& geom)
 {
     ParallelFor(box,
@@ -34,16 +35,50 @@ void Langevin_evolution(Real m, Real l, Real w, Real w_t, Real dtau, Real mu, Re
 #endif
 #endif
 
-        //phi1_Re
-        Lattice_new(i,j,t,0) = Lattice_old(i,j,t,0) + eps * K_a_Re(m,l,w,w_t,1,dtau,mu,Lattice_old,geom,i,j,t)  + sqrt(eps) * eta_1;
+        // K_1_Re
+        Lattice_aux(i,j,t,AIdx::K_1_Re) = K_a_Re(m,l,w,w_t,1,dtau,mu,Lattice_old,geom,i,j,t);
 
-        //phi1_Im
-        Lattice_new(i,j,t,1) = Lattice_old(i,j,t,1) + eps * K_a_Im(m,l,w,w_t,1,dtau,mu,Lattice_old,geom,i,j,t);
+        // K_1_Im
+        Lattice_aux(i,j,t,AIdx::K_1_Im) = K_a_Im(m,l,w,w_t,1,dtau,mu,Lattice_old,geom,i,j,t);
 
-        //phi2_Re
-        Lattice_new(i,j,t,2) = Lattice_old(i,j,t,2) + eps * K_a_Re(m,l,w,w_t,2,dtau,mu,Lattice_old,geom,i,j,t) + sqrt(eps) * eta_2;
+        // K_2_Re
+        Lattice_aux(i,j,t,AIdx::K_2_Re) = K_a_Re(m,l,w,w_t,2,dtau,mu,Lattice_old,geom,i,j,t);
 
-        //phi2_Im
-        Lattice_new(i,j,t,3) = Lattice_old(i,j,t,3) + eps * K_a_Im(m,l,w,w_t,2,dtau,mu,Lattice_old,geom,i,j,t);
+        // K_2_Im
+        Lattice_aux(i,j,t,AIdx::K_2_Im) = K_a_Im(m,l,w,w_t,2,dtau,mu,Lattice_old,geom,i,j,t);
+
+        // eta_1
+        Lattice_aux(i,j,t,AIdx::eta_1) = eta_1;
+
+        // eta_2
+        Lattice_aux(i,j,t,AIdx::eta_2) = eta_2;
+    });
+}
+
+void Langevin_evolution(Real eps, const amrex::Box& box,
+                        amrex::Array4<amrex::Real> const& Lattice_old,
+                        amrex::Array4<amrex::Real> const& Lattice_aux,
+                        amrex::Array4<amrex::Real> const& Lattice_new)
+{
+    ParallelFor(box,
+    [=] AMREX_GPU_DEVICE (int i, int j, int t) noexcept
+    {
+        // Advance phi_1_Re
+        Lattice_new(i,j,t,Field(1,C::Re)) = (Lattice_old(i,j,t,Field(1,C::Re)) +
+                                             eps * Lattice_aux(i,j,t,AIdx::K_1_Re)  +
+                                             std::sqrt(eps) * Lattice_aux(i,j,t,AIdx::eta_1));
+
+        // Advance phi_1_Im
+        Lattice_new(i,j,t,Field(1,C::Im)) = (Lattice_old(i,j,t,Field(1,C::Im)) +
+                                             eps * Lattice_aux(i,j,t,AIdx::K_1_Im));
+
+        // Advance phi_2_Re
+        Lattice_new(i,j,t,Field(2,C::Re)) = (Lattice_old(i,j,t,Field(2,C::Re)) +
+                                             eps * Lattice_aux(i,j,t,AIdx::K_2_Re) +
+                                             std::sqrt(eps) * Lattice_aux(i,j,t,AIdx::eta_2));
+
+        // Advance phi_2_Im
+        Lattice_new(i,j,t,Field(2,C::Im)) = (Lattice_old(i,j,t,Field(2,C::Im)) +
+                                             eps * Lattice_aux(i,j,t,AIdx::K_2_Im));
     });
 }

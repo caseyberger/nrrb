@@ -19,6 +19,10 @@
 
 enum class C { Re = 0, Im };
 
+namespace AIdx {
+    enum AuxiliaryIndexes {K_1_Re = 0, K_1_Im, K_2_Re, K_2_Im, eta_1, eta_2, NAux};
+}
+
 namespace Constants {
     constexpr amrex::Real Pi = 3.1415926535897932384e0;
     constexpr amrex::Real TwoPi = 2.0 * Pi;
@@ -108,14 +112,26 @@ void Langevin_initialization(amrex::MultiFab& lattice, const amrex::Geometry& ge
 void initialize_fixed_circulation(const amrex::Box& box, const amrex::GeometryData& geom,
                                   amrex::Array4<amrex::Real> const& Lattice, const int problem_type);
 
-void Langevin_evolution(amrex::Real m, amrex::Real l, amrex::Real w, amrex::Real w_t, amrex::Real dtau, amrex::Real mu, amrex::Real eps,
+void Langevin_auxiliary(amrex::Real m, amrex::Real l, amrex::Real w,
+                        amrex::Real w_t, amrex::Real dtau, amrex::Real mu,
                         const amrex::Box& box, const int Ncomp,
                         amrex::Array4<amrex::Real> const& Lattice_old,
-                        amrex::Array4<amrex::Real> const& Lattice_new,
+                        amrex::Array4<amrex::Real> const& Lattice_aux,
                         const amrex::GeometryData& geom);
+
+void Langevin_evolution(amrex::Real eps, const amrex::Box& box,
+                        amrex::Array4<amrex::Real> const& Lattice_old,
+                        amrex::Array4<amrex::Real> const& Lattice_aux,
+                        amrex::Array4<amrex::Real> const& Lattice_new);
 
 void initialize_observables(const std::string);
 
 void update_observables(const int, const amrex::MultiFab&, const amrex::GeometryData &,
                         const NRRBParameters&, const std::string);
+
+void WritePlotfile(int Langevin_step, const amrex::Real Langevin_time,
+                   const amrex::MultiFab& lattice, const amrex::Vector<std::string>& component_names,
+                   const amrex::MultiFab& lattice_aux, const amrex::Vector<std::string>& auxiliary_names,
+                   const amrex::Geometry& geom);
+
 #endif
