@@ -5,7 +5,7 @@
 
 using namespace amrex;
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_tau_Re(int i,int j,int t,int a, Real mu,amrex::Array4<const amrex::Real> const& Lattice){
 	Real S_Re = 0.;
 	S_Re +=  0.5 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
@@ -19,7 +19,7 @@ Real S_tau_Re(int i,int j,int t,int a, Real mu,amrex::Array4<const amrex::Real> 
 	return S_Re;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_tau_Im(int i,int j,int t,int a,Real mu, amrex::Array4<const amrex::Real> const& Lattice){
 	Real S_Im = 0.;
 	S_Im +=                  Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
@@ -32,7 +32,7 @@ Real S_tau_Im(int i,int j,int t,int a,Real mu, amrex::Array4<const amrex::Real> 
 	return S_Im;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_del_Re(int i,int j,int t,int a,Real m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom){
 	const auto domain_box = geom.Domain();
     const auto domain_lo = amrex::lbound(domain_box);
@@ -79,7 +79,7 @@ Real S_del_Re(int i,int j,int t,int a,Real m, amrex::Array4<const amrex::Real> c
 	return S_Re;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_del_Im(int i,int j,int t,int a, Real m, amrex::Array4<const amrex::Real> const& Lattice,const amrex::GeometryData& geom){
 	const auto domain_box = geom.Domain();
     const auto domain_lo = amrex::lbound(domain_box);
@@ -125,7 +125,7 @@ Real S_del_Im(int i,int j,int t,int a, Real m, amrex::Array4<const amrex::Real> 
 	return S_Im;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_trap_Re(int i,int j,int t,int a, Real w_t,const Real r2, amrex::Array4<const amrex::Real> const& Lattice){
 	Real S_Re = 0.;
 	S_Re +=  0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
@@ -137,7 +137,7 @@ Real S_trap_Re(int i,int j,int t,int a, Real w_t,const Real r2, amrex::Array4<co
 	return S_Re;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_trap_Im(int i,int j,int t,int a,Real w_t,const Real r2, amrex::Array4<const amrex::Real> const& Lattice){
 	Real S_Im = 0.;
 	S_Im += 0.25 * w_t * w_t * r2 * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
@@ -149,7 +149,7 @@ Real S_trap_Im(int i,int j,int t,int a,Real w_t,const Real r2, amrex::Array4<con
 	return S_Im;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_w_Re(int i,int j,int t,int a,Real w,const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice){
 	Real S_Re = 0.;
 	for (int b = 1; b<=2; b++){
@@ -170,7 +170,7 @@ Real S_w_Re(int i,int j,int t,int a,Real w,const Real x,const Real y, amrex::Arr
 	return S_Re;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_w_Im(int i,int j,int t,int a,Real w,const Real x,const Real y, amrex::Array4<const amrex::Real> const& Lattice){
 	Real S_Im = 0.;
 	for (int b = 1; b<=2; b++){
@@ -190,7 +190,7 @@ Real S_w_Im(int i,int j,int t,int a,Real w,const Real x,const Real y, amrex::Arr
 	return S_Im;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_int_Re(int i,int j,int t,int a,Real l, amrex::Array4<const amrex::Real> const& Lattice){
 	Real S_Re = 0.;
 	for (int b=1; b<=2; b++){
@@ -212,7 +212,7 @@ Real S_int_Re(int i,int j,int t,int a,Real l, amrex::Array4<const amrex::Real> c
 	return S_Re;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real S_int_Im(int i,int j,int t,int a,Real l, amrex::Array4<const amrex::Real> const& Lattice){
 	Real S_Im = 0.;
 	for (int b=1; b<=2; b++){
@@ -233,7 +233,7 @@ Real S_int_Im(int i,int j,int t,int a,Real l, amrex::Array4<const amrex::Real> c
 	return S_Im;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real Theta(amrex::Array4<const amrex::Real> const& Lattice,
            int i, int j, int k)
 {
@@ -248,7 +248,7 @@ Real Theta(amrex::Array4<const amrex::Real> const& Lattice,
     return theta;
 };
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real DeltaTheta(amrex::Array4<const amrex::Real> const& Lattice,
                 int ilp, int jlp, int klp,
                 int il, int jl, int kl)
@@ -265,7 +265,7 @@ Real DeltaTheta(amrex::Array4<const amrex::Real> const& Lattice,
     return dtheta;
 };
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real Circulation(const int i, const int j, const int t,
                  amrex::Array4<const amrex::Real> const& Lattice,
 				 const amrex::GeometryData& geom, int radius) {
@@ -358,7 +358,7 @@ Real Circulation(const int i, const int j, const int t,
 	return circ;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::GpuArray<amrex::Real, Obs::NumObservables>
 local_observables(const int i, const int j, const int t,
                   const amrex::Array4<const amrex::Real>& Lattice,

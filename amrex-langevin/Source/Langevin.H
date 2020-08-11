@@ -65,7 +65,7 @@ struct NRRBParameters {
     }
 };
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int Field(int a, C complex_type) {
     if (a == 1) {
         if (complex_type == C::Re)
@@ -86,7 +86,7 @@ int Field(int a, C complex_type) {
 }
 
 //ANTI-SYMMETRIC TENSOR
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real epsilon(int a, int b){
 	if (a == b){return 0.;}
 	else if (a == 1 and b ==2){return 1.;}
@@ -95,7 +95,7 @@ amrex::Real epsilon(int a, int b){
 }
 
 //DIRAC DELTA
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real delta(int a, int b){
     if (a == b){return 1.;}
     else {return 0.;}
