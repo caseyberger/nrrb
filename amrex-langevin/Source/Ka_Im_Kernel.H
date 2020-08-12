@@ -1,3 +1,6 @@
+#ifndef _KA_IM_K_H
+#define _KA_IM_K_H
+
 #include "Langevin.H"
 
 using namespace amrex;
@@ -11,6 +14,7 @@ on the lattice to one positive or negative step in the direction specified.
 */
 
 //COMPUTING THE IMAGINARY DRIFT FUNCTION
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::Array4<amrex::Real> const& Lattice, const amrex::GeometryData& geom, int i, int j, int t)
 {
     const auto domain_xlo = geom.ProbLo();
@@ -182,3 +186,5 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	}//last update 2.22.19 to make a gauge interaction
 	return -1.*Ka;
 }
+
+#endif
