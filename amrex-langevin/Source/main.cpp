@@ -65,10 +65,15 @@ void langevin_main()
         pp.query("nsteps",nsteps);
         pp.query("autocorrelation_step", autocorrelation_step);
 
+        // Periodicity and boundary conditions
         pp.queryarr("is_periodic", is_periodic);
         pp.queryarr("domain_lo_bc_types", domain_lo_bc_types);
         pp.queryarr("domain_hi_bc_types", domain_hi_bc_types);
 
+        // Use HDF5 for writing plotfiles?
+        pp.query("use_hdf5", nrrb_parm.use_hdf5);
+
+        // Problem-specific parameters
         ParmParse pp_nrrb("nrrb");
         pp_nrrb.get("m", nrrb_parm.m);
         pp_nrrb.get("l", nrrb_parm.l);
@@ -84,7 +89,7 @@ void langevin_main()
         pp_nrrb.query("seed_init", nrrb_parm.seed_init);
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
 
-        // problem type: 0 = default, 1 = fixed phase for circulation testing
+        // Problem type: 0 = default, 1 = fixed phase for circulation testing
         pp_nrrb.query("problem_type", nrrb_parm.problem_type);
     }
 
@@ -185,7 +190,7 @@ void langevin_main()
     // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
     if (plot_int > 0)
     {
-        WritePlotfile(0, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom);
+        WritePlotfile(0, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom, nrrb_parm);
     }
 
     // init_time is the current time post-initialization
@@ -245,7 +250,7 @@ void langevin_main()
         // Write a plotfile of the current data (plot_int was defined in the inputs file)
         if (plot_int > 0 && n % plot_int == 0)
         {
-            WritePlotfile(n, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom);
+            WritePlotfile(n, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom, nrrb_parm);
         }
 
         // Update the figure of merit with the number of cells advanced

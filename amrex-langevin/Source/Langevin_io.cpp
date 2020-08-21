@@ -5,7 +5,7 @@ using namespace amrex;
 void WritePlotfile(int Langevin_step, const Real Langevin_time,
                    const MultiFab& lattice, const Vector<std::string>& component_names,
                    const MultiFab& lattice_aux, const Vector<std::string>& auxiliary_names,
-                   const Geometry& geom)
+                   const Geometry& geom, const NRRBParameters& nrrb)
 {
     const std::string& pltfile = amrex::Concatenate("plt",Langevin_step,5);
 
@@ -25,5 +25,9 @@ void WritePlotfile(int Langevin_step, const Real Langevin_time,
     MultiFab::Copy(lattice_plot, lattice_aux, 0, lattice.nComp(), AIdx::NAux, 0);
 
     // write lattice_plot to a plotfile
-    WriteSingleLevelPlotfile(pltfile, lattice_plot, plot_vars, geom, Langevin_time, 0);
+    if (nrrb.use_hdf5) {
+        WriteSingleLevelPlotfileHDF5(pltfile, lattice_plot, plot_vars, geom, Langevin_time, 0);
+    } else {
+        WriteSingleLevelPlotfile(pltfile, lattice_plot, plot_vars, geom, Langevin_time, 0);
+    }
 }

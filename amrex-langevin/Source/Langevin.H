@@ -46,6 +46,7 @@ struct NRRBParameters {
     int seed_run;
 
     int problem_type;
+    bool use_hdf5;
 
     NRRBParameters()
     {
@@ -66,6 +67,9 @@ struct NRRBParameters {
         // problem_type = 0 is the default setup
         // other problem types may be, e.g. specialized test cases
         problem_type = 0;
+
+        // by default turn off HDF5
+        use_hdf5 = false;
     }
 };
 
@@ -132,6 +136,6 @@ void update_observables(const int, const amrex::MultiFab&, const amrex::Geometry
 void WritePlotfile(int Langevin_step, const amrex::Real Langevin_time,
                    const amrex::MultiFab& lattice, const amrex::Vector<std::string>& component_names,
                    const amrex::MultiFab& lattice_aux, const amrex::Vector<std::string>& auxiliary_names,
-                   const amrex::Geometry& geom);
+                   const amrex::Geometry& geom, const NRRBParameters& nrrb);
 
 #endif
