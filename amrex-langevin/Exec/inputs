@@ -40,3 +40,6 @@ nsteps = 10
 
 # I/O
 plot_int = 1
+
+# set use_hdf5 = true to write HDF5 plotfiles instead of AMReX-native plotfiles.
+use_hdf5 = false
