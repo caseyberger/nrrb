@@ -40,6 +40,53 @@ Any of the values in `inputs` can be overriden on the command line like this:
 $ main3d.gnu.ex inputs nrrb.l=0.5
 ```
 
+# Using HDF5
+
+The simple way to tell the AMReX build system to enable HDF5 is to pass
+`USE_HDF5=TRUE` on the `make` line.
+
+Then when running the code, set `use_hdf5=true` either in the inputs file or as
+a command line argument for the executable.
+
+Before compiling, there are some minor setup steps at NERSC vs on a local workstation:
+
+## Parallel HDF5 on Cori at NERSC
+
+On Cori, before compiling, we need to do the following:
+
+```
+$ module swap PrgEnv-intel PrgEnv-gnu
+$ module load cray-hdf5-parallel
+```
+
+Then we can compile like, e.g.:
+
+```
+$ make -j 8 USE_HDF5=TRUE USE_MPI=TRUE USE_OMP=TRUE
+```
+
+And then if we want to quickly test this in an interactive session:
+
+```
+$ salloc -N 1 -C haswell -q interactive -t 00:30:00
+$ srun -N 1 -n 4 ./main3d.gnu.haswell.MPI.OMP.ex inputs use_hdf5=true
+```
+
+## HDF5 in Local environment
+
+On a local workstation, it can be necessary to tell the build system where to
+find the HDF5 header files and library files.
+
+The AMReX build system looks for a path stored in the `HDF5_HOME` environment
+variable and in that path expects to find subdirectories `include` and `lib`
+containing the headers and library files.
+
+So on my workstation, I had to compile like this:
+
+```
+$ make -j USE_HDF5=TRUE HDF5_HOME=/home/dewillcox/local/hdf5_1.10.4_mpich_noc
+```
+
 # Verification
 
 ## Plotfiles
