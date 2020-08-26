@@ -19,6 +19,8 @@ Even though this is a pretty short `make` rule to delete the temporary build fil
 `AMREX_HOME` still needs to be defined since all the make rules are defined
 within AMReX.
 
+If you are having issues that can't immediately be identified, pull the latest version of amrex and try again!
+
 Passing `USE_MPI=TRUE` to `make` will compile the code with MPI enabled.
 
 ```
