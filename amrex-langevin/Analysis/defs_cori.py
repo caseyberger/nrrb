@@ -1,9 +1,19 @@
-import os
+import os, sys
+import h5py #suite of tools for HDF5 data structures
 import numpy as np
 
 '''
-Last updated July 27, 2020
+Last updated September 2, 2020
 *only works with 2 dimensions right now*
+
+To use h5py, you have to build a custom conda env on Cori: 
+https://docs.nersc.gov/development/languages/python/parallel-python/
+
+Once you have h5py and numpy installed in your conda env, you can use this.
+
+Currently, HDF5 additions don't do any data averaging, but they do put the data in 
+a dictionary and print out some keys so we can be sure it worked. The next step is
+to visualize and/or average.
 '''
 
 def extract_parameters(work_dir,input_filename):
@@ -47,40 +57,45 @@ def extract_parameters(work_dir,input_filename):
     fo.close()
     return parameters
 
-def get_raw_data(work_dir, obs_filename):
-    obs_file = work_dir+'/'+obs_filename
-    f = open(obs_file, "r")
-    lines = f.readlines()
-    f.close()
-    lines = lines[1:]
-    Re_field_modulus = []
-    Im_field_modulus = []
-    Re_density = []
-    Im_density = []
-    Re_angular_momentum = []
-    Im_angular_momentum = []
-    Re_action = []
-    Im_action = []
-    for line in lines:
-        line = line.strip('\n')
-        temp = line.split(',')
-        Re_field_modulus.append(float(temp[1]))
-        Im_field_modulus.append(float(temp[2]))
-        Re_density.append(float(temp[3]))
-        Im_density.append(float(temp[4]))
-        Re_angular_momentum.append(float(temp[5]))
-        Im_angular_momentum.append(float(temp[6]))
-        Re_action.append(float(temp[7]))
-        Im_action.append(float(temp[8]))
+def get_raw_data(work_dir, obs_filename, use_hdf5 = False):
     data = dict()
-    data["Re Phisq"] = Re_field_modulus
-    data["Im Phisq"] = Im_field_modulus
-    data["Re n"] = Re_density
-    data["Im n"] = Im_density
-    data["Re Lz"] = Re_angular_momentum
-    data["Im Lz"] = Im_angular_momentum
-    data["Re S"] = Re_action
-    data["Im S"] = Im_action
+    if use_hdf5:
+        for file in obs_filename:
+            f = h5py.File(work_dir+"/"+file, "r")
+            print(f.keys())
+    else:
+        obs_file = work_dir+'/'+obs_filename
+        f = open(obs_file, "r")
+        lines = f.readlines()
+        f.close()
+        lines = lines[1:]
+        Re_field_modulus = []
+        Im_field_modulus = []
+        Re_density = []
+        Im_density = []
+        Re_angular_momentum = []
+        Im_angular_momentum = []
+        Re_action = []
+        Im_action = []
+        for line in lines:
+            line = line.strip('\n')
+            temp = line.split(',')
+            Re_field_modulus.append(float(temp[1]))
+            Im_field_modulus.append(float(temp[2]))
+            Re_density.append(float(temp[3]))
+            Im_density.append(float(temp[4]))
+            Re_angular_momentum.append(float(temp[5]))
+            Im_angular_momentum.append(float(temp[6]))
+            Re_action.append(float(temp[7]))
+            Im_action.append(float(temp[8]))
+        data["Re Phisq"] = Re_field_modulus
+        data["Im Phisq"] = Im_field_modulus
+        data["Re n"] = Re_density
+        data["Im n"] = Im_density
+        data["Re Lz"] = Re_angular_momentum
+        data["Im Lz"] = Im_angular_momentum
+        data["Re S"] = Re_action
+        data["Im S"] = Im_action
     return data
 
 def average_observables(work_dir,raw_data,params,Ntherm):
@@ -138,37 +153,99 @@ def concatenate_obs_files(curr_dir):
     main_f.close()
     return empty_dirs
 
-def serial_averaging(subdir):
+def serial_averaging(subdir, use_hdf5 = False):
     curr_dir = os.getcwd()+'/'
     count = 0
     #print(subdir)
     if subdir.startswith("nrrb_data"):
         count = count + 1
         work_dir = curr_dir+subdir
+        print(subdir)
         if os.path.isdir(work_dir):
             all_files = os.listdir(work_dir)
-            input_filename = "null"
-            obs_filename = "null"
-            for filename in all_files:
-                if filename.startswith("input"):
-                    input_filename = filename
-                if filename.startswith("logfile"): 
-                    obs_filename = filename
-            if input_filename == "null":
-                print("no input file")
-                pass
-            elif obs_filename == "null":
-                print("no observables file")
-                pass
+            if use_hdf5:
+                data_files = []
+                input_filename = "null"
+                for filename in all_files:
+                    if filename.startswith("input"):
+                        input_filename = filename
+                    if filename.endswith(".h5"):
+                        data_files.append(filename)
+                if input_filename == "null":
+                    print("no input file")
+                    pass
+                elif len(data_files) == 0:
+                    print("no observables files")
+                    pass
+                else:
+                    p = extract_parameters(work_dir,input_filename)
+                    Ntherm = int(0.2*float(p['nL']))
+                    phi_ka_dict = get_phi_Ka_eta(work_dir,data_files)
+                    print(phi_ka_dict.keys())
+                    print(phi_ka_dict["phi_1_Re"].keys())
             else:
-                p = extract_parameters(work_dir,input_filename)
-                #print(p.keys())
-                #print(p)
-                Langevin_evol_data = get_raw_data(work_dir, obs_filename)
-                Ntherm = int(0.2*float(p['nL']))
-                average_observables(work_dir,Langevin_evol_data,p,Ntherm)
+                input_filename = "null"
+                obs_filename = "null"
+                for filename in all_files:
+                    if filename.startswith("input"):
+                        input_filename = filename
+                    if filename.startswith("logfile"): 
+                        obs_filename = filename
+                if input_filename == "null":
+                    print("no input file")
+                    pass
+                elif obs_filename == "null":
+                    print("no observables file")
+                    pass
+                else:
+                    p = extract_parameters(work_dir,input_filename)
+                    #print(p.keys())
+                    #print(p)
+                    Langevin_evol_data = get_raw_data(work_dir, obs_filename)
+                    Ntherm = int(0.2*float(p['nL']))
+                    average_observables(work_dir,Langevin_evol_data,p,Ntherm)
         #else:
         #    print("not a directory")
     #else:
     #    print("not a data directory")
     return count
+
+def get_phi_Ka_eta(work_dir,hdf5_file_list):
+    #currently, we have "phi_1_Re", "phi_1_Im", "phi_2_Re", "phi_2_Im", 
+    #"K_1_Re", "K_1_Im", "K_2_Re", "K_2_Im", "eta_1", "eta_2"
+    #storage: component, t, y, x
+    data_dict = dict()
+    data_dict["phi_1_Re"] = dict()
+    data_dict["phi_1_Im"] = dict()
+    data_dict["phi_2_Re"] = dict()
+    data_dict["phi_2_Im"] = dict()
+    data_dict["K_1_Re"] = dict()
+    data_dict["K_1_Im"] = dict()
+    data_dict["K_2_Re"] = dict()
+    data_dict["K_2_Im"] = dict()
+    data_dict["eta_1"] = dict()
+    data_dict["eta_2"] = dict()
+    steps = []
+    for file in hdf5_file_list:
+        f = h5py.File(work_dir+"/"+file, "r")
+        data = f["level_0"]["data:datatype=0"][()]
+        data_array = np.split(data,10)
+        step_num = int(file[3:-3])
+        steps.append(step_num)
+        if step_num%100 == 0:
+            data_dict["phi_1_Re"][step_num] = data_array[0]
+            data_dict["phi_1_Im"][step_num] = data_array[1]
+            data_dict["phi_2_Re"][step_num] = data_array[2]
+            data_dict["phi_2_Im"][step_num] = data_array[3]
+            data_dict["K_1_Re"][step_num] = data_array[4]
+            data_dict["K_1_Im"][step_num] = data_array[5]
+            data_dict["K_2_Re"][step_num] = data_array[6]
+            data_dict["K_2_Im"][step_num] = data_array[7]
+            data_dict["eta_1"][step_num] = data_array[8]
+            data_dict["eta_2"][step_num] = data_array[9]
+    #print(sorted(steps))
+    #print(data_dict.keys())
+    #print(data_dict["phi_1_Re"].keys())
+    #sys.exit()
+    return data_dict
+        
