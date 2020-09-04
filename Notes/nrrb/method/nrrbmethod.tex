@@ -1,0 +1,178 @@
+\documentclass[../../RotatingBosons.tex]{subfiles}
+
+\begin{document}
+\section{The two-dimensional rotating bosonic gas}
+$2+1$ dimensions. Hard wall boundary conditions in space and periodic (bosonic) in time. Nonrelativistic dispersion, harmonic trapping potential centered at the midpoint of the lattice, rotation about the midpoint of the lattice in 2 dimensions, and contact interaction (delta function).
+
+Our partition function for the system is 
+%
+\beq
+\CZ = \int \dif \phi e^{-S[\phi]}
+\eeq
+%
+where our action is defined in the next section.
+\subsection{The Action}
+The action for a trapped, rotating, and interacting non-relativistic system in $d+1$ Euclidean dimensions follows this general formula:
+%
+\beq
+S = \int \dif^{d}x \dif\tau \left[ \phi^{*}\left( \CH - \mu  - V_{\text{trap}}-\omega_{z} L_{z}\right)\phi + \lambda (\phi^{*} \phi)^{2}\right].
+\eeq 
+%
+Specifically, in two spatial dimensions, this becomes
+%
+\beq
+S = \int \dif x \dif y \dif \tau \left[ \phi^{*}\left( \CH - \mu  - \frac{m}{2}\omega_{\text{trap}}^{2}r_{\perp}^{2}-\omega_{z} L_{z}\right)\phi + \lambda (\phi^{*} \phi)^{2}\right]
+\eeq 
+%
+where $\CH = \partial_{\tau} - \frac{\del^{2}}{2m} $ and $\lambda$ represents a contact interaction coupling. The trapping potential is harmonic, $\omega_{\text{trap}}r_{\perp}^{2}$ where $r_{\perp}^{2} = x^{2} + y^{2}$, and the angular momentum is defined in terms of the quantum mechanical operator, $\omega_{z}L_{z} = i \omega_{z}(x \partial_{y} - y\partial_{x})$. For both the trap and the angular momentum, $x$ and $y$ are measured relative to the origin.
+
+To take this to a lattice representation, we must discretize the space. The origin becomes the center of the lattice, and therefore $x$ and $y$ are measured relative to the point $(N_{x}/2, N_{x}/2)$ on the lattice.
+
+Using a backward-difference derivative and denoting the position on the $2+1$ dimensional lattice as $r$, we define: $\partial_{j}\phi = \frac{1}{a}(\phi_{r-\hat{j}} - \phi_{r})$ and $\partial_{j}^{2}\phi = \frac{1}{a^{2}}(\phi_{r-\hat{j}} - 2\phi_{r}+\phi_{r-\hat{j}})$. We combine $\partial_{\tau} - \mu$ in the lattice representation and similarly represent the angular momentum, interaction, and external trap as external gauge fields in order to avoid divergences in the continuum limit (see Appendix~\ref{NRAction} for details and justification of these steps). Finally, using spatial lattice site separation $a = 1$ and temporal lattice spacing $d\tau$, our lattice action becomes (sum over $r = (x,y,\tau)$ implied):
+%
+\bea
+\label{S_lat}
+S_{\text{lat},r} &=& \phi_{r}^{*}\phi_{r} - \phi_{r}^{*}e^{d\tau\mu} \phi_{r - \hat{\tau}} - \phi_{r}^{*}\frac{d\tau}{2m}\sum_{i = x,y}\left( \phi_{r}^{*} \phi_{r + \hat{i}} - 2\phi_{r}^{*} \phi_{r} + \phi_{r}^{*}\phi_{r - \hat{i}}\right) \\
+%
+& & -  i d \tau \omega_{z}\left[(x-y)  \phi_{r}^{*} \phi_{r- \hat{\tau}} - (x-\frac{N_{x}}{2}) \phi_{r}^{*} \phi_{r-\hat{y}- \hat{\tau}} + (y-\frac{N_{x}}{2}) \phi_{r}^{*}  \phi_{r-\hat{x}- \hat{\tau}}\right] \nonumber \\
+%
+& &- d\tau\frac{m}{2}\omega_{\text{trap}}^{2}(x^{2}+y^{2})\phi_{r}^{*}\phi_{r-\hat{\tau}}  + d\tau\lambda(\phi_{r}^{*}\phi_{r- \hat{\tau}})^{2}.\nonumber
+\eea 
+%
+To simplify our future work, let's write $S$ as a sum of the different contributions to the action:
+%
+\beq
+S = \sum_{r}(S_{\tau, r}+d\tau S_{\del, r} - d\tau S_{tr, r} - d\tau S_{\omega, r}+ d\tau S_{\text{int}, r})
+\eeq
+%
+with 
+%
+\bea
+S_{\tau, r} & = & \phi^{*}_{r}\phi_{r}- \phi^{*}_{r}e^{d \tau \mu} \phi_{r - \hat{\tau}} \\
+S_{\del, r} & = & \frac{d}{m} \phi^{*}_{r}\phi_{r} - \frac{1}{2m}\sum_{i = \pm x,y} \phi^{*}_{r}\phi_{r+\hat{i}} \\
+S_{tr,r} & =& \frac{m}{2}\omega_{\text{trap}}^{2}(x^{2}+y^{2})\phi_{r}^{*}\phi_{r-\hat{\tau}}  \\
+S_{\omega, r} & = &  i \omega_{z} \left[ (x-y)\phi_{r}^{*}  \phi_{r-\hat{\tau}} - \widetilde{x} \phi_{r}^{*} \phi_{r-\hat{y}-\hat{\tau}} + \widetilde{y} \phi_{r}^{*}  \phi_{r-\hat{x}-\hat{\tau}} \right] \\
+S_{\text{int}, r}  & = & \lambda \left(\phi_{r}^{*} \phi_{r-\hat{\tau}}\right)^{2}.
+\eea
+%
+where $\widetilde{x}$ and $\widetilde{y}$ are our $x$ and $x$ coordinates shifted by the center of the trap:
+%
+\bea
+\widetilde{x} &=& x-\frac{N_{x}-1}{2}\nonumber \\
+\widetilde{y} &=& y-\frac{N_{x}-1}{2},\nonumber 
+\eea
+%
+And we number lattice sites from $0$ to $N_{x}-1$. From here on, we will be working with these individual contributions to the action.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{\label{NRRBCLEquations}The Langevin Equations}
+In order to treat this action composed of complex-valued fields, we use a method called complex Langevin (CL). This method uses a stochastic evolution of the complex fields in a fictitious time -- Langevin time -- in order to produce sets of solutions distributed according to the weight $e^{-S}$. Just as standard Monte Carlo methods operate by sampling from the distribution $e^{-S}$, this method allows us to stochastically evaluate observables whose physical behavior is governed by our action, $S$. 
+
+First, we must write our complex fields as a complex sum of two real fields (i.e. $\phi = \frac{1}{\sqrt{2}}\left(\phi_{1}+ i \phi_{2}\right)$. This is worked out in Appendix~\ref{FirstComplexification} for all the contributions to our action. We then complexify the fields a second time and evolve the real and imaginary part of each field according to the complex Langevin equations, a set of coupled stochastic differential equations shown here:
+%
+\bea
+\phi_{a,r}^{R}(n+1) &=& \phi_{a,r}^{R}(n) + \epsilon K_{a,r}^{R}(n) + \sqrt{\epsilon}\eta_{a,r}(n) \\
+\phi_{a,r}^{I}(n+1) &=& \phi_{a,r}^{I}(n) + \epsilon K_{a,r}^{I}(n),
+\eea 
+%
+where $a = 1,2$ labels our two real fields, $\eta$ is Gaussian-distributed real noise with mean of $0$ and standard deviation of $\sqrt{2}$. The drift functions, $K$, are derived from the action:
+%
+\bea
+K_{a,r}^{R} & = & - \text{Re}\left[ \frac{\delta S}{\delta \phi_{a,r}}|_{\phi_{a} \rightarrow \phi_{a}^{R} + i \phi_{a}^{I}} \right]\\
+%
+K_{a,r}^{I} & = & - \text{Im}\left[ \frac{\delta S}{\delta \phi_{a,r}}|_{\phi_{a} \rightarrow \phi_{a}^{R} + i \phi_{a}^{I}} \right]
+\eea
+%
+The derivation of the Langevin equations is worked out in Appendix~\ref{NRRBCLM}, and the results are shown below with the sums over a and b implied:
+%
+\bea
+%time/chem potential
+-K_{a,r}^{R}   &=&  \phi_{a,r}^{R} - \frac{e^{ d\tau \mu}}{2}\left(\phi_{a,r - \hat{\tau}}^{R} +\phi_{a,r + \hat{\tau}}^{R}\right)+\frac{e^{ d\tau \mu}}{2}\epsilon_{ab}\left(\phi_{b,r - \hat{\tau}}^{I}-\phi_{b,r + \hat{\tau}}^{I} \right) \nonumber\\
+%spatial derivative 
+&& + \frac{d\tau}{2m} \left( 2 d \phi_{a,r}^{R}-\sum_{i = \pm1}^{d} \phi_{a,r + \hat{i}}^{R} \right) \nonumber\\
+%trap
+&& - \frac{d\tau\omega_{\text{tr}}^{2}(r_{\perp}^{2})}{4}\left( (\phi_{a,r+\hat{\tau}}^{R} +\phi_{a,r-\hat{\tau}}^{R} ) - \epsilon_{ab} \left( \phi_{b,r+\hat{\tau}}^{I}+ \phi_{b,r-\hat{\tau}}^{I}\right) \right) \nonumber \\
+%rotation
+&&  - \frac{d\tau\omega_{z}}{2}  \left[ \epsilon_{ab} \left[ x \left(\phi_{b,r - \hat{y}}^{R}-\phi_{b,r + \hat{y}}^{R}\right) - y \left(\phi_{b,r - \hat{x}}^{R} -\phi_{b,r + \hat{x}}^{R}  \right)\right] - 2(x-y)\phi_{a,r} ^{I} \right] \nonumber\\
+& & - \frac{\omega_{z}}{2}  \left[x \left(\phi_{a,r - \hat{y} }^{I}+\phi_{a,r + \hat{y}}^{I}\right) - y \left(\phi_{a,r - \hat{x}}^{I}  +\phi_{a,r + \hat{x}}^{I} \right)\right] \nonumber\\
+%interaction
+& & + d\tau\lambda \left[ \phi_{a,r}^{R}(\phi_{b,r}^{R})^{2} - \phi_{a,r}^{R}(\phi_{b,r}^{I})^{2} -2  \phi_{a,r}^{I}\phi_{b,r}^{R}\phi_{b,r}^{I} \right] \\
+%time/chem potential
+-K_{a,r}^{I}  &=& \phi_{a,r}^{I}- \frac{e^{ d\tau \mu}}{2}\left(\phi_{a,r - \hat{\tau}}^{I}+\phi_{a,r + \hat{\tau}}^{I}\right)-\frac{e^{ d\tau \mu}}{2}\epsilon_{ab}\left(\phi_{b,r - \hat{\tau}}^{R}-\phi_{b,r + \hat{\tau}}^{R}\right)\nonumber\\
+%spatial derivative 
+& & +\frac{d\tau}{2m} \left(2 d \phi_{a,r}^{I}-\sum_{i = \pm1}^{d}\phi_{a,r + \hat{i}}^{I} \right)  \nonumber \\
+% trap
+&& - \frac{d\tau\omega_{\text{tr}}^{2}(r_{\perp}^{2})}{4} \left( (\phi_{a,r+\hat{\tau}}^{I}  +  \phi_{a,r-\hat{\tau}}^{I} )+ \epsilon_{ab}(\phi_{b,r+\hat{\tau}}^{R}+\phi_{b,r-\hat{\tau}}^{R}  )\right)\nonumber \\
+%rotation
+& & - \frac{d\tau\omega_{z}}{2} \left[ \epsilon_{ab} \left(  x( \phi_{b,r - \hat{y}}^{I} -  \phi_{b,r + \hat{y}}^{I}) - y (\phi_{b,r - \hat{x}}^{I}- \phi_{b,r + \hat{x}}^{I})\right)+2(x-y)\phi_{a,r}^{R}\right] \nonumber \\
+&& -  \frac{\omega_{z}}{2} \left[ y \left(\phi_{a,r - \hat{x}}^{R}+\phi_{a,r + \hat{x}}^{R}\right)- x\left( \phi_{a,r - \hat{y} }^{R} + \phi_{a,r + \hat{y}}^{R} \right)\right]\nonumber\\
+%interaction
+& & +d\tau\lambda \left[ \phi_{a,r}^{I}(\phi_{b,r}^{R})^{2}+2 \phi_{a,r}^{R}\phi_{b,r}^{R}\phi_{b,r}^{I}  - \phi_{a,r}^{I}(\phi_{b,r}^{I})^{2}\right]
+\eea
+%
+This evolution is repeated until we have evolved for a long period in Langevin time (determined by the observation of thermalization followed by enough steps to produce good statistical error). Observables of interest can be calculated as functions of the fields at each point in Langevin time and averaged to find the expectation value.
+
+\section{Observables}
+\subsection{Observables averaged over the volume}
+The observables of interest in this simulation are the density $\langle \hat{n} \rangle$, the field modulus $\langle \phi^{2}\phi \rangle$, the angular momentum $\langle \hat{L}_{z}\rangle$, the moment of inertia $\langle \hat{I}_{z}\rangle$,the energy $\langle \hat{E} \rangle$, and the circulation of the fields around the center of the lattice. 
+
+The sum over all lattice sites and subsequent normalization by the lattice volume $V = N_{x}^{d} N_{\tau}$ is implied:
+%
+\bea
+\text{Re}\langle n \rangle & =&\frac{e^{d\tau \mu}}{2}\left[\sum_{a,b=1}^{2}\delta_{a,b}\left(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R}- \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I}\right)  -\sum_{a,b=1}^{2}\epsilon_{ab}\left( \phi_{a,r}^{R} \phi_{b,r-\hat{\tau}}^{I} + \phi_{a,r}^{I} \phi_{b,r - \hat{\tau}}^{R}\right)\right] \\
+%
+\text{Im}\langle n \rangle & =& \frac{e^{d\tau \mu}}{2}\left[\sum_{a,b=1}^{2}\delta_{a,b}\left(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} + \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}\right)  + \sum_{a,b=1}^{2}\epsilon_{ab}\left( \phi_{a,r}^{R} \phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{b,r - \hat{\tau}}^{I}\right)\right] \\ 
+%
+\text{Re}\langle \phi^{*} \phi \rangle & = & \frac{1}{2} \sum_{a=1}^{2}\left( \phi_{a,r}^{R}\phi_{a,r}^{R} - \phi_{a,r}^{I}\phi_{a,r}^{I} \right)\\
+%
+\text{Im}\langle \phi^{*} \phi \rangle & = & \sum_{a=1}^{2}\phi_{a,r}^{R}\phi_{a,r}^{I}\\
+%
+\text{Re}\langle L_{z} \rangle &=& \frac{1}{2} \sum_{a=1}^{2}\left( \widetilde{x}( \phi_{a,r}^{R} \phi_{a,r-\hat{y}}^{I} + \phi_{a,r}^{I} \phi_{a,r-\hat{y}}^{R} )- \widetilde{y}(\phi_{a,r}^{R} \phi_{a,r-\hat{x}}^{I} + \phi_{a,r}^{I} \phi_{a,r-\hat{x}}^{R} )\right) \nonumber\\
+& & + \sum_{r}\sum_{a=1}^{2}(y-x)\phi_{a,r}^{R}\phi_{a,r}^{I} \\
+& & +  \frac{1}{2}\sum_{r}\sum_{a,b=1}^{2} \epsilon_{ab}\left( \widetilde{x}( \phi_{a,r}^{R} \phi_{b,r-\hat{y}}^{R} -  \phi_{a,r}^{I} \phi_{b,r-\hat{y}}^{I}) -  \widetilde{y}(\phi_{a,r}^{R} \phi_{b,r-\hat{x}}^{R} -  \phi_{a,r}^{I} \phi_{b,r-\hat{x}}^{I}  ) \right).\nonumber \\
+%
+\text{Im}\langle L_{z} \rangle &=&-\frac{1}{2} \sum_{a=1}^{2}\left( \widetilde{x}(\phi_{a,r}^{R} \phi_{a,r-\hat{y}}^{R} - \phi_{a,r}^{I} \phi_{a,r-\hat{y}}^{I} ) -  \widetilde{y}( \phi_{a,r}^{R} \phi_{a,r-\hat{x}}^{R} - \phi_{a,r}^{I} \phi_{a,r-\hat{x}}^{I} )  \right) \nonumber \\
+&&  -\frac{1}{2}\sum_{r}\sum_{a=1}^{2}(y-x)\left((\phi_{a,r}^{R})^{2}-(\phi_{a,r}^{I})^{2}  \right) \\
+& & -  \frac{1}{2}\sum_{r}\sum_{a,b=1}^{2} \epsilon_{ab}\left( \widetilde{x}( \phi_{a,r}^{R} \phi_{b,r-\hat{y}}^{I} +  \phi_{a,r}^{I} \phi_{b,r-\hat{y}}^{R}) -  \widetilde{y}(\phi_{a,r}^{R} \phi_{b,r-\hat{x}}^{I} + \phi_{a,r}^{I} \phi_{b,r-\hat{x}}^{R})\right)\nonumber 
+\eea 
+%
+The moment of inertia can be calculated from this by differentiating with respect to the angular frequency. Since $L_{z}$ is linear in $\omega_{z}$, we can simply divide by the frequency to obtain $I_{z}$.
+
+The energy can be calculated by taking a derivative as well. 
+%
+\beq
+\hat{E} = -\frac{\partial}{\partial \beta}\ln \CZ = \frac{\partial}{\partial \beta}S.
+\eeq
+%
+When we go to a lattice representation of the action, we write it in the following way:
+%
+\beq
+S \rightarrow \sum_{x,\tau}\Delta x^{d} \Delta \tau \left[\left(\partial_{\tau}  - \frac{1}{2m}\del^{2} - \mu- i \omega_{z}(x \partial_{y} - y \partial_{x})  - \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \right)\phi + \lambda (\phi^{*}\phi)^{2}\right].
+\eeq 
+%
+Recall that $\beta = \Delta \tau N_{\tau}$. That means we can also write this in terms of $\beta$:
+%
+\beq
+S \rightarrow \frac{1}{N_{\tau}}\sum_{x,\tau}\Delta x^{d}\beta \left[\left(\partial_{\tau}  - \frac{1}{2m}\del^{2} - \mu- i \omega_{z}(x \partial_{y} - y \partial_{x})  - \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \right)\phi + \lambda (\phi^{*}\phi)^{2}\right].
+\eeq 
+%
+Therefore, the action is linear in $\beta$, and so its derivative with respect to beta is simply $S/\beta$. 
+
+The circulation is computed along an $l \times l$ loop on the lattice:
+\beq
+\Gamma[l] = \frac{1}{2 \pi}\sum_{l \times l}\left(\theta_{t,x+j} - \theta_{t,x}\right) 
+\eeq
+where 
+\beq
+\theta_{t,x} = \tan^{-1}\left(\frac{\phi_{1,t,x}^{I} + \phi_{2,t,x}^{R}}{\phi_{1,t,x}^{R} - \phi_{2,t,x}^{I}} \right)
+\eeq
+and $\theta_{t,x+j}$ is computed at the next site on the loop from $\theta_{t,x}$ for each point along the loop.
+
+See Appendix~\ref{NRRBObservables} for the full derivation of the observables.
+
+\subsection{Observables per site}
+The next phase of this project will move to larger lattices in order to calculate the density profiles of the rotating system. We expect to see the formation of vortices in the density of the fluid (localized sites of $0$ density). We expect these vortices to be concentrated closer to the center of the trap. In order to observe these vortices and their structure, we need a finer lattice mesh in the center of the system. This will involve a great deal more computational intensity.
+
+\end{document}

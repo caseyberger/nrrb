@@ -1,0 +1,125 @@
+\documentclass[onecolumn, 12pt]{report}
+\usepackage{hyperref,mathtools,amssymb}
+\usepackage{cite}
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+\usepackage{subcaption}
+\usepackage[toc,page]{appendix} 
+\usepackage{subfiles}
+\usepackage[margin=0.75in]{geometry}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%YOU MAY NEED THIS FOR ORGANIZATION: https://latex.org/forum/viewtopic.php?t=13267
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%this allows you to place formatted code in your document
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+%You can change default language in the middle of document with \lstset{language=Java}
+%Example of use:
+%\begin{lstlisting}
+%// Hello.java
+%import javax.swing.JApplet;
+%import java.awt.Graphics;
+%
+%public class Hello extends JApplet {
+%   public void paintComponent(Graphics g) {
+%        g.drawString("Hello, world!", 65, 95);
+%    }    
+%}
+%\end{lstlisting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{NonRelativistic Rotating Bosons via Complex Langevin}
+%\subject{Many-Body Quantum Mechanics}
+\author{Casey E. Berger}
+\date{\today}
+
+
+\newcommand{\etal}{{\it et al.}}
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+
+\def\CP{{\mathcal P}}
+\def\CC{{\mathcal C}}
+\def\CH{{\mathcal H}}
+\def\CW{{\mathcal W}}
+\def\CO{{\mathcal O}}
+\def\CZ{{\mathcal Z}}
+\def\CD{{\mathcal D}}
+\def\del{{\nabla}}
+
+\newcommand*\dif{\mathop{}\!\mathrm{d}}
+
+\begin{document}
+\begin{titlepage}
+\maketitle
+\end{titlepage}
+\tableofcontents
+
+%%%%%%%%%% NOTES AND TO-DO LIST  %%%%%%%%%%%%%%%%%%%
+\chapter{Notes To Self and To-Do List}
+\subfile{./notes/notes_to_self.tex}
+
+%%%%%%%%%  RECREATING THE AARTS PAPER  %%%%%%%%%%%%%%%
+%\chapter{Warm-Up Project}
+%\subfile{./aartspaper/aarts.tex}
+
+%%%%%%%%%  NONRELATIVISTIC ROTATING BOSE GAS  VIA CL %%%%%%%
+%\chapter{Motivation, Context, and History} %this should be a lit review. Cull some from your dissertation but read more papers about work on mean-field theory methods
+
+\chapter{The Method: Complex Langevin}
+\subfile{./nrrb/method/nrrbmethod.tex}
+
+%\chapter{Results and Analysis}
+%\subfile{./nrrb/results/nrrbresults.tex}
+
+%%%%  NONRELATIVISTIC ROTATING BOSE GAS  VIA OTHER METHODS %%%%
+%\subfile{./3.alternatives/alternatives.tex}
+
+%%%%%%%%%%   APPENDICES   %%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{appendices}
+%%%%%%%%%%%%%  AARTS PAPER  %%%%%%%%%%%%%%%%%%%%%
+%\chapter{Warm Up Project Derivations}
+%\subfile{./aartspaper/derivations/aartsderivations.tex}
+%\chapter{Warm Up Project Code}
+%\subfile{./aartspaper/code/aartscode.tex}
+%\subfile{./aartspaper/analysis/aartspythonscripts.tex}
+
+%%%%%%%%%%%%%%%  NRRB  %%%%%%%%%%%%%%%%%%%%%%%
+%\chapter{NRRB Code}
+%\subfile{./nrrb/code/nrrbcode.tex}
+\chapter{NRRB Derivations}
+\subfile{./nrrb/derivations/nrrbderivations.tex}
+%\subfile{./nrrb/analytical/freegas.tex}
+
+
+\end{appendices}
+\bibliography{RotatingBosons.bib}{}
+%\bibliographystyle{ieeetr}
+\bibliographystyle{plain}
+\end{document}

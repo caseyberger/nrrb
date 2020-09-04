@@ -1,0 +1,4 @@
+\select@language {english}
+\contentsline {section}{\numberline {1} Derivations for the Aarts Paper}{1}{section.1}
+\contentsline {subsection}{\numberline {1.1}The Density using the Lattice Fields}{1}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Diagonalization of the noninteracting action via Fourier Transformations}{2}{subsection.1.2}

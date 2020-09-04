@@ -1,0 +1,101 @@
+
+It then reads in and initializes the following parameters:
+ints: dim, Nx, Nt, size (= $Nx^{dim}$), nL (number of Langevin steps), nTh (number of thermalization steps)
+floats: l (interaction strength), m (mass of the particles), eps (Langevin stepsize), and a list of chemical potentials (in format [0.0,0.1,0.2,...,1.7]). 
+
+The code contains a function to extract the values of mu given into a vector, which the code can loop over.
+
+Then the code initiates a parallel for loop over mu. Within the loop it does the following:
+\begin{itemize}
+	\item Opens a logfile for that mu and N value
+	\item Prints the spatial dimensions (dim-1) and total number of spatial and temporal sites and prints the headers to the file
+	\item Allocates memory for the lattice (with 8 field variables - an old and current value for each of $\phi_{1,2}^{R/I}$
+	\item  Initiates the lattice, using Lattice\_init.cpp.
+
+	\item Starts the clock for the iteration.
+
+	\item Loops over the number of Langevin steps assigned (k from 1 to nL, inclusive)
+	
+	At each value of k, the lattice is evolved using Langevin\_evolution.cpp.
+\end{itemize}
+\subsection{Lattice\_init.cpp}
+\subsubsection{Description:}
+At each point in space (r) and time (t), four random numbers between -1 and 1
+are generated to initialize the 4 phi vectors, using a uniform real distribution generator in C++. The first four entries in the lattice represent the current values. The second four entries are duplicates of the first four in the initialization step.\\
+\\
+\subsubsection{Dependencies:}
+\begin{itemize}
+\item calls 
+
+itself
+
+\item called by
+
+v4.1, v4.1.o
+
+\end{itemize}
+
+\subsection{Lattice\_save.cpp}
+\subsubsection{Description:}
+Writes the values at each point in the lattice to a file.
+
+\subsubsection{Dependencies:}
+\begin{itemize}
+\item calls 
+
+itself
+
+\item called by
+
+v4.1, v4.1.o
+
+\end{itemize}
+
+\subsection{Langevin\_evolution.cpp}
+\subsubsection{Description:}
+Defines the function that evolves the lattice in Langevin time, as well as the real and imaginary
+drift functions, K\_a.
+
+Includes definition of an antisymmetric tensor, epsilon, and functions that modify the location 
+on the lattice to one positive or negative step in the direction specified.\\
+\\
+The code generates random, Gaussian-distributed noise with mean of 0 and variance of $\sqrt{2}$ for Re[phi1] and Re[phi2]
+
+It also prints the values of the drift function at each point in the lattice if mu = 1.0
+
+First, it makes a copy of the old lattice, using the same allocation process as when we initialized the lattice.
+
+Then the code touches each point on the old lattice and computes the drift function using the old lattice data, but saving the new value to the new lattice.
+
+\subsubsection{Dependencies:}
+\begin{itemize}
+\item calls 
+
+itself
+
+\item called by
+
+v4.1
+
+\end{itemize}
+
+\subsection{Observables.cpp}
+\subsubsection{Description}
+Computes real and imaginary parts of:
+Action, S
+Density
+Field Modulus Squared
+
+
+\subsubsection{Dependencies:}
+\begin{itemize}
+\item calls 
+
+itself, Langevin\_evolution
+
+\item called by
+
+v4.1
+
+\end{itemize}
+

@@ -1,0 +1,158 @@
+\documentclass[../RotatingBosons.tex]{subfiles}
+
+\begin{document}
+\section{Introduction}
+Field theories with a complex action suffer from a sign problem in numerical/nonperturbative treatments. This includes QCD, but also in bosonic field theories with a chemical potential and an action such that $S(\mu) = [S(-\mu)]^{*}$. 
+
+This paper studies the Silver Blaze problem of the relativistic Bose gas at finite $\mu$ using stochastic quantization. This allows the representation of $e^{-S}$ by a distribution following from a stochastic process. This process is governed by a Langevin equation.
+
+\section{The System}
+The system is a self-interacting complex scalar field in $4$ Euclidean dimensions, represented by action:
+
+\beq
+S = \sum_{x} \left[ (2 d + m^2)\phi^{*}_{x} \phi_{x} + \lambda (\phi^{*}_{x} \phi_{x})^{2} - \sum_{\nu = 1}^{4} (\phi^{*}_{x} e^{-\mu \delta_{\nu,4}} \phi_{x+\hat{\nu}}+\phi^{*}_{x+\hat{\nu}} e^{\mu \delta_{\nu,4}}\phi_{x}) \right].
+\eeq
+The lattice spacing (both in space and time, since this is relativistic) is given by $a=1$, for massive bosons ($m^2 > 0$). The lattice volume is $\Omega = N_{\tau} N_{s}^{3}$. The chemical potential, $\mu$ is an imaginary, constant vector potential function that points in the $\tau$ direction. This results in an action such that $S(\mu) = [S(-\mu)]^{*}$, which suffers from the sign problem in ordinary Markov Chain Monte Carlo approaches.
+
+We apply instead the Langevin Equation: 
+\beq 
+\frac{\partial \phi_{x} (\theta)}{\partial \theta} = -\frac{\delta S[\phi]}{\delta \phi_{x} (\theta)}+\eta_{x}(\theta).
+\eeq Here, $\theta$ is the Langevin time and $\eta$ is random noise (\textit{real} and Gaussian-distributed). The fields $\phi_{x}(\theta)$ must then be complexified, in order to represent the complex action. Thus, $\phi_{x}(\theta)$ is written as $\phi_{x}(\theta) = \frac{1}{\sqrt{2}}(\phi_{1}+i \phi_{2})$. When applied to the action, it becomes: 
+\bea
+S & = & \sum_{x} [ (d+ \frac{m^2}{2} )\phi_{a,x}^{2} + \frac{\lambda}{4}(\phi_{a,x}^{2})^2 - \sum_{i=1}^{3}\phi_{a,x}\phi_{a,x+\hat{i}} - \text{cosh}(\mu \phi_{a,x}\phi_{a,x+\hat{4}}) \\
+& &  +i \text{sinh}(\mu \epsilon_{ab}\phi_{a,x}\phi_{b,x+\hat{4}})
+\eea with an implied summation over repeated indices and $a = 1,2$, and $d$ the Euclidean spacetime dimension.
+
+The fields $\phi_{a}$ are then further complexified: 
+$\phi_{a} = \phi_{a}^{R} + i \phi_{a}^{I}$ and the Langevin time, $\theta$, is discretized as $\theta = n\epsilon$. The resulting discretized and complexified Langevin equations then become:
+\bea
+\phi_{a,x}^{R}(n+1) &=& \phi_{a,x}^{R}(n) - \epsilon K_{a,x}^{R}(n)+\sqrt{\epsilon}\eta_{a,x}\\
+\phi_{a,x}^{I}(n+1) &=& \phi_{a,x}^{I}(n) - \epsilon K_{a,x}^{I}(n)
+\eea With 
+
+\bea
+K_{a,x}^{R} & = &- \text{Re}\left[\left(\frac{\delta S}{\delta \phi_{a,x}}\right)_{\phi_{a} \rightarrow \phi_{a}^{R} + i \phi_{a}^{I}}\right]\\ 
+K_{a,x}^{R} & = &- \text{Im}\left[\left(\frac{\delta S}{\delta \phi_{a,x}}\right)_{\phi_{a} \rightarrow \phi_{a}^{R} + i \phi_{a}^{I}}\right]
+\eea 
+The lattice spacing in both $x$ and $\tau$ is the same, and lattice boundary conditions are periodic in all spacetime directions.
+
+\section{Observables}
+The observables we will be calculating here are the following:
+\subsection{Density}
+The density of the system is given by the following equation:
+\bea
+\langle n \rangle &=& \frac{1}{\Omega} \sum_{x} \sum_{a,b=1}^{2}\left(\delta_{ab} \sinh \mu - i \epsilon_{ab}\cosh \mu \right) \phi_{a,x}\phi_{b+\hat{4}} \nonumber  \\
+& =&   \frac{1}{\Omega} \sum_{x} \sum_{a,b=1}^{2} \left(\delta_{ab} \sinh \mu - i \epsilon_{ab}\cosh \mu \right)(\phi_{a,x}^{R} \phi_{b,x+\hat{4}}^{R} - \phi_{a,x}^{I}\phi_{b,x+\hat{4}}^{I}  \\
+& & + i \left[ \phi_{a,x}^{R}\phi_{b,x+\hat{4}}^{I} +\phi_{a,x}^{I}\phi_{b,x+\hat{4}}^{I}  \right] ). \nonumber
+\eea When you do the sum over $a$ and $b$ explicitly, you get (see Appendix~\ref{AartsDensity} for the details):
+\beq
+\langle n \rangle = \frac{1}{\Omega} \sum_{x} \sum_{a,b=1}^{2}\left(\delta_{ab} \sinh \mu - i \epsilon_{ab}\cosh \mu \right) \phi_{a,x}\phi_{b+\hat{4}}
+\eeq
+
+\subsection{Expectations and Limits}
+For zero temperature and $\mu < \mu_c$ (the critical chemical potential) in the thermodynamic limit ($N_{p} \rightarrow \infty$), we expect physical observables to have no dependence on $\mu$. 
+
+At $\mu = \mu_c$, there should occur a 2nd order phase transition to a BEC, with $$\langle n \rangle = \frac{1}{\Omega}\frac{\partial \text{ln}\CZ}{\partial \mu}\neq 0$$
+
+$\mu_c$ is given in the non-interacting case by the following: $$|\mu_{c}^{0}| = 2 \text{arcsinh}(m/2)$$
+
+In the interacting case, it is expected that $$|\mu_{c}| > |\mu_{c}^{0}|$$
+
+%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Tests}
+\subsection{Diagonalization of the Noninteracting Action} 
+The noninteracting action can be expressed in the following way: 
+\beq
+\label{phiMphi}
+S = \sum_{x,x',a,a'} \phi_{x,a}^{*}M_{x,a;x'a'}\phi_{x',a'}.
+\eeq This can be further simplified and then compared with results obtained using Complex Langevin for $\lambda = 0$. The noninteracting lattice action is the following: 
+\beq
+S = \sum_{x} \left[ (2d + m^{2})\phi^{*}_{x}\phi_{x} - \sum_{\nu = 1}^{4}(\phi^{*}_{x} e^{-\mu \delta_{\nu, 4}}\phi_{x + \hat{\nu}} + \phi^{*}_{x+\hat{\nu}} e^{\mu \delta_{\nu, 4}}\phi_{x})\right],
+\eeq which can be written in the form proposed in equation~\ref{phiMphi}, where $M$ is
+\beq
+M[m,d,\mu] =(2 d + m^{2}) \delta_{x,x'} - \sum_{j=1}^{d}(\delta_{x,x'-\hat{j}} + \delta_{x,x'+\hat{j}})  - (e^{-\mu} \delta_{x,x'-\hat{4}}+e^{\mu} \delta_{x,x'+\hat{4}}).
+\eeq Since $M$ only depends on the separation between $x,x'$, it can be diagonalized by a Fourier transformation. The derivation of $M$ and its subsequent Fourier transformation is shown in Appendix~\ref{AartsDerivations}, but the resulting diagonal matrix is:
+\beq
+D_{k,k'} = \left((2 d + m^{2}) - \sum_{j=1}^{d}(e^{i k'_{j}}+e^{-i k'_{j}})  - (e^{-\mu-i\omega'} +e^{\mu+i\omega'})\right)\delta_{k,k'}.
+\eeq
+
+This diagonal representation of the lattice action is much simpler to work with than the position-space representation. We can use this matrix to determine analytical values for the density and the field modulus squared ($|\phi^{2}|$) and check the results of the Complex Langevin method for this special case of $\lambda = 0$.
+
+Recall that the partition function can be written the following way, for an action that can be expressed as eq.~\ref{phiMphi}
+\beq
+\label{MatrixPartitionFunction}
+\CZ = \int \CD \phi^{*} \CD \phi e^{-S[\phi]} = \frac{1}{det M} .
+\eeq We can produce analytical results by taking derivatives of the partition function.
+	
+Generally, speaking, we can take a derivative of the partition function with respect to a certain parameter and normalize with respect to the volume to get the expectation value of a related parameter:
+\beq
+\label{PartitionFunctionDerivatives}
+\frac{-1}{V} \frac{\partial ln \CZ}{\partial \alpha} = \frac{-1}{V \CZ} \int \CD \phi^{*} \CD \phi e^{-S[\phi^{*},\phi]}\frac{-\partial S}{\partial \alpha} = \left\langle \frac{\partial S}{\partial \alpha}\right\rangle.
+\eeq
+The derivative of the action with respect to the mass squared $m^{2}$ gives us $\phi^{*}\phi$, so
+\beq
+\frac{-1}{V} \frac{\partial ln \CZ}{\partial (m^{2})} = \frac{1}{V \CZ} \int \CD \phi^{*} \CD \phi e^{-S[\phi^{*},\phi]}\left (\phi^{*}\phi \right) = \left\langle \phi^{*}\phi\right\rangle,
+\eeq which we can compare against values produced by the code using Complex Langevin. When we apply equation~\ref{MatrixPartitionFunction}, we can find this in terms of our diagonal matrix $D$, and then compute the result exactly. When we do this, we find that 
+\beq
+\left\langle \phi^{*}\phi\right\rangle = \sum_{k}\frac{D^{*}_{kk}}{|D_{kk}|^{2}},
+\eeq where the sum is restricted to values of $k^{0},k^{1},k^{2}$ and $k^{3}$ that correspond to the Fourier transformed lattice sites: $k^{\alpha} = 2 \pi \frac{n}{N_{x}}$, with $n \in (0,N_{x}-1)$.
+
+Additionally, the density is found by taking a derivative with respect to the chemical potential, $\mu$:
+\beq
+\frac{-1}{V} \frac{\partial ln \CZ}{\partial \mu} =  \left\langle \hat{n} \right\rangle.
+\eeq In terms of $D$, this is
+\beq
+\left\langle \hat{n} \right\rangle = \sum_{k}\frac{D^{*}_{kk}(\cos k^{0} \sinh \mu + i \sin k^{0} \cosh \mu)}{|D_{kk}|^{2}},
+\eeq with our $k$ sum restricted to the same values as before.
+
+A python script was written to compute these values (see Appendix~\ref{AartsPythonScripts}) and the results compared with the computational values found by Complex Langevin.
+%\begin{figure}
+%	\begin{subfigure}[b]{0.4\textwidth}
+%      \includegraphics[width=\textwidth]{test1density}
+%        \caption{Analytically computed density as a function of chemical potential alongside results from Complex Langevin.}
+%        \label{fig:test1density}
+%    \end{subfigure}
+%    \begin{subfigure}[b]{0.4\textwidth}
+%        \includegraphics[width=\textwidth]{test1phisq}
+%        \caption{Field modulus squared as a function of chemical potential, both analytical and computational results.}
+%        \label{fig:test1phisq}
+%    \end{subfigure}
+%\end{figure}
+
+\subsection{Real Initialization, No Interaction, Zero Chemical Potential} 
+For the special case in which the imaginary fields are initialized to zero, the chemical potential is fixed to zero, and there are no interactions, the results should be entirely real. In this case, there is technically no need for Complex Langevin, as there is no sign problem, but we should expect our code to return the appropriate results for an entirely real case.
+
+We found that for $\phi_{1,2}^{I}(t_{L} = 0) = 0,\ \mu = 0,\ \text{and}\ \lambda = 0$, our code returned results with no imaginary parts. The imaginary fields and actions were identically zero, and the imaginary density averaged to zero (the imaginary density is a combination of real and imaginary fields, so we would not expect it to be identically zero, but we would expect it to be zero within its standard deviation).
+%%%%%%%%%%%%%%%%%%%%%%%%% RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+Values of the field modulus squared and density were computed with stepsize $\epsilon = 5*10^{-5}$ for $5*10^{6}$ steps in Langevin time. For thermalization, the first $50000$ steps were left out of analysis. These values were computed for lattices of size $N_{x} = N_{\tau} = 4,6,8,\text{ and }10$ and chemical potential $0 \leq \mu \leq 1.7$. Our results were consistent with Aarts, up to a factor of $2$.
+
+\begin{figure}[h]
+	\begin{subfigure}[b]{0.5\textwidth}
+      \includegraphics[width=\textwidth]{ourdensity}
+        \caption{Results for the density of the relativistic Bose gas at finite potential, scaled by a factor of 0.5.}
+        \label{fig:ourdensity}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{Aartsdensity}
+        \caption{Aarts's results for the density of the relativistic Bose gas at finite potential, not scaled.}
+        \label{fig:Aartsdensity}
+    \end{subfigure}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{subfigure}[b]{0.5\textwidth}
+      \includegraphics[width=\textwidth]{ourphisq}
+        \caption{Results for the density of the relativistic Bose gas at finite potential, scaled by a factor of 2.}
+        \label{fig:ourphisq}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[width=\textwidth]{Aartsphisq}
+        \caption{Aarts's results for the field modulus squared of the relativistic Bose gas at finite potential, not scaled.}
+        \label{fig:Aartsphisq}
+    \end{subfigure}
+\end{figure}
+
+%Consider computing the phase quenched results too.... not sure if it's necessary, but could be fun.
+
+\end{document}
