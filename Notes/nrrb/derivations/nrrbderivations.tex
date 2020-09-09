@@ -19,147 +19,152 @@ To convert this to a lattice action, we must first discretize the derivatives. W
 \del^{2} \phi_{r} & = & \sum_{i} \frac{1}{a^{2}} \left( \phi_{r + \hat{i}} - 2 \phi_{r} + \phi_{r - \hat{i}} \right),
 \eea 
 %
-where $r = (x,y,\tau)$ and the discretization length $a$ (lattice spacing) is $1$ for spatial derivatives and $d\tau$ for temporal ones.
+where $r = (x,y,\tau)$ and the discretization length is $a$ for spatial derivatives and $d\tau$ for temporal ones.
 
-In order to treat the finite chemical potential, the external trapping potential, the rotation, and the interaction we must shift our indices on the field that is acted on by $\mu$ and $\omega_{\text{trap}}$ by one step in the time direction. This is to make these potentials gauge invariant in the lattice formulation. Since we have periodic boundary conditions in time, we don't have to worry about boundaries is. Therefore, our lattice action becomes, at each lattice site, $r$:
+In order to treat the finite chemical potential, the external trapping potential, the rotation, and the interaction we must shift our indices on the field that is acted on by these external parameters by one step in the time direction. This is to make these potentials gauge invariant in the lattice formulation. Since we have periodic boundary conditions in time, we don't have to worry about boundaries in time. 
+
+When we go from the continuous action to the discrete action, we must account for the role of finite spacing.
+%
+\beq
+\int \dif^{d}x \dif \tau \rightarrow \sum_{\vec{x},\tau}a^{d} d\tau.
+\eeq
+%
+We then scale our parameters to their lattice versions, incorporating the lattice spacing, denoted by a bar:
 %
 \bea
-S_{\text{lat},r} &=& \phi_{r}^{*}\left[\phi_{r} - \phi_{r - \hat{\tau}} - d\tau \mu \phi_{r- \hat{\tau}} - \frac{d\tau}{2m}\sum_{i = 1}^{d}\left(  \phi_{r + \hat{i}} - 2 \phi_{r} + \phi_{r - \hat{i}} \right)- \frac{d\tau m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \phi_{r-\hat{\tau}}  \right] \\
-&& -\phi_{r}^{*} \left[i d\tau\omega_{z}\left(x \phi_{r-\hat{\tau}} - x\phi_{r-\hat{y}-\hat{\tau}} - y \phi_{r-\hat{\tau}} + y \phi_{r-\hat{x}-\hat{\tau}}\right)\right]+ d\tau\lambda(\phi_{r}^{*}\phi_{r-\hat{\tau}})^{2}. \nonumber
+\bar{x} &=& x/a \nonumber \\
+\bar{y} &=& y/a \nonumber \\
+\bar{r}^{2} &=& r^{2}/a^{2} \nonumber \\
+\bar{\mu} &=& d\tau \mu \nonumber \\
+\bar{m} &=& m a^{2}/d\tau \nonumber \\
+\bar{\omega}_{\mathrm{tr}} &=& d\tau \omega_{\mathrm{tr}} \nonumber \\
+\bar{\omega}_{z} &=& d\tau \omega_{z} \nonumber \\
+\bar{\lambda} &=& d\tau \lambda \nonumber
+\eea
+%
+This allows us to cancel factors of $d\tau$ and leaves us with an overall $a^{d}$ that we can divide out. Therefore, our lattice action becomes:
+%
+\bea
+S_{\text{lat}} &=& \sum_{\vec{x},\tau}a^{d} \left[ \phi_{r}^{*}\phi_{r} -\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{\mu} \phi_{r}^{*}\phi_{r - \hat{\tau}} - \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(\phi_{r}^{*}\phi_{r - \hat{j}} - 2 \phi_{r}^{*}\phi_{r} + \phi_{r}^{*}\phi_{r + \hat{j}}\right)\right. \nonumber \\
+&& \left. - \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} + i \bar{\omega}_{z} \left(\bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} + \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}\right)\right. \nonumber \\
+&& \left. +\bar{\lambda}\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}\right]
 \eea
 %
 We can then combine our time derivative and our chemical potential in the following way:
 %
 \bea
-S_{\text{lat},r} &=& \phi_{r}^{*}\left[\phi_{r} - (1+  d\tau \mu)\phi_{r - \hat{\tau}} - \frac{ d\tau }{2m}\sum_{i = 1}^{d}\left(  \phi_{r + \hat{i}} - 2 \phi_{r} + \phi_{r - \hat{i}}\right)  -  d\tau \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \phi_{r-\hat{\tau}}\right] \\
-& &  -\phi_{r}^{*} \left[i d\tau \omega_{z}\left(x \phi_{r-\hat{\tau}} - x\phi_{r-\hat{y}-\hat{\tau}} - y \phi_{r-\hat{\tau}} + y \phi_{r-\hat{x}-\hat{\tau}}\right)\right]+d\tau \lambda(\phi_{r}^{*}\phi_{r-\hat{\tau}})^{2}. \nonumber
-\eea 
+S_{\text{lat}} &=& \sum_{\vec{x},\tau}a^{d} \left[ \phi_{r}^{*}\phi_{r} -(1+\bar{\mu})\phi_{r}^{*}\phi_{r - \hat{\tau}} - \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(\phi_{r}^{*}\phi_{r - \hat{j}} - 2 \phi_{r}^{*}\phi_{r} + \phi_{r}^{*}\phi_{r + \hat{j}}\right)\right. \nonumber \\
+&& \left. - \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} + i \bar{\omega}_{z} \left(\bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} + \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}\right)\right. \nonumber \\
+&& \left. +\bar{\lambda}\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}\right]
+\eea
 %
 Note that to second order in the lattice size, this is equivalent to:
 %
 \bea
-S_{\text{lat},r} &=& \phi_{r}^{*}\left[\phi_{r} - e^{ d\tau \mu} \phi_{r - \hat{\tau}} - \frac{ d\tau }{2m}\sum_{i = 1}^{d}\left(  \phi_{r + \hat{i}} - 2 \phi_{r} + \phi_{r - \hat{i}}\right) -  d\tau \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \phi_{r-\hat{\tau}} \right]\\
-& & -  i  d\tau \omega_{z} \phi_{r}^{*} \left[(x-y) \phi_{r-\hat{\tau}} - x\phi_{r-\hat{y}-\hat{\tau}} + y \phi_{r-\hat{x}-\hat{\tau}}\right]+  d\tau \lambda(\phi_{r}^{*}\phi_{r-\hat{\tau}})^{2}.\nonumber
-\eea 
+S_{\text{lat}} &=& \sum_{\vec{x},\tau}a^{d} \left[ \phi_{r}^{*}\phi_{r} -e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(\phi_{r}^{*}\phi_{r - \hat{j}} - 2 \phi_{r}^{*}\phi_{r} + \phi_{r}^{*}\phi_{r + \hat{j}}\right)- \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right. \nonumber \\
+&& \left.  + i \bar{\omega}_{z} \left(\bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} + \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}\right)+\bar{\lambda}\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}\right]
+\eea
 %
 This will be our lattice action, which we will complexify and use to evolve our system in Langevin time. To simplify, let's divide the lattice action into smaller components:
 %
 \beq
-S_{\text{lat}} = \sum_{r}\left(S_{\tau,r} + S_{\del,r} - S_{\text{trap},r} - S_{\omega,r} + S_{\text{int},r}\right)
+S_{\text{lat}} = \sum_{\vec{x},\tau}a^{d}\left(S_{\tau,r} + S_{\del,r} - S_{\text{trap},r} - S_{\omega,r} + S_{\text{int},r}\right)
 \eeq
 %
 with
 %
 \bea
-S_{\tau,r} & =&\phi_{r}^{*}\phi_{r} - e^{ d\tau \mu} \phi_{r}^{*}\phi_{r - \hat{\tau}}\\
-S_{\del,r}& =& d\tau\frac{d   }{m}\phi_{r}^{*}\phi_{r} - \frac{ d\tau }{2m}\sum_{i = 1}^{d}\left( \phi_{r}^{*} \phi_{r + \hat{i}}  + \phi_{r}^{*}\phi_{r - \hat{i}}\right) \\
-S_{\text{trap},r} & =& d\tau \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \phi_{r}^{*}\phi_{r-\hat{\tau}} \\
-S_{\omega,r} &  = &   i  d\tau \omega_{z} \left[(x-y) \phi_{r}^{*}\phi_{r-\hat{\tau}} - x \phi_{r}^{*}\phi_{r-\hat{y}-\hat{\tau}} + y\phi_{r}^{*} \phi_{r-\hat{x}-\hat{\tau}}\right]\\
-S_{\text{int},r}& =&  d\tau  \lambda(\phi_{r}^{*}\phi_{r-\hat{\tau}})^{2}.
+S_{\mu,r} & =&\phi_{r}^{*}\phi_{r} -e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\\
+S_{\del,r}& =& \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(2 \phi_{r}^{*}\phi_{r}  - \phi_{r}^{*}\phi_{r - \hat{j}} - \phi_{r}^{*}\phi_{r + \hat{j}}\right)\\
+S_{\text{trap},r} & =& \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} \\
+S_{\omega,r} &  = &   i \bar{\omega}_{z} \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\\
+S_{\text{int},r}& =&  \bar{\lambda}\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}.
 \eea 
 %
 Note that we are restricting ourselves to two spatial dimensions at this point in the work. The extension of this method to three-dimensional rotating systems is saved for future work.
-
-This action must first be rewritten with the complex fields expressed in terms of two real fields, $\phi = \frac{1}{\sqrt{2}}\left(\phi_{1} + i \phi_{2}\right)$ and $\phi^{*} = \frac{1}{\sqrt{2}}\left(\phi_{1} - i \phi_{2}\right)$. Each piece of the action is computed below:
-
-First, the time derivative and chemical potential part of the action:
-%
-\bea
-S_{\tau,r} & =&\phi_{r}^{*}\phi_{r} - e^{ d\tau \mu} \phi_{r}^{*}\phi_{r - \hat{\tau}} \nonumber\\
-& =& \frac{1}{2}\left[\phi_{1,r}^{2} + \phi_{2,r}^{2} - e^{ d\tau \mu} \left(\phi_{1,r}\phi_{1,r - \hat{\tau}} + i \phi_{1,r}\phi_{2,r - \hat{\tau}} - i \phi_{2,r}\phi_{1,r - \hat{\tau}} +\phi_{2,r} \phi_{2,r - \hat{\tau}}\right) \right] \\
-& =& \frac{1}{2}\sum_{a=1}^{2}\left[\phi_{a,r}^{2} - e^{ d\tau \mu}\phi_{a,r}\phi_{a,r - \hat{\tau}} - i e^{ d\tau \mu} \sum_{b=1}^{2}\epsilon_{ab}  \phi_{a,r}\phi_{b,r - \hat{\tau}} \right] .\nonumber
-\eea
-%
-Next, the spatial derivative part (corresponding to the kinetic energy):
-%
-\bea
-S_{\del,r}& =& \frac{d\tau}{2m}\left[2 d\phi_{r}^{*}\phi_{r} - \sum_{i = 1}^{d}\left( \phi_{r}^{*} \phi_{r + \hat{i}}  + \phi_{r}^{*}\phi_{r - \hat{i}}\right)\right] \nonumber\\
-& =& \frac{d\tau}{4m}\left[ 2d\left(\phi_{1,r}^{2} + \phi_{2,r}^{2}\right) - \sum_{i = \pm1}^{d}\left(\phi_{1,r}\phi_{1,r + \hat{i}}  + i \phi_{1,r}\phi_{2,r + \hat{i}} - i \phi_{2,r} \phi_{1,r + \hat{i}} + \phi_{2,r}\phi_{2,r + \hat{i}}  \right) \right]\\
-& =& \frac{d\tau}{4m}\sum_{a=1}^{2}\left[ 2d\phi_{a,r}^{2} - \left(\sum_{i = \pm1}^{d}\phi_{a,r}\phi_{a,r + \hat{i}} +i\sum_{b=1}^{2}\sum_{i = \pm1}^{d}\epsilon_{ab} \phi_{a,r}\phi_{b,r + \hat{i}}\right) \right].\nonumber
-\eea
-%
-Then, for the part of the action due to the external trapping potential:
-%
-\bea
-S_{\text{trap},r} & =&d\tau\frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \phi_{r}^{*}\phi_{r-\hat{\tau}} \nonumber \\
-&=& \frac{d\tau m \omega_{\text{tr}}^{2}(x^{2}+y^{2})}{4}\left[\phi_{1,r} \phi_{1,r-\tau} + i \phi_{1,r} \phi_{2,r-\tau} -i \phi_{2,r} \phi_{1,r-\tau} + \phi_{2,r} \phi_{2,r-\tau}\right]\\
-& =&\frac{d\tau\omega_{\text{tr}}(x^{2}+y^{2})}{4}\sum_{a=1}^{2}\left( \phi_{a,r}\phi_{a,r-\hat{\tau}} + i \sum_{b=1}^{2}\epsilon_{ab}  \phi_{a,r}\phi_{b,r-\hat{\tau}}\right). \nonumber
-\eea
-%
-Next, the rotational piece:
-%
-\bea
-S_{\omega,r} &  = &   i d\tau\omega_{z} \left[(x-y) \phi_{r}^{*}\phi_{r-\hat{\tau}} - x \phi_{r}^{*}\phi_{r-\hat{y}-\hat{\tau}} + y\phi_{r}^{*} \phi_{r-\hat{x}-\hat{\tau}}\right]\nonumber \\
-%
-&  = &   \frac{i d\tau\omega_{z}}{2} \left[(x-y) \left(\phi_{1,r}\phi_{1,r-\hat{\tau}} + \phi_{2,r}\phi_{2,r-\hat{\tau}} \right) +i(x-y) \left(\phi_{1,r}\phi_{2,r-\hat{\tau}} + \phi_{2,r}\phi_{1,r-\hat{\tau}}  \right)\right]\nonumber \\
-&&  -   \frac{i d\tau\omega_{z}}{2} \left[x \left(\phi_{1,r}\phi_{1,r - \hat{y}-\hat{\tau}} + i \phi_{1,r}\phi_{2,r - \hat{y}-\hat{\tau}} - i \phi_{2,r}\phi_{1,r - \hat{y}-\hat{\tau}} +\phi_{2,r} \phi_{2,r - \hat{y}-\hat{\tau}}\right) \right] \nonumber \\
-& & + \frac{i d\tau\omega_{z}}{2} \left[y\left(\phi_{1,r}\phi_{1,r - \hat{x}-\hat{\tau}} + i \phi_{1,r}\phi_{2,r - \hat{x}-\hat{\tau}} - i \phi_{2,r}\phi_{1,r - \hat{x}-\hat{\tau}} +\phi_{2,r} \phi_{2,r - \hat{x}-\hat{\tau}}\right) \right] \\
-%
-&  = &   \frac{d\tau\omega_{z}}{2}\sum_{a=1}^{2} \left[\sum_{b=1}^{2}\epsilon_{ab}\left((x-y)\phi_{a,r}\phi_{b,r-\hat{\tau}}- x \phi_{a,r}\phi_{b,r - \hat{y}-\hat{\tau}}  +y \phi_{a,r}\phi_{b,r - \hat{x}-\hat{\tau}}\right)\right]\nonumber \\
-&   &   +i \frac{d\tau\omega_{z}}{2}\sum_{a=1}^{2} \left[\sum_{b=1}^{2}\left((y-x)\phi_{a,r}\phi_{a,r-\hat{\tau}}+ x \phi_{a,r}\phi_{a,r - \hat{y}-\hat{\tau}}  -y \phi_{a,r}\phi_{a,r - \hat{x}-\hat{\tau}}\right)\right].\nonumber 
-\eea
-%
-And finally, the interaction term in the action:
-%
-\bea
-S_{\text{int},r}& =& d\tau \lambda(\phi_{r}^{*}\phi_{r-\hat{\tau}})^{2}\nonumber \\
-& =& \dots\\
-& =& \frac{ d\tau\lambda}{4}\sum_{a=1}^{2}\sum_{b=1}^{2}\left[2 \phi_{a,r} \phi_{a,r-\hat{\tau}} \phi_{b,r}\phi_{b,r-\hat{\tau}} -\phi_{a,r}^{2} \phi_{b,r-\hat{\tau}}^{2} \right] \nonumber \\
-&& +i \frac{ d\tau\lambda}{2}\sum_{a=1}^{2}\sum_{b=1}^{2}\left[\epsilon_{ab} \left( \phi_{a,r}^{2} \phi_{a,r-\hat{\tau}} \phi_{b,r-\hat{\tau}}-\phi_{a,r} \phi_{a,r-\hat{\tau}}^{2} \phi_{b,r} \right) \right] \nonumber.
-\eea
-%
-We will work with the lattice action in this form in order to derive the Langevin drift function.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%COMPLEXIFICATION%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{\label{FirstComplexification} Writing the Complex Action in Terms of Real Fields}
-Because we want to test our free, nonrotating, and non interacting system in multiple dimensions and leave open the possibility of future work in three dimensions, we leave the dimension number $d$ general in the following derivations.
+This action must first be rewritten with the complex fields expressed in terms of two real fields, $\phi = \frac{1}{\sqrt{2}}\left(\phi_{1} + i \phi_{2}\right)$ and $\phi^{*} = \frac{1}{\sqrt{2}}\left(\phi_{1} - i \phi_{2}\right)$. Each piece of the action is computed below:
 
-First, we take our complex field, $\phi$, and represent it as the complex sum of two real fields: $\phi = \frac{1}{\sqrt{2}}(\phi_{1} + i \phi_{2})$. For each of the action contributions, this gives us:
-
+First, the time derivative and chemical potential part of the action:
+%
 \bea
-\text{Re}[S_{\tau, r}] & \rightarrow & \frac{1}{2}\sum_{a=1}^{2}\left(\phi_{a,r}^{2}-e^{d\tau\mu}\ \phi_{a,r}\phi_{a,r-\hat{\tau}}\right) \\
-\text{Im}[S_{\tau,r}] & \rightarrow & \frac{-e^{d\tau\mu}}{2}\sum_{a,b=1}^{2}\epsilon_{ab}\phi_{a,r}\phi_{b,r-\hat{\tau}}
+S_{\tau,r} & =&\phi_{r}^{*}\phi_{r} - e^{ \bar{\mu}} \phi_{r}^{*}\phi_{r - \hat{\tau}} \nonumber\\
+& =& \frac{1}{2}\left[\phi_{1,r}^{2} + \phi_{2,r}^{2} - e^{\bar{\mu}} \left(\phi_{1,r}\phi_{1,r - \hat{\tau}} + i \phi_{1,r}\phi_{2,r - \hat{\tau}} - i \phi_{2,r}\phi_{1,r - \hat{\tau}} +\phi_{2,r} \phi_{2,r - \hat{\tau}}\right) \right]\nonumber \\
+& =& \frac{1}{2}\sum_{a=1}^{2}\left[\phi_{a,r}^{2} - e^{ \bar{\mu}}\phi_{a,r}\phi_{a,r - \hat{\tau}} - i e^{\bar{\mu}} \sum_{b=1}^{2}\epsilon_{ab}  \phi_{a,r}\phi_{b,r - \hat{\tau}} \right] ,
 \eea
 %
+where $\epsilon_{12}  = 1,\ \epsilon_{21} = -1, \epsilon_{11}=\epsilon_{22} =0 $. Next, the spatial derivative part (corresponding to the kinetic energy):
+%
 \bea
-\text{Re}[S_{\del, r}] & \rightarrow &\sum_{a = 1}^{2} \left(\frac{d}{m} \phi_{a,r}^{2} - \frac{1}{4m}\sum_{i = \pm 1}^{d}\phi_{a,r}\phi_{a,r+\hat{i}}  \right)\\
-\text{Im}[S_{\del, r} ]& \rightarrow &\frac{-1}{4m} \sum_{a,b = 1}^{2} \sum_{i =\pm 1}^{d}\epsilon_{ab}\phi_{a,r}\phi_{b,r+\hat{i}}
+S_{\del,r}& =& \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(2 \phi_{r}^{*}\phi_{r}  - \phi_{r}^{*}\phi_{r - \hat{j}} - \phi_{r}^{*}\phi_{r + \hat{j}}\right)\nonumber\\
+& =& \frac{1}{4\bar{m}}\sum_{j=1}^{d} \left[2 \left(\phi_{1,r}^{2} + \phi_{2,r}^{2}\right) - \left(\phi_{1,r}\phi_{1,r + \hat{i}}  + i \phi_{1,r}\phi_{2,r + \hat{i}} - i \phi_{2,r} \phi_{1,r + \hat{i}} + \phi_{2,r}\phi_{2,r + \hat{i}}  \right) \right. \nonumber \\
+&& \left. - \left(\phi_{1,r}\phi_{1,r - \hat{i}}  + i \phi_{1,r}\phi_{2,r - \hat{i}} - i \phi_{2,r} \phi_{1,r - \hat{i}} + \phi_{2,r}\phi_{2,r - \hat{i}}  \right)   \right] \nonumber\\
+& =&\frac{1}{4\bar{m}}\sum_{j=1}^{d}\sum_{a=1}^{2}\left[ 2 \phi_{a,r}^{2} - (\phi_{a}\phi_{a,r-\hat{j}}+ \phi_{a}\phi_{a,r+\hat{j}}) - i \sum_{b=1}^{2}\epsilon_{ab}\left(\phi_{a,r}\phi_{b,r-\hat{j}} +\phi_{a,r}\phi_{b,r+\hat{j}}  \right)\right].
 \eea
 %
+Then, for the part of the action due to the external trapping potential:
+%
 \bea
-\text{Re}[S_{\text{trap}, r}] & \rightarrow & \frac{m}{4}\omega_{\text{trap}}^{2}\left(x^{2} + y^{2}\right)\sum_{a=1}^{2}\phi_{a,r}\phi_{a,r-\hat{\tau}}\\
-\text{Im}[S_{\text{trap}, r} ]& \rightarrow &  \frac{m}{4}\omega_{\text{trap}}^{2}\left(x^{2} + y^{2}\right)\sum_{a,b=1}^{2}\epsilon_{ab}\phi_{a,r}\phi_{b,r-\hat{\tau}}
+S_{\text{trap},r} & =&\frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} \nonumber \\
+&=&\frac{\bar{m}}{4} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\left[\phi_{1,r} \phi_{1,r-\tau} + i \phi_{1,r} \phi_{2,r-\tau} -i \phi_{2,r} \phi_{1,r-\tau} + \phi_{2,r} \phi_{2,r-\tau}\right]\nonumber\\
+& =&\frac{\bar{m}}{4} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\sum_{a=1}^{2}\left[ \phi_{a,r}\phi_{a,r-\hat{\tau}} + i \sum_{b=1}^{2}\epsilon_{ab}  \phi_{a,r}\phi_{b,r-\hat{\tau}}\right]. 
 \eea
 %
+Next, the rotational piece:
+%
 \bea
-\text{Re}[S_{\omega, r}] & \rightarrow & \frac{\omega_{z}}{2} \sum_{a,b = 1,2}\epsilon_{ab} \left(
-(y-x)\phi_{a,r} \phi_{b,r-\hat{\tau}}+ \widetilde{x}\phi_{a,r}\phi_{b,r-\hat{y}-\hat{\tau}} - \widetilde{y} \phi_{a,r}\phi_{b,r-\hat{x}-\hat{\tau}} \right)\\
-\text{Im}[S_{\omega, r} ]& \rightarrow &  \frac{\omega_{z}}{2}\sum_{a = 1}^{2}\left( (x-y) \phi_{a,r}\phi_{a,r-\hat{\tau}}- \widetilde{x} \phi_{a,r}\phi_{a,r-\hat{y}-\hat{\tau}} + \widetilde{y} \phi_{a,r}\phi_{a,r-\hat{x}-\hat{\tau}}  \right) 
+S_{\omega,r} &  = &    i \bar{\omega}_{z} \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\nonumber \\
+%
+& = &   \frac{\bar{\omega}_{z}}{2} \left[ (\bar{y} - \bar{x})\left(\phi_{1,r}\phi_{2,r-\hat{\tau}} -\phi_{2,r}\phi_{1,r-\hat{\tau}} \right) 
++ \bar{x}(\phi_{1,r}\phi_{2,r - \hat{y}-\hat{\tau}} - \phi_{2,r}\phi_{1,r - \hat{y}-\hat{\tau}})\right.\nonumber\\
+&& \left. - \bar{y}(\phi_{1,r}\phi_{2,r - \hat{x}-\hat{\tau}} - \phi_{2,r}\phi_{1,r - \hat{x}-\hat{\tau}})\right] \nonumber\\
+&& + i  \frac{\bar{\omega}_{z}}{2}\left[ ( \bar{x} - \bar{y}) (\phi_{1,r}\phi_{1,r-\hat{\tau}}+\phi_{2,r}\phi_{2,r-\hat{\tau}})
+ - \bar{x} (\phi_{1,r}\phi_{1,r - \hat{y}-\hat{\tau}} + \phi_{2,r}\phi_{2,r - \hat{y}-\hat{\tau}} ) \right. \nonumber \\
+ && \left. + \bar{y} (\phi_{1,r}\phi_{1,r - \hat{x}-\hat{\tau}} + \phi_{2,r}\phi_{2,r - \hat{x}-\hat{\tau}} ) \right] \nonumber\\
+ &  = &    \frac{  \bar{\omega}_{z}}{2} \sum_{a=1}^{2} \left[\sum_{b=1}^{2}\epsilon_{ab}\left((\bar{y} - \bar{x})\phi_{a,r}\phi_{b,r-\hat{\tau}}+ \bar{x}\phi_{a,r}\phi_{b,r - \hat{y}-\hat{\tau}} - \bar{y}\phi_{a,r}\phi_{b,r - \hat{x}-\hat{\tau}}\right)\right]\nonumber\\  
+&& + i  \frac{\bar{\omega}_{z}}{2}\sum_{a=1}^{2} \left[(\bar{x} - \bar{y}) \phi_{a,r}\phi_{a,r-\hat{\tau}}- \bar{x} \phi_{a,r}\phi_{a,r - \hat{y}-\hat{\tau}} + \bar{y} (\phi_{a,r}\phi_{a,r - \hat{x}-\hat{\tau}}\right]
 \eea
 %
-where $\widetilde{x}$ and $\widetilde{y}$ are our $x$ and $x$ coordinates shifted by the center of the trap:
+And finally, the interaction term in the action:
 %
 \bea
-\widetilde{x} &=& x-\frac{N_{x}-1}{2}\nonumber \\
-\widetilde{y} &=& y-\frac{N_{x}-1}{2}\nonumber 
+S_{\text{int},r}& =& \bar{\lambda}(\phi_{r}^{*}\phi_{r-\hat{\tau}})^{2}\nonumber \\
+& =&  \frac{ \bar{\lambda}}{4}\left[ 
+\phi_{1,r}\phi_{1,r-\hat{\tau}}(\phi_{1,r}\phi_{1,r-\hat{\tau}} +\phi_{2,r}\phi_{2,r-\hat{\tau}}) + \phi_{2,r}\phi_{2,r-\hat{\tau}}(\phi_{1,r}\phi_{1,r-\hat{\tau}} + \phi_{2,r}\phi_{2,r-\hat{\tau}})\right.\nonumber \\
+&& \left.  
+- \phi_{1,r}\phi_{1,r}\phi_{2,r-\hat{\tau}}\phi_{2,r-\hat{\tau}}-  \phi_{2,r}\phi_{2,r}\phi_{1,r-\hat{\tau}}\phi_{1,r-\hat{\tau}} \right.\nonumber \\
+&& \left. 
++ \phi_{1,r}\phi_{2,r}\phi_{2,r-\hat{\tau}}\phi_{1,r-\hat{\tau}}  -  \phi_{2,r}\phi_{1,r}\phi_{1,r-\hat{\tau}}\phi_{2,r-\hat{\tau}} 
+\right]\nonumber \\
+&&+ i \frac{ \bar{\lambda}}{4} \left[
+\phi_{1,r}\phi_{1,r-\hat{\tau}}\phi_{1,r}\phi_{2,r-\hat{\tau}} 
+- \phi_{1,r}\phi_{1,r-\hat{\tau}}\phi_{2,r}\phi_{1,r-\hat{\tau}} 
+\right.\nonumber \\
+&& \left. 
+- \phi_{2,r}\phi_{1,r-\hat{\tau}}\phi_{1,r}\phi_{1,r-\hat{\tau}} 
+- \phi_{1,r}\phi_{1,r-\hat{\tau}}\phi_{2,r}\phi_{2,r-\hat{\tau}} 
+\right.\nonumber \\
+&& \left. 
++ \phi_{1,r}\phi_{2,r-\hat{\tau}}\phi_{1,r}\phi_{1,r-\hat{\tau}} 
++ \phi_{1,r}\phi_{2,r-\hat{\tau}}\phi_{2,r}\phi_{2,r-\hat{\tau}} 
+\right.\nonumber \\
+&& \left. 
+- \phi_{2,r}\phi_{2,r-\hat{\tau}}\phi_{2,r}\phi_{1,r-\hat{\tau}} 
++ \phi_{2,r}\phi_{2,r-\hat{\tau}}\phi_{1,r}\phi_{2,r-\hat{\tau}} 
+\right]\nonumber \\
+& =& \frac{ \bar{\lambda}}{4}\sum_{a=1}^{2}\sum_{b=1}^{2}\left[2 \phi_{a,r} \phi_{a,r-\hat{\tau}} \phi_{b,r}\phi_{b,r-\hat{\tau}} -\phi_{a,r}^{2} \phi_{b,r-\hat{\tau}}^{2} \right] \nonumber \\
+&& +i \frac{ d\tau\lambda}{2}\sum_{a=1}^{2}\sum_{b=1}^{2}\left[\epsilon_{ab} \left( \phi_{a,r}^{2} \phi_{a,r-\hat{\tau}} \phi_{b,r-\hat{\tau}}-\phi_{a,r} \phi_{a,r-\hat{\tau}}^{2} \phi_{b,r} \right) \right] \nonumber.
 \eea
 %
-\bea
-\text{Re}[S_{\text{int}, r}]  & \rightarrow &  \frac{\lambda}{4}  \sum_{a,b=1}^{2} \left( 2 \phi_{a,r} \phi_{b,r}\phi_{a,r-\hat{\tau}}\phi_{b,r-\hat{\tau}} - \phi_{a,r}^{2} \phi_{b,r-\hat{\tau}}^{2}\right)\\
-\text{Im}[S_{\text{int}, r} ] & \rightarrow &  \frac{\lambda}{2}  \sum_{a,b=1}^{2} \epsilon_{ab}\left(\phi_{a,r}^{2}\phi_{a,r-\hat{\tau}}\phi_{b,r-\hat{\tau}} - \phi_{a,r}\phi_{b,r}\phi_{a,r-\hat{\tau}}^{2} \right),
-%
-\eea 
-%
-where $S_{j,r} = \text{Re}[S_{j,r}]+ i \text{Im}[S_{j,r}]$, and $\epsilon_{12} =1$, $\epsilon_{21} =-1$, and  $\epsilon_{11} = \epsilon_{22} = 0$.
-
-From here, we can compute the drift function.
+We will work with the lattice action in this form in order to derive the Langevin drift function.
 
 
-
-\section{\label{SecondComplexification} Complexifying the Real Fields}
+\section{\label{SecondComplexification} NOT UPDATED YET: Complexifying the Real Fields}
 
 Now we take our real fields, $\phi_{a}$, where $a = 1,2$, and rewrite them as two complex fields: $\phi_{a} = \phi_{a}^{R} + i \phi_{a}^{I}$
 
@@ -236,7 +241,7 @@ where in all of the above, $S_{j} = S_{j}^{R}+ i S_{j}^{I}$, and $\epsilon_{12} 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%% GENERATING CL EQUATIONS %%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\label{NRRBCLM}Generating the NRRB CL Equations}
+\section{\label{NRRBCLM}NOT UPDATED YET:Generating the NRRB CL Equations}
 
 \subsection{\label{LatticeDerivatives} Derivatives on the Lattice}
 When taking derivatives of this lattice action with respect to the fields, we do the following:
@@ -314,7 +319,7 @@ Here, there is an extra factor of 2 that appears when solving this equation with
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
- \subsection{\label{2ndComplexification} Second Complexification of Drift Function}
+ \subsection{\label{2ndComplexification} NOT UPDATED YET:Second Complexification of Drift Function}
  The next step is to complexify our real fields, $a$ and $b$, such that $\phi_{a} = \phi_{a}^{R} + i \phi_{a}^{I}$. We do this for each part of the drift function, $K_{a,r} = \frac{\delta S_{r}}{\delta \phi_{a,r}}$.
 
 First, the time and chemical potential term:
@@ -455,7 +460,7 @@ So
 %%%%%%%%%%%%%%%%%% OBSERVABLES %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{\label{NRRBObservables}Lattice Observables}
+\section{\label{NRRBObservables}NOT UPDATED YET:Lattice Observables}
 The observables:
 \subsection{Average Density}
 The average density is the sum over the local density at each spatial site, normalized by the spatial lattice volume:
@@ -572,7 +577,9 @@ We can see that the action is linear in $\beta$. Therefore, we can simply calcul
 \beq
 \langle E \rangle = \frac{S}{ \beta}
 \eeq
-\section{\label{NRRBchecks}Some checks on our code}
+
+
+\section{\label{NRRBchecks}NOT UPDATED YET:Some checks on our code}
 \subsection{Nonrotating, noninteracting, nonrelativistic, finite chemical potential in 1, 2, and 3 dimensions}
 The lattice action for a nonrotating, noninteracting, and nonrelativistic system is the following:
 \beq
