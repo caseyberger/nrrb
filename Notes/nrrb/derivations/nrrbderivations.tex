@@ -134,31 +134,14 @@ And finally, the interaction term in the action:
 %
 \bea
 S_{\text{int},r}& =& \bar{\lambda}(\phi_{r}^{*}\phi_{r-\hat{\tau}})^{2}\nonumber \\
-& =&  \frac{ \bar{\lambda}}{4}\left[ 
-\phi_{1,r}\phi_{1,r-\hat{\tau}}(\phi_{1,r}\phi_{1,r-\hat{\tau}} +\phi_{2,r}\phi_{2,r-\hat{\tau}}) + \phi_{2,r}\phi_{2,r-\hat{\tau}}(\phi_{1,r}\phi_{1,r-\hat{\tau}} + \phi_{2,r}\phi_{2,r-\hat{\tau}})\right.\nonumber \\
-&& \left.  
-- \phi_{1,r}\phi_{1,r}\phi_{2,r-\hat{\tau}}\phi_{2,r-\hat{\tau}}-  \phi_{2,r}\phi_{2,r}\phi_{1,r-\hat{\tau}}\phi_{1,r-\hat{\tau}} \right.\nonumber \\
-&& \left. 
-+ \phi_{1,r}\phi_{2,r}\phi_{2,r-\hat{\tau}}\phi_{1,r-\hat{\tau}}  -  \phi_{2,r}\phi_{1,r}\phi_{1,r-\hat{\tau}}\phi_{2,r-\hat{\tau}} 
+& =&  \frac{ \bar{\lambda}}{4}\left[ \phi_{1,r}^{2}\phi_{1,r-\hat{\tau}}^{2} +  \phi_{2,r}^{2}\phi_{2,r-\hat{\tau}}^{2}+4 \phi_{1,r}\phi_{2,r}\phi_{1,r-\hat{\tau}}\phi_{2,r-\hat{\tau}} 
+- \phi_{1,r}^{2}\phi_{2,r-\hat{\tau}}^{2}-  \phi_{2,r}^{2}\phi_{1,r-\hat{\tau}}^{2}
 \right]\nonumber \\
-&&+ i \frac{ \bar{\lambda}}{4} \left[
-\phi_{1,r}\phi_{1,r-\hat{\tau}}\phi_{1,r}\phi_{2,r-\hat{\tau}} 
-- \phi_{1,r}\phi_{1,r-\hat{\tau}}\phi_{2,r}\phi_{1,r-\hat{\tau}} 
-\right.\nonumber \\
-&& \left. 
-- \phi_{2,r}\phi_{1,r-\hat{\tau}}\phi_{1,r}\phi_{1,r-\hat{\tau}} 
-- \phi_{1,r}\phi_{1,r-\hat{\tau}}\phi_{2,r}\phi_{2,r-\hat{\tau}} 
-\right.\nonumber \\
-&& \left. 
-+ \phi_{1,r}\phi_{2,r-\hat{\tau}}\phi_{1,r}\phi_{1,r-\hat{\tau}} 
-+ \phi_{1,r}\phi_{2,r-\hat{\tau}}\phi_{2,r}\phi_{2,r-\hat{\tau}} 
-\right.\nonumber \\
-&& \left. 
-- \phi_{2,r}\phi_{2,r-\hat{\tau}}\phi_{2,r}\phi_{1,r-\hat{\tau}} 
-+ \phi_{2,r}\phi_{2,r-\hat{\tau}}\phi_{1,r}\phi_{2,r-\hat{\tau}} 
+&&+ i \frac{ \bar{\lambda}}{4} \left[2 \phi_{1,r}^{2}\phi_{1,r-\hat{\tau}}\phi_{2,r-\hat{\tau}}  - 2 \phi_{2,r}^{2}\phi_{1,r-\hat{\tau}}\phi_{2,r-\hat{\tau}} 
+- 2 \phi_{1,r}\phi_{2,r}\phi_{1,r-\hat{\tau}}^{2} + 2 \phi_{1,r}\phi_{2,r}\phi_{2,r-\hat{\tau}}^{2}
 \right]\nonumber \\
 & =& \frac{ \bar{\lambda}}{4}\sum_{a=1}^{2}\sum_{b=1}^{2}\left[2 \phi_{a,r} \phi_{a,r-\hat{\tau}} \phi_{b,r}\phi_{b,r-\hat{\tau}} -\phi_{a,r}^{2} \phi_{b,r-\hat{\tau}}^{2} \right] \nonumber \\
-&& +i \frac{ d\tau\lambda}{2}\sum_{a=1}^{2}\sum_{b=1}^{2}\left[\epsilon_{ab} \left( \phi_{a,r}^{2} \phi_{a,r-\hat{\tau}} \phi_{b,r-\hat{\tau}}-\phi_{a,r} \phi_{a,r-\hat{\tau}}^{2} \phi_{b,r} \right) \right] \nonumber.
+&& +i \frac{ \bar{\lambda}}{2}\sum_{a=1}^{2}\sum_{b=1}^{2}\left[\epsilon_{ab} \left( \phi_{a,r}^{2} \phi_{a,r-\hat{\tau}} \phi_{b,r-\hat{\tau}}-\phi_{a,r} \phi_{b,r}\phi_{a,r-\hat{\tau}}^{2} \right) \right] \nonumber.
 \eea
 %
 We will work with the lattice action in this form in order to derive the Langevin drift function.

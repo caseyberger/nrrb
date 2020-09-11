@@ -7,25 +7,29 @@
 \contentsline {subsection}{\numberline {1.2.2}Ideas}{3}{subsection.1.2.2}
 \contentsline {subsection}{\numberline {1.2.3}Goals:}{3}{subsection.1.2.3}
 \contentsline {chapter}{\numberline {2}The Method: Complex Langevin}{5}{chapter.2}
-\contentsline {section}{\numberline {2.1}The two-dimensional rotating bosonic gas}{5}{section.2.1}
+\contentsline {section}{\numberline {2.1}The rotating bosonic gas}{5}{section.2.1}
 \contentsline {subsection}{\numberline {2.1.1}The Action}{5}{subsection.2.1.1}
-\contentsline {chapter}{Appendices}{7}{section*.2}
-\contentsline {chapter}{\numberline {A}NRRB Derivations}{8}{Appendix.1.A}
-\contentsline {section}{\numberline {A.1} Justification for the Form of the Non-Relativistic Lattice Action}{8}{section.1.A.1}
-\contentsline {section}{\numberline {A.2} Writing the Complex Action in Terms of Real Fields}{10}{section.1.A.2}
-\contentsline {section}{\numberline {A.3} Complexifying the Real Fields}{12}{section.1.A.3}
-\contentsline {section}{\numberline {A.4}Generating the NRRB CL Equations}{14}{section.1.A.4}
-\contentsline {subsection}{\numberline {A.4.1} Derivatives on the Lattice}{14}{subsection.1.A.4.1}
-\contentsline {subsection}{\numberline {A.4.2}Computing the derivative of the action with respect to the real fields}{14}{subsection.1.A.4.2}
-\contentsline {subsection}{\numberline {A.4.3} Second Complexification of Drift Function}{15}{subsection.1.A.4.3}
-\contentsline {section}{\numberline {A.5}Lattice Observables}{18}{section.1.A.5}
-\contentsline {subsection}{\numberline {A.5.1}Average Density}{18}{subsection.1.A.5.1}
-\contentsline {subsection}{\numberline {A.5.2}Average Angular Momentum}{18}{subsection.1.A.5.2}
-\contentsline {subsection}{\numberline {A.5.3}Circulation}{20}{subsection.1.A.5.3}
-\contentsline {subsection}{\numberline {A.5.4}Average Energy}{21}{subsection.1.A.5.4}
-\contentsline {section}{\numberline {A.6}Some checks on our code}{21}{section.1.A.6}
-\contentsline {subsection}{\numberline {A.6.1}Nonrotating, noninteracting, nonrelativistic, finite chemical potential in 1, 2, and 3 dimensions}{21}{subsection.1.A.6.1}
-\contentsline {subsubsection}{Diagonalizing our matrix, M}{22}{section*.3}
-\contentsline {subsubsection}{Analytical solution for the nonrotating, noninteracting density}{24}{section*.4}
-\contentsline {subsubsection}{Analytical solution for the nonrotating, noninteracting field modulus squared}{24}{section*.5}
-\contentsline {subsubsection}{Analytical solution for the two-point correlation function}{24}{section*.6}
+\contentsline {section}{\numberline {2.2}The Langevin Equations}{6}{section.2.2}
+\contentsline {section}{\numberline {2.3}Observables}{7}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Observables averaged over the volume}{7}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Observables per site}{9}{subsection.2.3.2}
+\contentsline {chapter}{Appendices}{10}{section*.2}
+\contentsline {chapter}{\numberline {A}NRRB Derivations}{11}{Appendix.1.A}
+\contentsline {section}{\numberline {A.1} Justification for the Form of the Non-Relativistic Lattice Action}{11}{section.1.A.1}
+\contentsline {section}{\numberline {A.2} Writing the Complex Action in Terms of Real Fields}{13}{section.1.A.2}
+\contentsline {section}{\numberline {A.3} NOT UPDATED YET: Complexifying the Real Fields}{14}{section.1.A.3}
+\contentsline {section}{\numberline {A.4}NOT UPDATED YET:Generating the NRRB CL Equations}{16}{section.1.A.4}
+\contentsline {subsection}{\numberline {A.4.1} Derivatives on the Lattice}{16}{subsection.1.A.4.1}
+\contentsline {subsection}{\numberline {A.4.2}Computing the derivative of the action with respect to the real fields}{17}{subsection.1.A.4.2}
+\contentsline {subsection}{\numberline {A.4.3} NOT UPDATED YET:Second Complexification of Drift Function}{18}{subsection.1.A.4.3}
+\contentsline {section}{\numberline {A.5}NOT UPDATED YET:Lattice Observables}{20}{section.1.A.5}
+\contentsline {subsection}{\numberline {A.5.1}Average Density}{20}{subsection.1.A.5.1}
+\contentsline {subsection}{\numberline {A.5.2}Average Angular Momentum}{21}{subsection.1.A.5.2}
+\contentsline {subsection}{\numberline {A.5.3}Circulation}{22}{subsection.1.A.5.3}
+\contentsline {subsection}{\numberline {A.5.4}Average Energy}{23}{subsection.1.A.5.4}
+\contentsline {section}{\numberline {A.6}NOT UPDATED YET:Some checks on our code}{23}{section.1.A.6}
+\contentsline {subsection}{\numberline {A.6.1}Nonrotating, noninteracting, nonrelativistic, finite chemical potential in 1, 2, and 3 dimensions}{23}{subsection.1.A.6.1}
+\contentsline {subsubsection}{Diagonalizing our matrix, M}{24}{section*.3}
+\contentsline {subsubsection}{Analytical solution for the nonrotating, noninteracting density}{26}{section*.4}
+\contentsline {subsubsection}{Analytical solution for the nonrotating, noninteracting field modulus squared}{27}{section*.5}
+\contentsline {subsubsection}{Analytical solution for the two-point correlation function}{27}{section*.6}
