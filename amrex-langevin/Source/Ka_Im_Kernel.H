@@ -58,21 +58,15 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	Ka += (AMREX_SPACEDIM-1) * Lattice(i,j,t,Field(a,C::Im))/m;
 	for (int d = 1; d <= AMREX_SPACEDIM-1; d++) { //loop over adjacent spatial sites!
 		//-(1/2m)(\phi_{a,i+1}^{I} +\phi_{a,i-1}^{I})
-		//if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
 		if (d == 1)
 		{
-			if (!(i == domain_lo.x || i == domain_hi.x))
-			{
-				Ka += -0.5 * Lattice(i+1,j,t,Field(a,C::Im)) / m;
-				Ka += -0.5 * Lattice(i-1,j,t,Field(a,C::Im)) / m;
-			}
-		} else if (d == 2)
+			Ka += -0.5 * Lattice(i+1,j,t,Field(a,C::Im)) / m;
+			Ka += -0.5 * Lattice(i-1,j,t,Field(a,C::Im)) / m;	
+		}
+		else if (d == 2)
 		{
-			if (!(j == domain_lo.y || j == domain_hi.y))
-			{
-				Ka += -0.5 * Lattice(i,j+1,t,Field(a,C::Im)) / m;
-				Ka += -0.5 * Lattice(i,j-1,t,Field(a,C::Im)) / m;
-			}
+			Ka += -0.5 * Lattice(i,j+1,t,Field(a,C::Im)) / m;
+			Ka += -0.5 * Lattice(i,j-1,t,Field(a,C::Im)) / m;	
 		}
 	}//updated on 1.31.19
 
@@ -103,18 +97,10 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 		Ka += -0.5*w*x * Lattice(i,j,t-1,Field(a,C::Re));
 
 		// (w/2) x (\phi_{a,r+y+t}^{R} + \phi_{a,r-y-t}^{R})-(w/2) y (\phi_{a,r+x+t}^{R} + \phi_{a,r-x-t}^{R})
-		//if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
-		if (!(i == domain_lo.x || i == domain_hi.x))
-		{
-			Ka += -0.5*w*y * Lattice(i+1,j,t+1,Field(a,C::Re));
-			Ka += -0.5*w*y * Lattice(i-1,j,t-1,Field(a,C::Re));
-		}
-
-		if (!(j == domain_lo.y || j == domain_hi.y))
-		{
-			Ka += 0.5*w*x * Lattice(i,j+1,t+1,Field(a,C::Re));
-			Ka += 0.5*w*x * Lattice(i,j-1,t-1,Field(a,C::Re));
-		}
+		Ka += -0.5*w*y * Lattice(i+1,j,t+1,Field(a,C::Re));
+		Ka += -0.5*w*y * Lattice(i-1,j,t-1,Field(a,C::Re));
+		Ka += 0.5*w*x * Lattice(i,j+1,t+1,Field(a,C::Re));
+		Ka += 0.5*w*x * Lattice(i,j-1,t-1,Field(a,C::Re));
 
 		for (int b=1; b<=2; b++){
 			//\eps_{ab} (w/2) (y (\phi_{b,r-x-t}^{I}+\phi_{b,r+x+t}^{I}) - x (\phi_{b,r-y-t}^{I}+\phi_{b,r+y+t}^{I}) )

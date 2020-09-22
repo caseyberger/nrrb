@@ -56,22 +56,15 @@ Real K_a_Re(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	//(d/m)\phi_{a}^{R}
 	Ka += (AMREX_SPACEDIM-1)*Lattice(i,j,t,Field(a,C::Re))/m;
 	for (int d = 1; d <= AMREX_SPACEDIM-1; d++) { //loop over adjacent spatial sites!
-		//if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
-		// -(1/2m)\phi_{a,i+1}^{R} - (1/2m)\phi_{a,ii1}^{R}
 		if (d == 1)
 		{
-			if (!(i == domain_lo.x || i == domain_hi.x))
-			{
-				Ka += -0.5 * Lattice(i+1,j,t,Field(a,C::Re)) / m;
-				Ka += -0.5 * Lattice(i-1,j,t,Field(a,C::Re)) / m;
-			}
-		} else if (d == 2)
+			Ka += -0.5 * Lattice(i+1,j,t,Field(a,C::Re)) / m;
+			Ka += -0.5 * Lattice(i-1,j,t,Field(a,C::Re)) / m;
+		}
+		else if (d == 2)
 		{
-			if (!(j == domain_lo.y || j == domain_hi.y))
-			{
-				Ka += -0.5 * Lattice(i,j+1,t,Field(a,C::Re)) / m;
-				Ka += -0.5 * Lattice(i,j-1,t,Field(a,C::Re)) / m;
-			}
+			Ka += -0.5 * Lattice(i,j+1,t,Field(a,C::Re)) / m;
+			Ka += -0.5 * Lattice(i,j-1,t,Field(a,C::Re)) / m;
 		}
 	}//updated on 10.07.19 - part mixing a and b removed per notes
 
@@ -104,18 +97,10 @@ Real K_a_Re(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 		Ka += -0.5*w*y * Lattice(i,j,t-1,Field(a, C::Im));
 
 		// (w/2) y (\phi_{a,r+x+t}^{I} + \phi_{a,r-x-t}^{I}) - (w/2) x (\phi_{a,r+y+t}^{I} + \phi_{a,r-y-t}^{I})
-		//if r is on the border, this term is zero because it's a derivative of \phi_{a,r}\phi_{a,r+i}^{R}
-		if (!(i == domain_lo.x || i == domain_hi.x))
-		{
-			Ka += 0.5*w*y * Lattice(i+1,j,t+1,Field(a,C::Im));
-			Ka += 0.5*w*y * Lattice(i-1,j,t-1,Field(a,C::Im));
-		}
-
-		if (!(j == domain_lo.y || j == domain_hi.y))
-		{
-			Ka += -0.5*w*x * Lattice(i,j+1,t+1,Field(a,C::Im));
-			Ka += -0.5*w*x * Lattice(i,j-1,t-1,Field(a,C::Im));
-		}
+		Ka += 0.5*w*y * Lattice(i+1,j,t+1,Field(a,C::Im));
+		Ka += 0.5*w*y * Lattice(i-1,j,t-1,Field(a,C::Im));
+		Ka += -0.5*w*x * Lattice(i,j+1,t+1,Field(a,C::Im));
+		Ka += -0.5*w*x * Lattice(i,j-1,t-1,Field(a,C::Im));
 
 		for (int b=1; b<=2; b++){
 			//\eps_{ab} (w/2) (y (\phi_{b,r-x-t}^{R} + \phi_{b,r+x+t}^{R})- x (\phi_{b,r-y-t}^{R}+\phi_{b,r+y+t}^{R}))
