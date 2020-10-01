@@ -18,6 +18,8 @@
 \newcommand{\bea}{\begin{eqnarray}}
 \newcommand{\eea}{\end{eqnarray}}
 
+\newcommand{\MarginPar}[1]{\hspace{1sp}\marginpar{\tiny\sffamily\raggedright\hspace{1sp}{\color{blue}#1}}}
+
 \def\CP{{\mathcal P}}
 \def\CC{{\mathcal C}}
 \def\CH{{\mathcal H}}
@@ -100,34 +102,70 @@ In order to explore the regions of interest, we must run this calculation on ver
 Previous work on this topic has been supported by the Department of Energy Computational Science Graduate Fellowship. Current work is supported under a grant from the Exascale Computing Project (ECP) for Application Development for Lattice Gauge Theory. This work is similar to the work supported by ECP, but is more exploratory work for applications of this method to other systems of interest.
 
 \section{Scaling and Performance}
-This code uses the AMReX AMR library, which was developed at LBNL, to discretize the spacetime lattice upon which the fields are defined. While each step in Langevin time must be performed sequentially, the spacetime lattice can be updated at each of these Langevin steps in a naively parallel fashion. 
 
-We can divide the lattice into boxes, which are distributed to different MPI ranks. One layer of ghost cells are filled in for the stencil operations which allow us to perform the nearest neighbor sums that appear in the drift function. These ghost cells are filled in via communication between the different MPI ranks. Once the ghost cells are filled in, the drift function calculations are entirely local for each MPI rank. We use OpenMP to tile the box assigned to each MPI rank and perform the calculation of the drift function at each site on the lattice independently.
+This code uses AMReX, a high-performance AMR library developed at LBNL and
+funded as an ECP Co-Design Center. We use AMReX data structures to discretize
+the spacetime lattice upon which the fields are defined, distribute the lattice
+across MPI, and implement local parallelism for CPU, KNL, or GPU-based
+platforms while maintaining performance portability.
 
-Parallelization is also utilized in calculation of the observables, which is similarly naively parallel. On each MPI rank, the observables are calculated locally via OpenMP and then MPI reductions are used to complete the calculation of the observable, which requires a sum over the entire lattice.
+While each step in Langevin time must be performed sequentially, the spacetime
+lattice can be updated at each of these Langevin steps in a naively parallel
+fashion. We divide the lattice into boxes (or grids) distributed across MPI
+ranks, so to advance the solution we first fill ghost cells throughout the
+domain to support the nearest neighbor sums that appear in the drift function.
+Next, we perform the drift function calculations and Langevin update - these
+are entirely local operations for each MPI rank. We parallelize this local work
+using OpenMP with logical tiling for CPUs or KNL to maintain cache efficiency.
+Alternately, when running on GPUs, we transparently launch CUDA kernels and
+disable logical tiling to ensure maximum kernel occupancy.
 
+We also efficiently calculate observables at runtime, which requires summing
+terms across the entire lattice for density, field modulus, circulation, and
+other quantities of interest. On each MPI rank, the observables are first
+calculated for local grids via OpenMP sum reductions (or using CUDA atomics for
+GPUs). We then combine partial sums across the lattice using all-to-one MPI
+reductions. In Fig.~\ref{Fig:GPUScaling} we compare strong scaling curves on
+the Cori GPU development system for a $1024^3$ lattice for a run without
+observables (orange) and a run where we calculate observables every 10 Langevin
+steps (blue). We demonstrate that although the additional computation and
+communication for observables requires about twice as much walltime, our
+reduction strategy yields nearly ideal strong scaling efficiency.
 
-Scaling results on Knights Landing (KNL) CPUs on Cori for this code are shown in Fig.~\ref{Fig:KNLScaling}.  \note{More here on scaling -- close to ideal scaling}
-
-We scale very well on both the Cori KNL system and the Cori GPU development platform. When the GPU capabilities for Perlmutter come online at NERSC, we will be well-positioned to take advantage of that hardware. 
+Our parallel implementation uses AMReX abstractions developed for performance
+portability on heterogeneous architectures. We have developed and tested it on
+the Cori KNL nodes and Cori GPU development platform. We present scaling
+studies on Cori KNL in Fig.~\ref{Fig:KNLScaling} showing good strong scaling
+efficiency up to 10,000 KNL cores for a moderately sized domain of $512^3$
+lattice sites. In Fig.~\ref{Fig:GPUScaling} we show excellent strong scaling on
+the Cori GPU system using up to 96 GPUs for moderate and larger ($1024^3$)
+domains.  We currently perform well on the Cori KNL platform and are already
+poised to take full advantage of GPUs at NERSC once the Perlmutter system comes
+online.
 
 \note{Message: you give us time on your system and we will use it efficiently.}
+
+\MarginPar{undecided about including a sentence about I/O, maybe it's worth
+pointing out that we can use the Cray parallel HDF5 module on Cori in addition
+to the native AMReX format, but I/O timing measurements would really help make
+that point, we don't have those yet...}
+
 %
 %\vspace{-3mm}
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.6\textwidth]{./AMReX_Complex_Langevin_Cori_KNL_Scaling.png}
-\caption{\label{Fig:KNLScaling} Scaling for AMReX Complex Langevin on Knights Landing CPUs.\vspace{-3mm}}
+\caption{\label{Fig:KNLScaling} Strong scaling for AMReX Complex Langevin on Knights Landing accelerators. These runs were performed with box sizes of $32^3$, 4 MPI tasks per node, and 16 OpenMP threads/MPI task.\vspace{-3mm}}
 \end{figure}
 %\vspace{-3mm}
 %
-Scaling results on GPUs on Cori for this code are shown in Fig.~\ref{Fig:GPUScaling}. 
+
 %
 %\vspace{-3mm}
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.6\textwidth]{./AMReX_Complex_Langevin_Cori_GPU_Scaling.png}
-\caption{\label{Fig:GPUScaling} Scaling for AMReX Complex Langevin on GPUs.\vspace{-3mm}}
+	\caption{\label{Fig:GPUScaling} Strong scaling for AMReX Complex Langevin on NVIDIA Tesla V100 GPUs. These runs were performed with box sizes of $32^3$ and $128^3$ for the $512^3$ and $1024^3$ domains, respectively, using 1 MPI task per GPU and no logical tiling. For the run labeled ``O-10'' we calculate observables every 10 Langevin steps, otherwise we turn off observables to measure performance for the Langevin advance alone.\vspace{-3mm}}
 \end{figure}
 %\vspace{-3mm}
 %
