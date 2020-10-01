@@ -1,4 +1,4 @@
-\documentclass[onecolumn, 12pt]{report}
+\documentclass[onecolumn, 12pt]{article}
 \usepackage{hyperref,mathtools,amssymb}
 \usepackage{cite}
 \usepackage{graphicx}
@@ -11,7 +11,8 @@
 \author{Casey Berger, Don Willcox}
 \date{\today}
 
-\newcommand{\note}[1]{{\color{red} \bf[NOTE: #1]}}
+\newcommand{\casey}[1]{{\color{green} \bf[CB: #1]}}
+\newcommand{\don}[1]{{\color{blue} \bf[DW: #1]}}
 \newcommand{\etal}{{\it et al.}}
 \newcommand{\beq}{\begin{equation}}
 \newcommand{\eeq}{\end{equation}}
@@ -35,23 +36,18 @@
 \section{Project Description}
 TO DO
 \begin{itemize} 
-	\item Add references
-	\item Fill in all notes
+	\item \casey{Add references}
+	\item \casey{Fill in all notes}
+	\item \don{Oh, I forgot! Also we'll need to estimate our archival storage requirements, similarly to the time request, by estimating the total size of plotfile data all of the simulations will produce.}
 \end{itemize}
+\subsection{Goals of the project}
+This project aims to calculate properties of a rotating bosonic superfluid. Experimental study of superfluids under rotation have revealed the onset of quantized vortices with increasing rotational frequency, an example of macroscopic quantum behavior. Theoretical treatment of these systems struggles due to the presence of the ``sign problem," a challenge which plagues the study of many interesting quantum many-body systems. This project applies a method well-known in the community of lattice gauge theory, known as complex Langevin (CL), to circumvent the sign problem in the numerical study of a system of rotating, trapped, and interacting nonrelativistic bosons. 
 
-\note{Add big picture paragraph:
+I have developed and previously tested a code using CL to measure certain properties of this system. A sign problem emerges immediately in the formulation of the system with complex scalar fields, and CL has been shown to correctly reproduce known analytical solutions for simple versions of the system, i.e. with no rotation, external trap, or interaction. Early work on this system with the additional features of rotation, trapping, and interaction have demonstrated the need to progress to significantly larger lattices in order to resolve the behavior of the rotating fluid on the lattice. Ultimately, we wish to produce calculations of quantized angular momentum and the density profiles of vortex formation in the fluid.
 
-This project aims to...
+To progress to the full system, it's essential to increase the computational resources in order to resolve much larger lattices. Scaling studies have been performed and tests have been done to elucidate the computational needs of this problem, and we request 30Mhr from NERSC in 2021 in order to study the formation of vortices under rotation and calculate quantities previously not accessible to computational studies, such as the moment of inertia. We expect this work to result in multiple papers, as the application of this method to low-energy bosonic systems has been minimally studied in the past, and this work will result in insights into both the method and the system itself.
 
-The CL method allows us to overcome difficulties by
 
-I have developed and previously tested a code to do this
-
-Add plan for publishing: series of papers. Add a few sentences on what you've done so far and what remains to be done.
-
-Scaling studies have been performed and tests have been done to elucidate the computational needs of this problem. We request 30Mh from NERSC in 2021 in order to complete this calculation.}
-
-\MarginPar{Oh, I forgot! Also we'll need to estimate our archival storage requirements, similarly to the time request, by estimating the total size of plotfile data all of the simulations will produce.}
 
 \subsection{Motivation}
 Quantum many-body systems are foundational to a huge range of physical scenarios, from very small scales to very large ones. The implications of improving our theoretical understanding of these systems include advancing the development of novel quantum materials, shedding light on the relationship between the nuclear interaction and atomic stability, and help us see more clearly into the first moments of the universe. Unfortunately, very few of these systems are accessible using analytical methods, and those which can be calculated computationally often have limitations that prevent us from exploring some of the most interesting regimes. This system which this project intends to study is that of the rotating bosonic superfluid. Understanding rotating bosons can shed light on a range of physical systems, from rotating nuclei to pulsars. Experiments using ultracold atomic gases confined with optical traps and stirred with a magnetic field have studied these systems in depth and have revealed much about the behavior of rotating bosonic systems, including the spontaneous formation of vortices. Unfortunately, these behaviors do not yet have a full theoretical description.
@@ -62,8 +58,8 @@ However, the computational intensity of many quantum problems scales exponential
 
 This challenge requires innovative methods, rather than straightforward increases in hardware. Exact solutions to the many-body Schr\"{o}dinger equation require more computational resources than exist, and so creative and intelligent alternatives must be developed. The method this project uses is known as the Complex Langevin (CL) method, and allows for a numerical evaluation of the path integral without sampling from a probability distribution, thereby circumventing the sign problem present in QMC treatments of these systems. 
 
-
-\section{The physical system and the algorithm: complex Langevin and AMReX}
+\section{Computational Considerations}
+\subsection{The physical system and the algorithm: complex Langevin and AMReX}
 Rotating bosonic systems can be described using the path-integral formulation:
 %
 \beq
@@ -83,7 +79,7 @@ Complex Langevin is a stochastic method for treating field-theoretical models wi
 The complex Langevin method complexifies the fields, $\phi$, and evolves the complexified components of the fields according to a set of coupled stochastic differential equations, which include a drift function derived from the action of the system and a gaussian-distributed noise term to satisfy the stochastic properties. 
 
 %
-\note{Add a very loose, schematic description of the discretization and the process which leads to the algorithm}
+%\casey{Add a very loose, schematic description of the discretization and the process which leads to the algorithm}
 %
 
 From these complexified field components, quantities of interest (``observables") can be calculated and saved. The algorithm for a numerical study of rotating bosons with CL is shown in Fig.~\ref{Fig:Algorithm}.
@@ -96,58 +92,24 @@ From these complexified field components, quantities of interest (``observables"
 \end{figure}
 %\vspace{-3mm}
 %
-The field components are defined on a euclidean spacetime lattice, and the evolution is performed for hundreds of thousands of steps in Langevin time in order to generate enough samples to calculate observables with good statistical properties. The code for this project is written in C++ and utilizes the AMReX framework. The adaptive mesh framework in AMReX will allow us to use a nonuniform mesh to calculate the field values, which enables more efficient use of computing resources. As the lattice size grows, we concentrate our resolution in the center of the lattice, where the interesting physics will be confined due to the presence of the harmonic traps, which reduce the presence of the fields rapidly to zero outside a narrow region in the center of the trap.
+The field components are defined on a euclidean spacetime lattice, where our time dimension $\tau = i t$ corresponds to the inverse temperature of the system, and the evolution is performed for hundreds of thousands of steps in Langevin time in order to generate enough samples to calculate observables with good statistical properties. The code for this project is written in C++ and utilizes the AMReX framework. The adaptive mesh framework in AMReX will allow us to use a nonuniform mesh to calculate the field values, which enables more efficient use of computing resources. As the lattice size grows, we concentrate our resolution in the center of the lattice, where the interesting physics will be confined due to the presence of the harmonic traps, which reduce the presence of the fields rapidly to zero outside a narrow region in the center of the trap.
 
-In order to explore the regions of interest, we must run this calculation on very large lattices, which requires large amounts of computational power. \note{add a few lines about computational limitations}
+In order to explore the regions of interest, we must run this calculation on very large lattices, which requires large amounts of computational power. The presence of a harmonic trap in a finite lattice introduces a length scale in addition to the lattice spacing. The introduction of this new length scale requires that the lattice increase in size in order to resolve the harmonic oscillator wavelength. Adding a repulsive contact interaction further increases the required size of the lattice, as the interaction will increase the spread the density of the bosonic particles. Finally, when rotation is induced, the centrifugal force of the rotation will push the particles further out. These considerations require a larger spatial lattice in order to manage the balance between these physical parameters. Furthermore, to observe the truly quantum behavior of vortex formation, we require that the system be at a very low temperature, which is determined by the extent of the temporal lattice. As a result, the previous work on this system was limited by lack of access to the sort of high performance computing resources available at NERSC. Early testing of this system utilizing AMReX on Cori are very promising, and are discussed further in Section~\ref{scaling}.
 
 \subsection{Connection to DOE Office of Science}
 Previous work on this topic has been supported by the Department of Energy Computational Science Graduate Fellowship. Current work is supported under a grant from the Exascale Computing Project (ECP) for Application Development for Lattice Gauge Theory. This work is similar to the work supported by ECP, but is more exploratory work for applications of this method to other systems of interest.
 
-\section{Scaling and Performance}
+\subsection{\label{scaling}Scaling and Performance}
 
-This code uses AMReX, a high-performance AMR library developed at LBNL and
-funded as an ECP Co-Design Center. We use AMReX data structures to discretize
-the spacetime lattice upon which the fields are defined, distribute the lattice
-across MPI, and implement local parallelism for CPU, KNL, or GPU-based
-platforms while maintaining performance portability.
+This code uses AMReX, a high-performance AMR library developed at LBNL and funded as an ECP Co-Design Center. We use AMReX data structures to discretize the spacetime lattice upon which the fields are defined, distribute the lattice across MPI, and implement local parallelism for CPU, KNL, or GPU-based platforms while maintaining performance portability. 
 
-While each step in Langevin time must be performed sequentially, the spacetime
-lattice can be updated at each of these Langevin steps in a naively parallel
-fashion. We divide the lattice into boxes (or grids) distributed across MPI
-ranks, so to advance the solution we first fill ghost cells throughout the
-domain to support the nearest neighbor sums that appear in the drift function.
-Next, we perform the drift function calculations and Langevin update - these
-are entirely local operations for each MPI rank. We parallelize this local work
-using OpenMP with logical tiling for CPUs or KNL to maintain cache efficiency.
-Alternately, when running on GPUs, we transparently launch CUDA kernels and
-disable logical tiling to ensure maximum kernel occupancy.
+While each step in Langevin time must be performed sequentially, the spacetime lattice can be updated at each of these Langevin steps in a naively parallel fashion. We divide the lattice into boxes (or grids) distributed across MPI ranks, so to advance the solution we first fill ghost cells throughout the domain to support the nearest neighbor sums that appear in the drift function. Next, we perform the drift function calculations and Langevin update - these are entirely local operations for each MPI rank. We parallelize this local work using OpenMP with logical tiling for CPUs or KNL to maintain cache efficiency. Alternately, when running on GPUs, we transparently launch CUDA kernels and disable logical tiling to ensure maximum kernel occupancy.
 
-We also efficiently calculate observables at runtime, which requires summing
-terms across the entire lattice for density, field modulus, circulation, and
-other quantities of interest. On each MPI rank, the observables are first
-calculated for local grids via OpenMP sum reductions (or using CUDA atomics for
-GPUs). We then combine partial sums across the lattice using all-to-one MPI
-reductions. In Fig.~\ref{Fig:GPUScaling} we compare strong scaling curves on
-the Cori GPU development system for a $1024^3$ lattice for a run without
-observables (orange) and a run where we calculate observables every 10 Langevin
-steps (blue). We demonstrate that although the additional computation and
-communication for observables requires about twice as much walltime, our
-reduction strategy yields nearly ideal strong scaling efficiency.
+We also efficiently calculate observables at runtime, which requires summing terms across the entire lattice for density, field modulus, circulation, and other quantities of interest. On each MPI rank, the observables are first calculated for local grids via OpenMP sum reductions (or using CUDA atomics for GPUs). We then combine partial sums across the lattice using all-to-one MPI reductions. In Fig.~\ref{Fig:GPUScaling} we compare strong scaling curves on the Cori GPU development system for a $1024^3$ lattice for a run without observables (orange) and a run where we calculate observables every 10 Langevin steps (blue). We demonstrate that although the additional computation and communication for observables requires about twice as much walltime, our reduction strategy yields nearly ideal strong scaling efficiency.
 
-Our parallel implementation uses AMReX abstractions developed for performance
-portability on heterogeneous architectures. We have developed and tested it on
-the NERSC Cori KNL nodes and Cori GPU development platform. We present scaling
-studies on Cori KNL in Fig.~\ref{Fig:KNLScaling} showing good strong scaling
-efficiency up to 10,000 KNL cores for a moderately sized domain of $512^3$
-lattice sites. In Fig.~\ref{Fig:GPUScaling} we show excellent strong scaling on
-the Cori GPU system using up to 96 GPUs for moderate and larger ($1024^3$)
-domains.  We currently perform well on the Cori KNL platform and are already
-poised to take full advantage of GPUs at NERSC once the Perlmutter system comes
-online.
+Our parallel implementation uses AMReX abstractions developed for performance portability on heterogeneous architectures. We have developed and tested it on the NERSC Cori KNL nodes and Cori GPU development platform. We present scaling studies on Cori KNL in Fig.~\ref{Fig:KNLScaling} showing good strong scaling efficiency up to 10,000 KNL cores for a moderately sized domain of $512^3$ lattice sites. In Fig.~\ref{Fig:GPUScaling} we show excellent strong scaling on the Cori GPU system using up to 96 GPUs for moderate and larger ($1024^3$) domains.  We currently perform well on the Cori KNL platform and are already poised to take full advantage of GPUs at NERSC once the Perlmutter system comes online.
 
-\note{Message: you give us time on your system and we will use it efficiently.}
-
-\MarginPar{undecided about including a sentence about I/O, maybe it's worth
+\don{undecided about including a sentence about I/O, maybe it's worth
 pointing out that we can use the Cray parallel HDF5 module on Cori in addition
 to the native AMReX format, but I/O timing measurements would really help make
 that point, we don't have those yet...}
@@ -172,10 +134,9 @@ that point, we don't have those yet...}
 %\vspace{-3mm}
 %
 
+Initially, some further testing will need to be done on these larger lattices in order to determine the correct balance of trapping frequency, lattice size, rotation frequency, and interaction strengths. Once these parameter values are set, we will need to collect on the order of one hundred data points on each lattice (varying the chemical potential and the rotation frequency), where each data point is collected by performing a Langevin evolution of $10^{6}$ steps on a full $N_{x} \times N_{x} \times N_{\tau}$ lattice. We also wish to extend our time domain and examine the effect of decreasing the temperature on the formation of vortices, which will include a run at a fixed set of parameters for multiple lattices of varying temporal extent. Ultimately, we expect to need around 30 Mhr to complete this study with rigor.
 
-\note{Describe what sort of data you will need to take. Relate your time estimates}
-
-\note{I will need to do some testing on these larger lattices in order to determine the correct balance of trapping frequency, lattice size, and interaction strengths. Once these parameter values are set, we will need to collect on the order of 100 data points on each lattice (varying the chemical potential and the rotation frequency). We also wish to extend our time domain and examine the effect of decreasing the temperature on the formation of vortices.}
-
-
+\bibliography{ERCAPbib}{}
+%\bibliographystyle{ieeetr}
+\bibliographystyle{plain}
 \end{document}
