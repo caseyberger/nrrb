@@ -1,0 +1,57 @@
+# Physical Input Parameters
+nrrb.m = 1.0
+nrrb.l = 0.1
+nrrb.w = 0.1
+nrrb.w_t = 0.1
+nrrb.dtau = 0.0001
+nrrb.mu = -0.1
+nrrb.eps = 0.01
+
+# Circulation observable radii in units of lattice sites
+nrrb.circulation_radius_1 = 16
+nrrb.circulation_radius_2 = 64
+
+# Domain Size and Grid Decomposition
+# Note this isn't evenly divisible by 2 in X, Y
+# But this code requires an odd number of lattice
+# sites in X, Y so the center lies on a lattice site.
+n_cell = 511 511 512
+max_grid_size = 32
+
+# Do not set Fab tile size (default is 1024000 x 8 x 8 for 3D)
+# since this inputs has max_grid_size = 32,
+# using 8 x 8 tiles means e.g., an 32 x 32 x 32 grid will
+# be tiled into 16 tiles of 32 x 8 x 8 so there will be work
+# for 16 OpenMP threads even if that 32 x 32 x 32 grid is the only
+# grid owned by an MPI rank.
+# fabarray.mfiter_tile_size = 1024000 4 4
+
+# Periodicity and Domain Boundary Conditions
+#
+# For a given dimension, if is_periodic[i] = 1,
+# then the lo/hi BC type should be BCType::int_dir.
+#
+# Here are the supported boundary conditions in AMReX:
+# BCType::reflect_odd  = -1
+# BCType::int_dir      =  0
+# BCType::reflect_even =  1
+# BCType::foextrap     =  2
+# BCType::ext_dir      =  3
+# BCType::hoextrap     =  4
+is_periodic = 0 0 1 # Non-periodic in space, periodic in time
+domain_lo_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic) in time
+domain_hi_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic) in time
+
+# Stopping criteria
+nsteps = 1000
+
+# I/O
+# Frequency for computing observables
+autocorrelation_step = 1000000
+observable_log_file = "observables.log"
+
+# Turn off writing grid plot files for this scaling test
+plot_int = -1
+
+# Debugging
+amrex.fpe_trap_invalid = 1

@@ -1,0 +1,3 @@
+\select@language {english}
+\contentsline {section}{\numberline {1}Python Scripts Used in Analysis}{1}{section.1}
+\contentsline {subsection}{\numberline {1.1}Script to Compute Noninteracting Density and Field Modulus Squared}{1}{subsection.1.1}

@@ -1,0 +1,85 @@
+\documentclass[../../RotatingBosons.tex]{subfiles}
+
+\begin{document}
+\section{\label{AartsDerivations} Derivations for the Aarts Paper}
+\subsection{\label{AartsDensity}The Density using the Lattice Fields}
+The lattice density is defined as follows:
+\bea
+\langle n \rangle &=& \frac{1}{\Omega} \sum_{x} n_{x} \\
+n_{x} & = & \sum_{a,b=1}^{2}\left(\delta_{ab} \sinh \mu - i \epsilon_{ab}\cosh \mu \right) \phi_{a,x}\phi_{b+\hat{4}}  \\
+& =&  \sum_{a,b=1}^{2} \left(\delta_{ab} \sinh \mu - i \epsilon_{ab}\cosh \mu \right)(\phi_{a,x}^{R} \phi_{b,x+\hat{4}}^{R} - \phi_{a,x}^{I}\phi_{b,x+\hat{4}}^{I}  \nonumber \\
+& & + i \left[ \phi_{a,x}^{R}\phi_{b,x+\hat{4}}^{I} +\phi_{a,x}^{I}\phi_{b,x+\hat{4}}^{R}  \right] ). \nonumber
+\eea First, we explicitly compute the sum over $a$ and $b$:
+
+\bea
+n_{x} =& \nonumber  \\
+& \sinh \mu \left(\phi_{1,x}^{R} \phi_{1,x+\hat{4}}^{R} - \phi_{1,x}^{I}\phi_{1,x+\hat{4}}^{I} + i \left[ \phi_{1,x}^{R}\phi_{1,x+\hat{4}}^{I} +\phi_{1,x}^{I}\phi_{1,x+\hat{4}}^{R}  \right] \right) \nonumber \\
+ &  - i \cosh \mu \left( \phi_{1,x}^{R} \phi_{2,x+\hat{4}}^{R} - \phi_{1,x}^{I}\phi_{2,x+\hat{4}}^{I} + i \left[ \phi_{1,x}^{R}\phi_{2,x+\hat{4}}^{I} +\phi_{1,x}^{I}\phi_{2,x+\hat{4}}^{R}  \right] \right)  \\
+ &  +i \cosh \mu \left(\phi_{2,x}^{R} \phi_{1,x+\hat{4}}^{R} - \phi_{2,x}^{I}\phi_{1,x+\hat{4}}^{I}  + i \left[ \phi_{2,x}^{R}\phi_{1,x+\hat{4}}^{I} +\phi_{2,x}^{I}\phi_{1,x+\hat{4}}^{R}  \right] \right) \nonumber \\
+ & + \sinh \mu  \left(\phi_{2,x}^{R} \phi_{2,x+\hat{4}}^{R} - \phi_{2,x}^{I}\phi_{2,x+\hat{4}}^{I} + i \left[ \phi_{2,x}^{R}\phi_{2,x+\hat{4}}^{I} +\phi_{2,x}^{I}\phi_{2,x+\hat{4}}^{R}  \right] \right). \nonumber 
+\eea Now, separating this into real and imaginary parts:
+\bea
+\text{Re}[n_{x} ]&=&  \sinh \mu \left( \phi_{1,x}^{R} \phi_{1,x+\hat{4}}^{R} - \phi_{1,x}^{I}\phi_{1,x+\hat{4}}^{I} + \phi_{2,x}^{R} \phi_{2,x+\hat{4}}^{R} - \phi_{2,x}^{I}\phi_{2,x+\hat{4}}^{I} \right)   \\
+& + & \cosh \mu \left(\phi_{1,x}^{R}\phi_{2,x+\hat{4}}^{I} +\phi_{1,x}^{I}\phi_{2,x+\hat{4}}^{R} - \phi_{2,x}^{R}\phi_{1,x+\hat{4}}^{I} -\phi_{2,x}^{I}\phi_{1,x+\hat{4}}^{R}  \right) \nonumber \\
+\text{Im}[n_{x} ]&=& \sinh \mu \left( \phi_{1,x}^{R}\phi_{1,x+\hat{4}}^{I} +\phi_{1,x}^{I}\phi_{1,x+\hat{4}}^{R} +  \phi_{2,x}^{R}\phi_{2,x+\hat{4}}^{I} +\phi_{2,x}^{I}\phi_{2,x+\hat{4}}^{R} \right ) \\
+&+ &  \cosh \mu \left( \phi_{2,x}^{R} \phi_{1,x+\hat{4}}^{R} - \phi_{2,x}^{I}\phi_{1,x+\hat{4}}^{I} - \phi_{1,x}^{R} \phi_{2,x+\hat{4}}^{R} + \phi_{1,x}^{I}\phi_{2,x+\hat{4}}^{I}  \right) .\nonumber
+\eea This form can be plugged directly into the code to compute the density.
+
+\subsection{Diagonalization of the noninteracting action via Fourier Transformations}
+The noninteracting action can be expressed: 
+\beq
+\label{AppendixphiMphi}
+S = \sum_{x,x',a,a'} \phi_{x,a}^{*}M_{x,a;x'a'}\phi_{x',a'}.
+\eeq The noninteracting lattice action is the following: 
+\beq
+\begin{split}
+S &= \sum_{x} \left[ (2d + m^{2})\phi^{*}_{x}\phi_{x} - \sum_{\nu = 1}^{4}(\phi^{*}_{x} e^{-\mu \delta_{\nu, 4}}\phi_{x + \hat{\nu}} + \phi^{*}_{x+\hat{\nu}} e^{\mu \delta_{\nu, 4}}\phi_{x})\right]\\
+& = \sum_{x,x'}\phi^{*}_{x}\left[(2 d + m^{2}) \delta_{x,x'} - \sum_{j=1}^{d}(\delta_{x,x'-\hat{j}} + \delta_{x,x'+\hat{j}})  - (e^{-\mu} \delta_{x,x'-\hat{4}}+e^{\mu} \delta_{x,x'+\hat{4}})\right]\phi_{x'},\\
+\end{split}
+\eeq which allows us to obtain the matrix, $M$, proposed in equation~\ref{AppendixphiMphi}. This matrix can be expressed:
+\beq
+M[m,d,\mu] =(2 d + m^{2}) \delta_{x,x'} - \sum_{j=1}^{d}(\delta_{x,x'-\hat{j}} + \delta_{x,x'+\hat{j}})  - (e^{-\mu} \delta_{x,x'-\hat{4}}+e^{\mu} \delta_{x,x'+\hat{4}}),
+\eeq which can be diagonalized using a Fourier transformation.
+
+The Fourier transformation is a unitary transformation 
+\beq
+D_{ij} = [U^{\dagger} M U]_{ij}
+\eeq where
+\beq
+\begin{split}
+& U_{xk} = \frac{1}{\sqrt{N_{x}^{d} N_{t}}} exp(i \vec{k}\cdot \vec{x} - i \omega t)\\
+& \vec{x} = L*(x_1,x_2,x_3),\ t= L* x_0\\
+& \vec{k} =\frac{2 \pi}{L N_{x}} (k_1,k_2,k_3),\ \omega =\frac{2 \pi}{L N_{t}}k_0 \\
+&\delta_{x,x'+\hat{4}} = \delta_{x,x'}\delta_{y,y'}\delta_{y,y'}\delta_{t,t'+1}.
+\end{split}
+\eeq
+When these unitary matrices are applied and simplified, we obtain the following diagonal matrix:
+\beq
+\begin{split}
+&D = \frac{1}{N_{x}^{d}N_{t}}\sum_{x}\sum_{x'}e^{- i \vec{k}\cdot\vec{x} + i \omega t}\\
+ &\left((2 d + m^{2}) \delta_{x,x'} - \sum_{j=1}^{d}(\delta_{x,x'-\hat{j}} + \delta_{x,x'+\hat{j}})  - (e^{-\mu} \delta_{x,x'-\hat{4}}+e^{\mu} \delta_{x,x'+\hat{4}})\right)e^{i \vec{k'}\cdot\vec{x'} - i \omega' t'}\\
+& = \frac{1}{N_{x}^{d}N_{t}}\sum_{x}e^{- i \vec{k}\cdot\vec{x} + i \omega t}\left((2 d + m^{2}) - \sum_{j=1}^{d}(e^{i k'_{j}}+e^{-i k'_{j}})  - (e^{-\mu-i\omega'} +e^{\mu+i\omega'})\right)e^{i \vec{k'}\cdot\vec{x} - i \omega' t}\\
+&= \frac{1}{N_{x}^{d}N_{t}}\sum_{x}\left((2 d + m^{2}) - \sum_{j=1}^{d}(e^{i k'_{j}}+e^{-i k'_{j}})  - (e^{-\mu-i\omega'} +e^{\mu+i\omega'})\right)e^{-i \vec{x}\cdot(\vec{k}-\vec{k'}) + i t(\omega - \omega')}\\
+\end{split}
+\eeq
+Recall that $\sum_{j=1}^{N}e^{i(a-a')j} = N\delta_{a,a'}$, so our sum over $x$ collapses and our factors of $N_{x}^{d}N_{t}$ cancel:
+\beq
+D_{k,k'} = \left((2 d + m^{2}) - \sum_{j=1}^{d}(e^{i k'_{j}}+e^{-i k'_{j}})  - (e^{-\mu-i\omega'} +e^{\mu+i\omega'})\right)\delta_{k,k'}
+\eeq
+
+Now that we have this diagonal matrix, we can determine the density and field modulus squared as a function of this density in the following way. First, the density:
+\beq
+\begin{split}
+\left \langle \hat{n} \right \rangle & = \frac{-1}{V}\frac{\partial ln \CZ}{\partial \mu} = \frac{-1}{V}\frac{\partial}{\partial \mu} (-ln(det(M))) \\
+& = \frac{1}{V}\frac{\partial}{\partial \mu}Tr(ln M) = \frac{1}{V}\frac{\partial}{\partial \mu}\sum_{k}ln D_{kk} = \frac{1}{V}\sum_{k}\frac{1}{D_{kk}}\frac{\partial D_{kk}}{\partial \mu}\\
+& = \frac{1}{V}\sum_{k}\frac{1}{D_{kk}}(\cos k^{0} \sinh \mu + i \sin k^{0} \cosh \mu).
+\end{split}
+\eeq And now, the field modulus squared:
+\beq
+\begin{split}
+\left \langle \hat{n} \right \rangle & = \frac{-1}{V}\frac{\partial ln \CZ}{\partial  (m^{2})} = \frac{-1}{V}\frac{\partial}{\partial  (m^{2})} (-ln(det(M))) \\
+& = \frac{1}{V}\frac{\partial}{\partial (m^{2})}Tr(ln M) = \frac{1}{V}\frac{\partial}{\partial  (m^{2})}\sum_{k}ln D_{kk} = \frac{1}{V}\sum_{k}\frac{1}{D_{kk}}\frac{\partial D_{kk}}{\partial  (m^{2})} = \sum_{k}\frac{1}{D_{kk}}.
+\end{split}
+\eeq
+
+\end{document}

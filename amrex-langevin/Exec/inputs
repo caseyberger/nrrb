@@ -39,4 +39,15 @@ domain_hi_bc_types = 3 3 0 # External Dirichlet in space, interior BCs (periodic
 nsteps = 10
 
 # I/O
+
+# plot every "plot_int" steps
 plot_int = 1
+
+# only enable plotting after taking a number of steps set by "plot_after_step"
+plot_after_step = -1
+
+# only enable plotting after advancing to the langevin time set by "plot_after_time"
+plot_after_time = -1.0
+
+# set use_hdf5 = true to write HDF5 plotfiles instead of AMReX-native plotfiles.
+use_hdf5 = false

@@ -26,6 +26,14 @@ void langevin_main()
 
     // AMREX_SPACEDIM: number of dimensions (space + time)
     int max_grid_size, nsteps, plot_int;
+
+    // only plot after taking this many steps
+    int plot_after_step = -1;
+
+    // only plot after this much langevin time has elapsed
+    Real plot_after_time = -1.0;
+
+    // number of lattice sites in each dimension of the domain
     Vector<int> n_cell(AMREX_SPACEDIM, 1);
 
     // Periodicity and Boundary Conditions
@@ -60,15 +68,26 @@ void langevin_main()
         plot_int = -1;
         pp.query("plot_int",plot_int);
 
+        // Only plot after taking this many langevin steps
+        pp.query("plot_after_step", plot_after_step);
+
+        // Only plot after this much langevin time has elapsed
+        pp.query("plot_after_time", plot_after_time);
+
+        // Use HDF5 for writing plotfiles?
+        pp.query("use_hdf5", nrrb_parm.use_hdf5);
+
         // Default nsteps to 10, allow us to set it to something else in the inputs file
         nsteps = 10;
         pp.query("nsteps",nsteps);
         pp.query("autocorrelation_step", autocorrelation_step);
 
+        // Periodicity and boundary conditions
         pp.queryarr("is_periodic", is_periodic);
         pp.queryarr("domain_lo_bc_types", domain_lo_bc_types);
         pp.queryarr("domain_hi_bc_types", domain_hi_bc_types);
 
+        // Problem-specific parameters
         ParmParse pp_nrrb("nrrb");
         pp_nrrb.get("m", nrrb_parm.m);
         pp_nrrb.get("l", nrrb_parm.l);
@@ -84,7 +103,7 @@ void langevin_main()
         pp_nrrb.query("seed_init", nrrb_parm.seed_init);
         pp_nrrb.query("seed_run", nrrb_parm.seed_run);
 
-        // problem type: 0 = default, 1 = fixed phase for circulation testing
+        // Problem type: 0 = default, 1 = fixed phase for circulation testing
         pp_nrrb.query("problem_type", nrrb_parm.problem_type);
     }
 
@@ -185,7 +204,7 @@ void langevin_main()
     // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
     if (plot_int > 0)
     {
-        WritePlotfile(0, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom);
+        WritePlotfile(0, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom, nrrb_parm);
     }
 
     // init_time is the current time post-initialization
@@ -242,10 +261,12 @@ void langevin_main()
         // Tell the I/O Processor to write out which step we're doing
         amrex::Print() << "Advanced step " << n << "\n";
 
-        // Write a plotfile of the current data (plot_int was defined in the inputs file)
-        if (plot_int > 0 && n % plot_int == 0)
+        // Write a plotfile of the current data every plot_int depending on the optional
+        // step or time where we turn on plotting.
+        if (plot_int > 0 && n % plot_int == 0 &&
+            n >= plot_after_step && Ltime >= plot_after_time)
         {
-            WritePlotfile(n, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom);
+            WritePlotfile(n, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom, nrrb_parm);
         }
 
         // Update the figure of merit with the number of cells advanced
