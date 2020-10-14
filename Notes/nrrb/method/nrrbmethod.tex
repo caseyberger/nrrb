@@ -9,7 +9,7 @@ For rotation, we need at least $2+1$ dimensions. I will derive all equations for
 Our path integral for the system is 
 %
 \beq
-\CZ = \int \dif \phi e^{-S[\phi]}
+\CZ = \int \CD \phi e^{-S[\phi]}
 \eeq
 %
 where our action is defined in the next section.
@@ -30,7 +30,7 @@ where $\CH = \partial_{\tau} - \frac{\del^{2}}{2m} $ and $\lambda$ represents a 
 
 To take this to a lattice representation, we must discretize the space. The origin becomes the center of the lattice, and therefore $x$ and $y$ are measured relative to the point $(N_{x}/2, N_{x}/2)$ on the lattice.
 
-Using a backward-difference derivative and denoting the position on the $2+1$ dimensional lattice as $r$, we define: $\partial_{j}\phi = \frac{1}{a}(\phi_{r-\hat{j}} - \phi_{r})$ and $\partial_{j}^{2}\phi = \frac{1}{a^{2}}(\phi_{r-\hat{j}} - 2\phi_{r}+\phi_{r-\hat{j}})$. We combine $\partial_{\tau} - \mu$ in the lattice representation and similarly represent the angular momentum, interaction, and external trap as external gauge fields in order to avoid divergences in the continuum limit (see Appendix~\ref{NRAction} for details and justification of these steps). Finally, using spatial lattice site separation $a = 1$ and temporal lattice spacing $d\tau$, our lattice action becomes (sum over $r = (x,y,\tau)$ implied):
+Using a backward-difference derivative and denoting the position on the $2+1$ dimensional lattice as $r$, we define: $\partial_{j}\phi = \frac{1}{a}(\phi_{r-\hat{j}} - \phi_{r})$ and $\partial_{j}^{2}\phi = \frac{1}{a^{2}}(\phi_{r-\hat{j}} - 2\phi_{r}+\phi_{r-\hat{j}})$. We combine $\partial_{\tau} - \mu$ in the lattice representation and similarly represent the angular momentum, interaction, and external trap as external gauge fields in order to avoid divergences in the continuum limit (see Appendix~\ref{NRAction} for details and justification of these steps). Finally, using spatial lattice site separation $a = 1$ and temporal lattice spacing $d\tau$, and after scaling our parameters to be dimensionless lattice parameters (again, see Appendix~\ref{NRAction}), our lattice action becomes (sum over $r = (x,y,\tau)$ implied):
 %
 \bea
 S_{\text{lat}} &=& \sum_{\vec{x},\tau}a^{d} \left[ \phi_{r}^{*}\phi_{r} -e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(\phi_{r}^{*}\phi_{r - \hat{j}} - 2 \phi_{r}^{*}\phi_{r} + \phi_{r}^{*}\phi_{r + \hat{j}}\right)- \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right. \nonumber \\
@@ -42,27 +42,20 @@ Note that for $d < 2$, we omit the rotational term, as it requires at least two 
 To simplify our future work, let's write $S$ as a sum of the different contributions to the action:
 %
 \beq
-S = \sum_{r}(S_{\mu, r}+d\tau S_{\del, r} - d\tau S_{tr, r} - d\tau S_{\omega, r}+ d\tau S_{\text{int}, r})
+S_{\text{lat}} = \left(S_{\mu} + S_{\del} - S_{\text{trap}} - S_{\omega} + S_{\text{int}}\right)
 \eeq
 %
-with 
+with
 %
 \bea
-S_{\mu, r} & = & \phi^{*}_{r}\phi_{r}- \phi^{*}_{r}e^{d \tau \mu} \phi_{r - \hat{\tau}} \\
-S_{\del, r} & = & \frac{d}{m} \phi^{*}_{r}\phi_{r} - \frac{1}{2m}\sum_{i =1}^{d}\phi^{*}_{r} \left(\phi_{r+\hat{i}}+\phi_{r-\hat{i}} \right) \\
-S_{tr,r} & =& \frac{m}{2}\omega_{\text{trap}}^{2}(x^{2}+y^{2})\phi_{r}^{*}\phi_{r-\hat{\tau}}  \\
-S_{\omega, r} & = &  i \omega_{z} \left[ (x-y)\phi_{r}^{*}  \phi_{r-\hat{\tau}} - x \phi_{r}^{*} \phi_{r-\hat{y}-\hat{\tau}} + y \phi_{r}^{*}  \phi_{r-\hat{x}-\hat{\tau}} \right] \\
-S_{\text{int}, r}  & = & \lambda \left(\phi_{r}^{*} \phi_{r-\hat{\tau}}\right)^{2}.
-\eea
+S_{\mu,r} & =& \sum_{\vec{x},\tau}a^{d}\left(\phi_{r}^{*}\phi_{r} -e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)\\
+S_{\del,r}& =&\sum_{\vec{x},\tau}a^{d}\left( \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(2 \phi_{r}^{*}\phi_{r}  - \phi_{r}^{*}\phi_{r - \hat{j}} - \phi_{r}^{*}\phi_{r + \hat{j}}\right)\right)\\
+S_{\text{trap},r} & =&\sum_{\vec{x},\tau}a^{d}\left( \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} \right)\\
+S_{\omega,r} &  = &  \sum_{\vec{x},\tau}a^{d}\left( i \bar{\omega}_{z} \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\right)\\
+S_{\text{int},r}& =& \sum_{\vec{x},\tau}a^{d}\left( \bar{\lambda}\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}\right).
+\eea 
 %
-where $x$ and $y$ are measured relative to the center of the trap:
-%
-\bea
-x &=& a\left( n_{x}-\frac{N_{x}-1}{2} \right)\nonumber \\
-y &=& a\left(n_{y}-\frac{N_{x}-1}{2}\right),\nonumber 
-\eea
-%
-And we number lattice sites from $0$ to $N_{x}-1$. From here on, we will be working with these individual contributions to the action.
+From here on, we will be working with these individual contributions to the action.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -114,7 +107,7 @@ The derivation of the Langevin equations is worked out in Appendix~\ref{NRRBCLM}
 %
 This evolution is repeated until we have evolved for a long period in Langevin time (determined by the observation of thermalization followed by enough steps to produce good statistical error). Observables of interest can be calculated as functions of the fields at each point in Langevin time and averaged to find the expectation value.
 
-\section{Observables}
+\section{NOT UPDATED YET: Observables}
 \subsection{Observables averaged over the volume}
 The observables of interest in this simulation are the density $\langle \hat{n} \rangle$, the field modulus $\langle \phi^{2}\phi \rangle$, the angular momentum $\langle \hat{L}_{z}\rangle$, the moment of inertia $\langle \hat{I}_{z}\rangle$,the energy $\langle \hat{E} \rangle$, and the circulation of the fields around the center of the lattice. 
 

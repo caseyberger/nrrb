@@ -1,0 +1,244 @@
+\documentclass[../../RotatingBosons.tex]{subfiles}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% OBSERVABLES %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{\label{NRRBObservables}NOT UPDATED YET:Lattice Observables}
+The observables we are interested in calculating are:
+\begin{itemize}
+	\item particle density (local and average density)
+	\item angular momentum
+	\item field modulus squared
+	\item harmonic trapping potential energy
+	\item interaction potential energy
+	\item kinetic energy
+	\item total energy
+	\item circulation
+\end{itemize}
+Most of our observables can be determined by taking appropriate derivatives of $\ln \CZ$, with the exception of the field modulus squared and the circulation. The general form for this argument is shown below. 
+
+We have a partition function, $\CZ$, %which in its discretized form is a product over all field configurations, $\phi_{i}$:
+%
+%\beq
+%\CZ = \prod_{\phi_{i}}e^{-S_{lat}[\phi_{i}]},
+%\eeq
+%
+%whose log is a sum over all field configurations:
+%
+%\beq
+%\ln \CZ = - \sum_{\phi_{i}} S_{lat}[\phi_{i}]
+%\eeq
+%
+\beq
+\CZ = \int \CD \phi e^{-S[\phi]}
+\eeq
+%
+Observables are calculated via a path integral as well, where the integrand includes the observable as a function of the fields, weighted by $e^{-S}$:
+%
+\beq
+\langle \CO \rangle =\frac{1}{\CZ} \int \CD \phi \CO[\phi]e^{-S[\phi]}
+\eeq
+%
+If we take a derivative of the log of $\CZ$ with respect to some parameter $\alpha$, we get something that looks very similar to this expression:
+%
+\beq
+\frac{\partial \ln \CZ}{\partial \alpha} = \frac{1}{\CZ}\frac{\partial \CZ}{\partial \alpha} = \frac{1}{\CZ}\int \CD \phi ( -\frac{\partial S[\phi,\alpha]}{\partial \alpha} ) e^{-S[\phi,\alpha]}
+\eeq
+%
+which suggests that we can compute observables by taking derivatives of the action
+%
+\beq
+\hat{\CO}_{\alpha} = - \frac{\partial}{\partial \alpha} S[\phi, \alpha]
+\eeq
+%
+In our statistical simulation, we seek to compute average values of these observables, weighted by $e^{-S}$. The complex Langevin simulation ensures that our samples are distributed according to the proper weight, so we are able to perform a simple average of the observables after the simulation has thermalized.
+
+*where does the beta come in? Or do we just need to take derivatives wrt our lattice parameters (e.g. $\bar{\mu}$ instead of $\mu$)?
+
+
+
+\subsection{Density}
+To calculate the density, first we need to determine the total number of particles in the system. We can do this by taking a derivative of the lattice action with respect to the chemical potential. Since the only part of the lattice action that depends on $\bar{\mu}$ is $S_{\mu}$, we can ignore the rest of the action:
+%
+\bea
+\hat{N}[\phi_{i}] &=& - \frac{\partial}{\partial \bar{\mu}} S_{lat} = - \frac{\partial}{\partial \bar{\mu}} S_{\mu}  = - \frac{\partial}{\partial \bar{\mu}} \sum_{\vec{x},\tau}a^{d}\left(\phi_{r}^{*}\phi_{r} -e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right) \nonumber \\
+&=& \sum_{\vec{x},\tau}a^{d}\left(e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right).
+\eea
+%
+This can be written in terms of $S_{\mu}$:
+%
+\beq
+\hat{N}[\phi_{i}] =  \sum_{\vec{x},\tau}a^{d}\phi_{r}^{*}\phi_{r} -S_{\mu} 
+\eeq
+%
+To determine the density, we simply normalize the particle number by the spatial lattice volume:
+%
+\beq
+\hat{n}[\phi_{i}] =  \frac{1}{(a N_{x})^{d}} \hat{N}[\phi_{i}]
+\eeq
+%
+\subsection{Local Density}
+The local density is simply the density function without the sum over the lattice. Since we are concerned with spatial density, we can either average our results over the extent of the time lattice
+%
+\beq
+\hat{n}_{r}[\phi_{i},\vec{x}] =  \frac{1}{N_{\tau}(a N_{x})^{d}} \sum_{\tau} a^{d}\left(e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)
+\eeq
+%
+or take the density profile of a single time slice:
+%
+\beq
+\hat{n}_{r}[\phi_{i},\vec{x},\tau] =  \frac{1}{(a N_{x})^{d}} a^{d}\left(e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)
+\eeq
+%
+
+\subsection{Field Modulus Squared}
+The field modulus squared is simply a measure of the magnitude of the complex field, $\phi$. This can be written straightforwardly as
+%
+\beq
+\phi^{*}\phi = \sum_{\vec{x},\tau} a^{d} d\tau \phi^{*}_{r,\tau}\phi_{r,\tau}
+\eeq
+%
+
+\subsection{Angular Momentum}
+We can compute the angular momentum by taking a derivative of the lattice action with respect to the rotation frequency. Since the only part of the lattice action that depends on $\bar{\omega}_{z}$ is $S_{\omega}$, we can ignore the rest of the action:
+%
+\bea
+\hat{L_{z}}[\phi_{i}] &=& - \frac{\partial}{\partial \bar{\omega}_{z}} S_{lat} = - \frac{\partial}{\partial \bar{\omega}_{z}} S_{\omega}  \nonumber \\
+%
+&=& - \frac{\partial}{\partial \bar{\omega}_{z}}  \sum_{\vec{x},\tau} a^{d} \left( i \bar{\omega}_{z} \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\right) \nonumber \\
+%
+&=&-  \sum_{\vec{x},\tau} a^{d} \left( i  \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\right) 
+\eea
+%
+This can be written in terms of $S_{\omega}$:
+%
+\beq
+\hat{L_{z}}[\phi_{i}] = - \frac{1}{\bar{\omega}_{z}} S_{\omega}
+\eeq
+%
+
+
+\subsection{Harmonic Trapping Potential Energy}
+
+\subsection{Interaction Potential Energy}
+
+\subsection{Kinetic Energy}
+
+\subsection{Total Energy}
+
+\subsection{Action}
+
+\subsection{NOT DONE YET Circulation}
+The circulation is defined as
+\bea
+\Gamma[l] &=& \frac{1}{2 \pi}\oint_{l \times l}dx \left(\theta_{t,x+j} - \theta_{t,x}\right) \\
+\theta_{t,x} &=& \tan^{-1}\left(\frac{\text{Im}[\phi_{t,x}]}{\text{Re}[\phi_{t,x}]} \right).
+\eea
+Given that our field, $\phi$, is broken into 4 components ($\phi_{1/2}^{R/I}$, we need to rewrite this quantity in terms of those components:
+\bea
+\phi &=& \frac{1}{\sqrt{2}}\left(\phi_{1}^{R} + i \phi_{1}^{I} + i \phi_{2}^{R} - \phi_{2}^{I}\right)\\
+\text{Re}[\phi_{t,x}] & =& \frac{1}{\sqrt{2}}\left(\phi_{1,t,x}^{R} - \phi_{2,t,x}^{I}\right)\\
+\text{Im}[\phi_{t,x}] & = & \frac{1}{\sqrt{2}}\left(\phi_{1,t,x}^{I} + \phi_{2,t,x}^{R} \right)\\
+\theta_{t,x} &=& \tan^{-1}\left(\frac{\phi_{1,t,x}^{I} + \phi_{2,t,x}^{R}}{\phi_{1,t,x}^{R} - \phi_{2,t,x}^{I}} \right).
+\eea
+Therefore, our circulation is a sum computed around a loop on the lattice of length $l$ in each direction:
+\beq
+\Gamma[l] = \frac{1}{2 \pi}\sum_{l \times l}\left(\theta_{t,x+j} - \theta_{t,x}\right) \\
+\eeq
+where $\theta_{t,x+j}$ is computed at the next site on the loop from $\theta_{t,x}$ for each point along the loop.
+
+
+\subsection{Average Energy}
+The expectation value of the density is defined as
+\beq
+\langle E \rangle = \frac{-\partial \ln \CZ}{\partial \beta}= \frac{-\partial \ln (e^{-S})}{\partial \beta} = \frac{\partial S}{\partial \beta}.
+\eeq
+Since we have written the action in terms of $\beta$ as 
+%
+\beq
+S \rightarrow \frac{1}{N_{\tau}}\sum_{x,\tau}\Delta x^{d}\beta \left[\left(\partial_{\tau}  - \frac{1}{2m}\del^{2} - \mu- i \omega_{z}(x \partial_{y} - y \partial_{x})  - \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \right)\phi + \lambda (\phi^{*}\phi)^{2}\right].
+\eeq 
+%
+We can see that the action is linear in $\beta$. Therefore, we can simply calculate the energy in the following way:
+\beq
+\langle E \rangle = \frac{S}{ \beta}
+\eeq
+
+
+\section{\label{SecondComplexification} NOT UPDATED YET: Complexifying the Real Fields}
+
+Now we take our real fields, $\phi_{a}$, where $a = 1,2$, and rewrite them as two complex fields: $\phi_{a} = \phi_{a}^{R} + i \phi_{a}^{I}$
+
+The time derivative and chemical potential piece, $S_{\mu,r}$ becomes:
+\bea
+S_{\mu, r}^{R} & \rightarrow & \frac{1}{2}\sum_{a=1}^{2}\left( (\phi_{a,r}^{R})^{2}-(\phi_{a,r}^{I})^{2} -e^{d\tau\mu} \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} + e^{d\tau\mu}\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\right) \\
+& & + \frac{1}{2}\sum_{a,b=1}^{2}\epsilon_{ab}\left(e^{d\tau\mu}\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I}+e^{d\tau\mu}\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} \right) \nonumber \\
+S_{\mu,r}^{I} & \rightarrow & \frac{1}{2}\sum_{a=1}^{2} \left( 2 \phi_{a,r}^{R}\phi_{a,r}^{I} -e^{d\tau\mu}\phi_{a,r}^{R}\phi_{a,r-\hat{d\tau\tau}}^{I} - e^{d\tau\mu} \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}  \right)\\
+& & -  \frac{1}{2} \sum_{a,b=1}^{2} \epsilon_{ab} \left(  e^{d\tau\mu} \phi_{a,r}^{R} \phi_{b,r-\hat{\tau}}^{R} - e^{d\tau\mu} \phi_{a,r}^{I} \phi_{b,r-\hat{\tau}}^{I} \right) \nonumber,
+\eea
+%
+while the spatial derivative piece $S_{\del,r}$ (from the kinetic energy) becomes:
+%
+\bea
+S_{\del, r}^{R} & \rightarrow & \sum_{a=1}^{2}\left[\frac{d}{m}(\phi_{a,r}^{R})^{2}-\frac{d}{m} (\phi_{a,r}^{I})^{2} - \frac{1}{4m}\sum_{i = \pm x, y} \left(  \phi_{a,r}^{R} \phi_{a,r+\hat{i}}^{R} -  \phi_{a,r}^{I} \phi_{a,r+\hat{i}}^{I} \right)\right] \\
+& & +  \frac{1}{4m}\sum_{a,b = 1}^{2} \sum_{i = \pm x,y}\epsilon_{ab}\left(  \phi_{a,r}^{R} \phi_{b,r+\hat{i}}^{I} +  \phi_{a,r}^{I} \phi_{b,r+\hat{i}}^{R} \right)\nonumber \\
+S_{\del, r}^{I}& \rightarrow & \sum_{a=1}^{2}\left[ \frac{2d}{m}\phi_{a,r}^{R}\phi_{a,r}^{I} -\frac{1}{4m}\sum_{i = \pm x,y} \left( \phi_{a,r}^{R} \phi_{a,r+\hat{i}}^{I} +  \phi_{a,r}^{I} \phi_{a,r+\hat{i}}^{R}\right) \right]\\
+& & -\frac{1}{4m}\sum_{a,b=1}^{2}\sum_{i = \pm x,y} \epsilon_{ab} \left(  \phi_{a,r}^{R} \phi_{b,r+\hat{i}}^{R} -  \phi_{a,r}^{I} \phi_{b,r+\hat{i}}^{I} \right)  \nonumber.
+\eea
+%
+The trapping potential term, $S_{\text{trap}}$, becomes:
+%
+\bea
+S_{\text{trap}, r}^{R} & \rightarrow &  \frac{m}{4}\omega_{\text{trap}}^{2}\left(x^{2} + y^{2}\right)\sum_{a=1}^{2}\left[\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I} - \sum_{b=1}^{2}\epsilon_{ab}\left(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I}+\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} \right) \right]  \\
+S_{\text{trap}, r}^{I} & \rightarrow & \frac{m}{4}\omega_{\text{trap}}^{2}\left(x^{2} + y^{2}\right)\sum_{a=1}^{2}\left[\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I} + \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R} + \sum_{b=1}^{2}\epsilon_{ab}\left(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I}\right)\right].
+\eea
+%
+The rotating term, $S_{\omega,r}$ becomes:
+%
+\bea
+S_{\omega, r}^{R} & \rightarrow & \frac{\omega_{z}}{2} \sum_{a = 1}^{2}(y-x)  \left[( \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R} + \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I} ) + \sum_{b=1}^{2}\epsilon_{ab} (\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} -  \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I})\right]\nonumber \\
+%
+&&+  \frac{\omega_{z}}{2} \sum_{a= 1}^{2} \widetilde{x}\left[( \phi_{a,r}^{I}\phi_{a,r-\hat{y}-\hat{\tau}}^{R} + \phi_{a,r}^{R}\phi_{a,r-\hat{y}-\hat{\tau}}^{I} ) + \sum_{b=1}^{2}\epsilon_{ab} (\phi_{a,r}^{R}\phi_{b,r-\hat{y}-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{b,r-\hat{y}-\hat{\tau}}^{I}) \right]\nonumber \\
+%
+&& - \frac{\omega_{z}}{2} \sum_{a = 1}^{2}\widetilde{y}\left[ (\phi_{a,r}^{I}\phi_{a,r-\hat{x}-\hat{\tau}}^{R} +  \phi_{a,r}^{R}\phi_{a,r-\hat{x}-\hat{\tau}}^{I}) + \sum_{b=1}^{2}\epsilon_{ab} (\phi_{a,r}^{R}\phi_{b,r-\hat{x}-\hat{\tau}}^{R}   - \phi_{a,r}^{I} \phi_{b,r-\hat{x}-\hat{\tau}}^{I}) \right]  \\
+%
+S_{\omega, r}^{I}& \rightarrow &  \frac{\omega_{z}}{2}\sum_{a = 1}^{2}(x-y) \left[ (\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I}) - \sum_{b=1}^{2}\epsilon_{ab} (\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}+ \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I})\right] \nonumber\\
+% 
+&& -\frac{\omega_{z}}{2}\sum_{a = 1}^{2} \widetilde{x}\left[ (\phi_{a,r}^{R}\phi_{a,r-\hat{y}-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{y}-\hat{\tau}}^{I}) - \sum_{b=1}^{2}\epsilon_{ab} ( \phi_{a,r}^{I}\phi_{b,r-\hat{y}-\hat{\tau}}^{R}+\phi_{a,r}^{R} \phi_{b,r-\hat{y}-\hat{\tau}}^{I} ) \right]\nonumber \\
+%
+&&+\frac{\omega_{z}}{2}\sum_{a = 1}^{2} \widetilde{y}\left[ (\phi_{a,r}^{R}\phi_{a,r-\hat{x}-\hat{\tau}}^{R}  - \phi_{a,r}^{I}\phi_{a,r-\hat{x}-\hat{\tau}}^{I})  - \sum_{b=1}^{2} \epsilon_{ab} (\phi_{a,r}^{I}\phi_{b,r-\hat{x}-\hat{\tau}}^{R} +  \phi_{a,r}^{R} \phi_{b,r-\hat{x}-\hat{\tau}}^{I}) \right]
+\eea
+%
+and finally, the interaction term $S_{\text{int},r}$ becomes:
+%
+\bea
+&&\text{**still to do: copy over these finished calculations from notebook} \nonumber\\
+\text{Re}[S_{\text{int}, r}]  & \rightarrow &  \frac{\lambda}{4}  \sum_{a,b=1}^{2} \left[ 
+%
+\left( \phi_{a,r}^{R} \phi_{b,r-\hat{\tau}}^{I}\right)^{2} - \left( \phi_{a,r}^{I} \phi_{b,r-\hat{\tau}}^{I}\right)^{2} \right]\nonumber \\
+%
+&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} \left[ \phi_{a,r}^{R}\phi_{b,r}^{I}\left((\phi_{a,r-\hat{\tau}}^{R})^{2} - (\phi_{a,r-\hat{\tau}}^{I})^{2}\right) +\phi_{a,r}^{I}\phi_{b,r}^{R}\left((\phi_{a,r-\hat{\tau}}^{R})^{2} - (\phi_{a,r-\hat{\tau}}^{I})^{2} \right) \right]\nonumber \\
+%
+&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} \left[ \phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R}\left((\phi_{a,r}^{I})^{2}-(\phi_{a,r}^{R})^{2} \right)+ \phi_{a, r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I}\left((\phi_{a,r}^{I})^{2} - (\phi_{a,r}^{R})^{2}\right)\right]\nonumber \\
+%
+&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} 2 \left[\phi_{a,r}^{I}\phi_{b,r}^{I}\left(\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}-\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}\right) + \phi_{a,r}^{R}\phi_{b,r}^{R}\left(\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}-\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}\right)\right]\nonumber \\
+%
+&&-\frac{\lambda}{4}  \sum_{a,b=1}^{2} 2 \left[ \phi_{a,r}^{I} \phi_{b,r}^{R}\left( \phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I}+\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R}\right)+ \phi_{a,r}^{R} \phi_{b,r}^{I}\left( \phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I}+\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R}\right)\right]\nonumber \\
+%
+&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} 2 \left[\phi_{a,r}^{I}\phi_{a,r}^{R}\left( \phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}-\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}\right) + \phi_{a,r-\hat{\tau}}^{I}\phi_{a,r-\hat{\tau}}^{R}\left(\phi_{a,r}^{R}\phi_{b,r}^{R} -\phi_{a,r}^{I}\phi_{b,r}^{I} \right)\right]\nonumber \\
+%
+&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} 4 \left[\phi_{a,r}^{I}\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I} \right]\nonumber \\
+%
+%&&\text{Check the real part and do the imaginary part} \nonumber
+%S_{\text{int}, r}^{R}  & \rightarrow & \frac{\lambda}{4} \sum_{a,b=1}^{2}\left[ (\phi_{a,r}^{R})^{2}(\phi_{b,r}^{R})^{2} - 2(\phi_{a,r}^{R})^{2}(\phi_{b,r}^{I})^{2}+ (\phi_{a,r}^{I})^{2}(\phi_{b,r}^{I})^{2}\right] - \lambda \sum_{a,b=1}^{2} \phi_{a,r}^{R}\phi_{a,r}^{I}\phi_{b,r}^{R} \phi_{b,r}^{I}\\
+%S_{\text{int}, r}^{I} & \rightarrow &\frac{ \lambda}{2} \sum_{a,b=1}^{2} \left[(\phi_{a,r}^{R})^{2}\phi_{b,r}^{R}\phi_{b,r}^{I} - (\phi_{a,r}^{I})^{2}\phi_{b,r}^{R}\phi_{b,r}^{I}  \right]+\frac{ \lambda}{2} \sum_{a,b=1}^{2}  \left[  \phi_{a,r}^{R}\phi_{a,r}^{I}(\phi_{b,r}^{R})^{2}-\phi_{a,r}^{R}\phi_{a,r}^{I}(\phi_{b,r}^{I})^{2}\right],
+\eea 
+%
+where in all of the above, $S_{j} = S_{j}^{R}+ i S_{j}^{I}$, and $\epsilon_{12} =1$, $\epsilon_{21} =-1$, and  $\epsilon_{11} = \epsilon_{22} = 0$. Note that we were able to compress the real part of the interaction due to the sum over $a$ and $b$. 
+
+%Question - doesn't the imaginary part of the interaction need to be zero by definition? Or maybe I am misunderstanding how this works...
+
+\end{document}

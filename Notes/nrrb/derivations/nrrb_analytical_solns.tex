@@ -1,0 +1,118 @@
+\documentclass[../../RotatingBosons.tex]{subfiles}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% ANALYTICAL SOLUTIONS %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{\label{NRRBchecks}NOT UPDATED YET:Some checks on our code}
+\subsection{Nonrotating, noninteracting, nonrelativistic, finite chemical potential in 1, 2, and 3 dimensions}
+The lattice action for a nonrotating, noninteracting, and nonrelativistic system is the following:
+\beq
+S_{\text{lat},r} = \phi_{r}^{*}\left[\phi_{r} - e^{d\tau\mu} \phi_{r - \hat{\tau}} - \frac{d\tau}{2m}\sum_{i =1}^{d}\left(  \phi_{r + \hat{i}} - 2 \phi_{r} + \phi_{r - \hat{i}}\right) \right].
+\eeq
+This can be written as fields multiplying a matrix:
+\beq
+S_{\text{lat},r} = \sum_{r}\sum_{r'}\phi_{r}^{*}M\phi_{r'} = \sum_{r}\sum_{r'}\phi_{r}^{*}\left[ (1 + \frac{d\tau d}{m})\delta_{r,r'}  - e^{d\tau\mu} \delta_{r - \hat{\tau},r'}- \frac{d\tau}{2m}\sum_{i =1}^{d}\left(\delta_{r+\hat{i},r'} + \delta_{r-\hat{i},r'} \right)\right]\phi_{r'},
+\eeq
+which we can use to determine analytically the density and field modulus squared of this system in order to check against our code's results. Recall that
+\bea
+\left \langle \hat{n} \right \rangle & = & \frac{-1}{V}\frac{\partial ln \CZ}{\partial (\beta \mu)} = \frac{-1}{V}\frac{\partial}{\partial (\beta\mu)} (-ln(det(M))) \\
+& = & \frac{1}{V}\frac{\partial}{\partial (\beta\mu)}Tr(ln M) = \frac{1}{V}\frac{\partial}{\partial (\beta\mu)}\sum_{k}ln D_{kk} = \frac{1}{V}\sum_{k}\frac{1}{D_{kk}}\frac{\partial D_{kk}}{\partial (\beta\mu)}\nonumber
+\eea with $\beta \mu = N_{\tau} d\tau \mu$, and note that for a nonrelativistic system,
+%
+\bea
+\left \langle \phi^{*}\phi \right \rangle & =& \frac{-1}{V}\frac{\partial ln \CZ}{\partial  (d/m)} = \frac{-1}{V}\frac{\partial}{\partial  (d/m)} (-ln(det(M))) \\
+& =& \frac{1}{V}\frac{\partial}{\partial (d/m)}Tr(ln M) = \frac{1}{V}\frac{\partial}{\partial  (d/m)}\sum_{k}ln D_{kk} \nonumber \\
+&= &\frac{1}{V}\sum_{k}\frac{1}{D_{kk}}\frac{\partial D_{kk}}{\partial  (d/m)} = \sum_{k}\frac{1}{D_{kk}}. \nonumber
+\eea
+%
+\subsubsection{Diagonalizing our matrix, M}
+We can represent the nonrotating, noninteracting action as
+\beq
+S[\lambda = \omega = 0] = \sum_{r,r'}\phi^{*}_{r}M_{r,r'}[d,m,\mu]\phi_{r'}
+\eeq
+where 
+\beq
+M_{r,r'}[d,m,\mu] = \left[ (1+\frac{d\tau d}{m})\delta_{r,r'} - e^{d\tau\mu}\delta_{r-\hat{t},r'}-\frac{d\tau}{2m}\sum_{i=1}^{d}(\delta_{r+\hat{i},r'}+\delta_{r-\hat{i},r'})\right].
+\eeq 
+We want to diagonalize $M$ by applying a transformation matrix, such that $D_{kk'} = U^{\dagger}MU$, where
+\bea
+U_{r,k}& =& \frac{\sqrt{2^{d}}}{\sqrt{N_{x}^{d} N_{\tau}}}e^{i k_{0} t}\prod_{i=1}^{d}\sin(k_{i}x_{i}) \\
+U^{\dagger}_{r,k}& =& \frac{\sqrt{2^{d}}}{\sqrt{N_{x}^{d} N_{\tau}}}e^{-i k_{0} t}\prod_{i=1}^{d}\sin(k_{i}x_{i}) \\
+k_{0} & = & \frac{2 \pi n_{0}}{N_{\tau}},\ n_{0} \in [1,2,...,N_{\tau}] \\
+k_{i} & = & \frac{\pi n_{i}}{(N_{x}+1)},\ n_{i} \in [1,2,...,N_{x}].
+\eea
+Applying the transformation matrix, we get
+\bea
+D_{k,k'} &=& \frac{2^{d}}{N_{x}^{d} N_{t}}\sum_{r,r'}e^{-i k_{0} t}\prod_{i=1}^{d}\sin(k_{i}x_{i})\left[ (1+\frac{d\tau d }{m})\delta_{r,r'} \right]e^{i k'_{0} t'}\prod_{i=1}^{d}\sin(k'_{i}x'_{i})\nonumber \\
+&& -\frac{2^{d}}{N_{x}^{d} N_{t}}\sum_{r,r'}e^{-i k_{0} t}\prod_{i=1}^{d}\sin(k_{i}x_{i})\left[e^{ d\tau \mu}\delta_{r-\hat{t},r'}\right]e^{i k'_{0} t'}\prod_{i=1}^{d}\sin(k'_{i}x'_{i})  \\
+&& -\frac{2^{d}}{N_{x}^{d} N_{t}}\sum_{r,r'}e^{-i k_{0} t}\prod_{i=1}^{d}\sin(k_{i}x_{i})\left[\frac{d\tau}{2m} \sum_{i=1}^{d}\delta_{r+\hat{i},r'}\right]e^{i k'_{0} t'}\prod_{i=1}^{d}\sin(k'_{i}x'_{i})\nonumber\\
+&& -\frac{2^{d}}{N_{x}^{d} N_{t}}\sum_{r,r'}e^{-i k_{0} t}\prod_{i=1}^{d}\sin(k_{i}x_{i})\left[\frac{d\tau}{2m}\sum_{i=1}^{d}\delta_{r-\hat{i},r'}\right]e^{i k'_{0} t'}\prod_{i=1}^{d}\sin(k'_{i}x'_{i})\nonumber.
+\eea
+Resolving the delta functions, performing the sum over $r'$, and pulling everything that does not depend on $r = (t,\vec{x})$ outside the sum, this reduces to
+\bea
+D_{k,k'} &=& \frac{2^{d}}{N_{x}^{d} N_{t}} (1+\frac{d\tau d}{m})\sum_{r}e^{-i t(k_{0} -k'_{0})}\prod_{i=1}^{d}\sin(k_{i}x_{i})\sin(k'_{i}x_{i})\nonumber \\
+&& -\frac{2^{d}}{N_{x}^{d} N_{t}}e^{d\tau\mu}e^{-ik'_{0}}\sum_{r}e^{-i t(k_{0}- k'_{0})}\prod_{i=1}^{d}\sin(k_{i}x_{i})\sin(k'_{i}x_{i})  \\
+&& -\frac{2^{d}}{N_{x}^{d} N_{t}}\frac{d\tau}{2m}\sum_{r}e^{-i t(k_{0} -k'_{0})}\prod_{i=1}^{d}\sin(k_{i}x_{i})\sum_{i=1}^{d}\sin(k'_{i}x_{i}+k'_{i})\nonumber\\
+&& -\frac{2^{d}}{N_{x}^{d} N_{t}}\frac{d\tau}{2m}\sum_{r}e^{-i t(k_{0} -k'_{0})}\prod_{i=1}^{d}\sin(k_{i}x_{i}) \sum_{i=1}^{d}\sin(k'_{i}x_{i}-k'_{i})\nonumber.
+\eea
+To further expand the last two lines, we use the following trig identity: $\sin(a \pm b) = \sin(a)\cos(b) \pm \sin(b)\cos(a)$, which gives us:
+\bea
+D_{k,k'} &=& \frac{2^{d}}{N_{x}^{d} N_{t}} (1+\frac{ d\tau d}{m} -e^{d\tau\mu}e^{-ik'_{0}} )\sum_{r}e^{-i t(k_{0} -k'_{0})}\prod_{i=1}^{d}\sin(k_{i}x_{i})\sin(k'_{i}x_{i}) \\
+&& -\frac{2^{d}}{N_{x}^{d} N_{t}}\frac{d\tau}{2m}\sum_{i=1}^{d}\cos(k'_{i})\sum_{r}e^{-i t(k_{0} -k'_{0})}\prod_{i=1}^{d}\sin(k_{i}x_{i})\sin(k'_{i}x_{i})\nonumber\\
+&& -\frac{2^{d}}{N_{x}^{d} N_{t}}\frac{d\tau}{2m}\sum_{i=1}^{d}\sin(k'_{i})\sum_{r}e^{-i t(k_{0} -k'_{0})}\prod_{i=1}^{d}\sin(k_{i}x_{i})\cos(k'_{i}x_{i})\nonumber\\
+&& -\frac{2^{d}}{N_{x}^{d} N_{t}}\frac{d\tau}{2m}\sum_{i=1}^{d}\cos(k'_{i})\sum_{r}e^{-i t(k_{0} -k'_{0})}\prod_{i=1}^{d}\sin(k_{i}x_{i}) \sin(k'_{i}x_{i})\nonumber\\
+&& +\frac{2^{d}}{N_{x}^{d} N_{t}}\frac{d\tau}{2m} \sum_{i=1}^{d}\sin(k'_{i})\sum_{r}e^{-i t(k_{0} -k'_{0})}\prod_{i=1}^{d}\sin(k_{i}x_{i})\cos(k'_{i}x_{i})\nonumber.
+\eea
+Using the following Fourier identities
+\bea
+\sum_{x}\sin(kx)\sin(k'x) & = &\frac{N_{x}}{2}\delta_{k,k'}\nonumber\\
+\sum_{x}\sin(kx)\cos(k'x) & = &0 \\
+\sum_{x}e^{-i x (k-k')} &=& N_{x}\delta_{k,k'}\nonumber\\
+\eea we find that
+\bea
+D_{k,k'} &=& \frac{2^{d}}{N_{x}^{d} N_{t}} \left(1+\frac{d\tau d}{m} -e^{d\tau\mu}e^{-ik'_{0}} -\frac{d\tau}{m}\sum_{i=1}^{d}\cos(k'_{i})\right)N_{t}\delta_{k_{0},k'_{0}}\prod_{i=1}^{d}\frac{N_{x_{i}}}{2} \delta_{k_{i},k'_{i}}\nonumber\\
+&=& \frac{2^{d}}{N_{x}^{d} N_{t}} \left(1+\frac{ d\tau d}{m} -e^{ d\tau\mu}e^{-ik'_{0}} -\frac{d\tau}{m}\sum_{i=1}^{d}\cos(k'_{i})\right)N_{t}\left(\frac{N_{x}}{2}\right)^{d} \delta_{k,k'}\nonumber\\
+D_{k,k'} &=& \left(1+\frac{d\tau d}{m} -e^{d\tau\mu}e^{-ik'_{0}} -\frac{d\tau}{m}\sum_{i=1}^{d}\cos(k'_{i})\right) \delta_{k,k'}\nonumber,
+\eea
+or, slightly rearranged:
+\beq
+D_{k,k'} = \left(1 -e^{ d\tau\mu}e^{-ik'_{0}} +\frac{d\tau}{m}\sum_{i=1}^{d}(1-\cos(k'_{i}))\right) \delta_{k,k'}.
+\eeq
+Note that this is a complex matrix, with real and imaginary parts:
+\bea
+\text{Re}\left[D_{k,k'}\right] &=&  \left(1 -e^{ d\tau\mu}\cos(k'_{0}) +\frac{d\tau}{m}\sum_{i=1}^{d}(1-\cos(k'_{i}))\right) \delta_{k,k'} \\
+\text{Im}\left[D_{k,k'}\right] &=&  e^{ d\tau\mu}\sin(k'_{0}) \delta_{k,k'} .
+\eea
+
+\subsubsection{Analytical solution for the nonrotating, noninteracting density}
+We can now use our diagonal matrix $D_{k,k'} = D_{k,k}$ to solve for the density of this system. Recall that
+\beq
+\left \langle \hat{n} \right \rangle = \frac{1}{V N_{\tau}}\sum_{k}\frac{1}{D_{kk}}\frac{\partial D_{kk}}{\partial (d\tau\mu)}.
+\eeq
+We first need to solve for $\frac{\partial D_{kk}}{\partial (d\tau\mu)}$:
+\bea
+\frac{\partial D_{kk}}{\partial \mu} & = & \frac{\partial}{\partial (d\tau\mu)}\left[ \left(1 -e^{d\tau\mu}e^{-ik'_{0}} +\frac{d\tau}{m}\sum_{i=1}^{d}(1-\cos(k'_{i}))\right) \delta_{k,k'}\right] \\ \nonumber
+& = & - e^{d\tau\mu}e^{-ik'_{0}}\delta_{k,k'}.
+\eea Plugging this in to our equation for the density gives us:
+\beq
+\left \langle \hat{n} \right \rangle = \frac{1}{N_{x}^{d}N_{t}}\sum_{k}\frac{D^{*}_{kk}}{|D_{kk}|^{2}}\left( -e^{d\tau\mu}e^{-ik'_{0}}\delta_{k,k'}\right).
+\eeq
+
+\subsubsection{Analytical solution for the nonrotating, noninteracting field modulus squared}
+\beq
+\left \langle \phi^{*}\phi \right \rangle  = \sum_{k}\frac{1}{D_{kk}} = \sum_{k}\frac{D^{*}_{kk}}{|D_{kk}|^{2}}.
+\eeq
+
+
+\subsubsection{Analytical solution for the two-point correlation function}
+The eigenvalues and eigenvectors can be used to compute the solution for two-point correlation function for this system:
+\beq
+G(x, x') = \sum_{k} \frac{1}{D_{kk}}U^{\dagger}_{k}(x)U_{k}(x')
+\eeq
+
+\end{document}
