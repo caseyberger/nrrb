@@ -368,14 +368,20 @@ local_observables(const int i, const int j, const int t,
 	Real dens_Im = 0;
 	Real phisq_Re = 0.;
 	Real phisq_Im = 0.;
+	Real KinEn_Re = 0.; //new
+	Real KinEn_Im = 0.; //new
+	Real Vtr_Re = 0.; //new
+	Real Vtr_Im = 0.; //new
 	Real Lz_Re = 0.;
 	Real Lz_Im = 0.;
-    Real S_Re = 0.;
-    Real S_Im = 0.;
+	Real Vint_Re = 0.; //new
+	Real Vint_Im = 0.; //new
+    Real S_Re = 0.; //could drop potentially? since we can construct it from the other observables
+    Real S_Im = 0.; //could drop potentially? since we can construct it from the other observables
 
 	//modify parameters by dtau
 	const Real mu = nrrb_parm.dtau * nrrb_parm.mu;
-	const Real m = nrrb_parm.m / nrrb_parm.dtau;
+	const Real m = nrrb_parm.m / nrrb_parm.dtau; //may need to multiply this by dx^2 (if we use spatial lattice spacing other than 1.)
 	const Real w_t = nrrb_parm.dtau * nrrb_parm.w_t;
 	const Real w = nrrb_parm.dtau * nrrb_parm.w;
 	const Real l = nrrb_parm.dtau * nrrb_parm.l;
@@ -416,6 +422,35 @@ local_observables(const int i, const int j, const int t,
         }//loop over b = 1,2
     }//loop over a = 1,2
 
+    dens_Re = 0.5 * std::exp(mu) * dens_Re; //moved from below!
+    dens_Im = 0.5 * std::exp(mu) * dens_Im; //moved from below!
+
+	//testing N = Stau - phisq?
+        Real Stau_Re = 0.;//new
+        Real Stau_Im = 0.;//new
+        for (int a = 1; a <= 2; a++){//new
+       		Stau_Re += S_tau_Re(i,j,t,a,mu,Lattice);//new
+        	Stau_Re += S_tau_Im(i,j,t,a,mu,Lattice);//new
+        }
+        if (Stau_Re - dens_Re - phisq_Re > 0.00001){//new
+        	cout << "NRe != Stau - phisq" << endl;//new
+        }
+        if (Stau_Im - dens_Im - phisq_Im > 0.00001){//new
+        	cout << "NIm != Stau - phisq" << endl;//new
+        }
+
+    //Kinetic energy
+    for (int a = 1; a <= 2; a++){
+	    KinEn_Re += S_del_Re(i,j,t,a,m,Lattice,geom);//new
+	    KinEn_Im += S_del_Im(i,j,t,a,m,Lattice,geom);//new
+	}
+
+    //Trap potential energy
+    for (int a = 1; a <= 2; a++){
+	    Vtr_Re += S_trap_Re(i,j,t,a,w_t,r2,Lattice);//new
+    	Vtr_Im += S_trap_Im(i,j,t,a,w_t,r2,Lattice);//new
+    }
+
     //Angular momentum
     if (AMREX_SPACEDIM == 3){
         //define x and y
@@ -451,7 +486,26 @@ local_observables(const int i, const int j, const int t,
                 Lz_Im +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
             }//loop over b for Lz
         }//loop over a for Lz
+        //testing Lz = Sw/wz?
+        Real Sw_Re = 0.;//new
+        Real Sw_Im = 0.;//new
+        for (int a = 1; a <= 2; a++){//new
+       		Sw_Re += S_w_Re(i,j,t,a,w,x,y,Lattice);//new
+        	Sw_Im += S_w_Im(i,j,t,a,w,x,y,Lattice);//new
+        }
+        if (Sw_Re - LzRe*w > 0.00001){//new
+        	cout << "LzRe != Sw_Re/wz" << endl;//new
+        }
+        if (Sw_Im - LzIm*w > 0.00001){//new
+        	cout << "LzIm != Sw_Im/wz" << endl;//new
+        }
     }//if dim+1 = 3
+
+    //Interaction potential energy
+    for (int a = 1; a <= 2; a++){
+    	Vint_Re += S_int_Re(i,j,t,a,l,Lattice);//new
+    	Vint_Im += S_int_Im(i,j,t,a,l,Lattice);//new
+    }
 
     //ACTION
     for (int a = 1; a <= 2; a++){
@@ -480,17 +534,20 @@ local_observables(const int i, const int j, const int t,
         S_Im += S_int_Im(i,j,t,a,l,Lattice);
     }//loop over a (for the Action)
 
-    dens_Re = 0.5 * std::exp(mu) * dens_Re;
-    dens_Im = 0.5 * std::exp(mu) * dens_Im;
-
     GpuArray<Real, Obs::NumObservables> observables;
 
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
     observables[Obs::DensRe]  = dens_Re  / domain_volume;
     observables[Obs::DensIm]  = dens_Im  / domain_volume;
-    observables[Obs::LzRe]    = Lz_Re    / domain_volume;
+    //observables[Obs::KERe]  = KinEn_Re  / domain_volume; //new
+    //observables[Obs::KEIm]  = KinEn_Im  / domain_volume; //new
+    //observables[Obs::VtrRe]  = Vtr_Re  / domain_volume; //new
+    //observables[Obs::VtrIm]  = Vtr_Re  / domain_volume; //new
+    observables[Obs::LzRe]    = Lz_Re    / domain_volume; 
     observables[Obs::LzIm]    = Lz_Im    / domain_volume;
+    //observables[Obs::VintRe]  = Vint_Re  / domain_volume; //new
+    //observables[Obs::VintIm]  = Vint_Re  / domain_volume; //new
     observables[Obs::SRe]     = S_Re     / domain_volume;
     observables[Obs::SIm]     = S_Im     / domain_volume;
 
