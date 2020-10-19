@@ -379,13 +379,6 @@ local_observables(const int i, const int j, const int t,
     Real S_Re = 0.; //could drop potentially? since we can construct it from the other observables
     Real S_Im = 0.; //could drop potentially? since we can construct it from the other observables
 
-	//modify parameters by dtau
-	const Real mu = nrrb_parm.dtau * nrrb_parm.mu;
-	const Real m = nrrb_parm.m / nrrb_parm.dtau; //may need to multiply this by dx^2 (if we use spatial lattice spacing other than 1.)
-	const Real w_t = nrrb_parm.dtau * nrrb_parm.w_t;
-	const Real w = nrrb_parm.dtau * nrrb_parm.w;
-	const Real l = nrrb_parm.dtau * nrrb_parm.l;
-
 	//define spacing parameters (x, y, r^2, etc)
 	const auto domain_xlo = geom.ProbLo();
     const auto domain_xhi = geom.ProbHi();
@@ -403,6 +396,14 @@ local_observables(const int i, const int j, const int t,
     const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
     const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
     const Real r2 = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
+    r2 = r2 / (dx_cell * dy_cell); //make dimensionless
+
+	//modify parameters by dtau
+	const Real mu = nrrb_parm.dtau * nrrb_parm.mu;
+	const Real m = dx_cell * dy_cell *  dnrrb_parm.m / nrrb_parm.dtau;
+	const Real w_t =  nrrb_parm.dtau * nrrb_parm.w_t;
+	const Real w = nrrb_parm.dtau * nrrb_parm.w;
+	const Real l = nrrb_parm.dtau * nrrb_parm.l;
 
     for (int a = 1; a <= 2; a++){
         //Field modulus squared
@@ -425,20 +426,6 @@ local_observables(const int i, const int j, const int t,
     dens_Re = 0.5 * std::exp(mu) * dens_Re; //moved from below!
     dens_Im = 0.5 * std::exp(mu) * dens_Im; //moved from below!
 
-	//testing N = Stau - phisq?
-        Real Stau_Re = 0.;//new
-        Real Stau_Im = 0.;//new
-        for (int a = 1; a <= 2; a++){//new
-       		Stau_Re += S_tau_Re(i,j,t,a,mu,Lattice);//new
-        	Stau_Re += S_tau_Im(i,j,t,a,mu,Lattice);//new
-        }
-        if (Stau_Re - dens_Re - phisq_Re > 0.00001){//new
-        	cout << "NRe != Stau - phisq" << endl;//new
-        }
-        if (Stau_Im - dens_Im - phisq_Im > 0.00001){//new
-        	cout << "NIm != Stau - phisq" << endl;//new
-        }
-
     //Kinetic energy
     for (int a = 1; a <= 2; a++){
 	    KinEn_Re += S_del_Re(i,j,t,a,m,Lattice,geom);//new
@@ -455,7 +442,9 @@ local_observables(const int i, const int j, const int t,
     if (AMREX_SPACEDIM == 3){
         //define x and y
         const Real x = x_cell - x_center;
+        x = x/dx_cell; //make dimensionless
         const Real y = y_cell - y_center;
+        y = y/dy_cell; //make dimensionless
         for (int a = 1; a <= 2; a++){//loop over a
             //real sum over a only
             Lz_Re +=  0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Im));
@@ -486,19 +475,6 @@ local_observables(const int i, const int j, const int t,
                 Lz_Im +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
             }//loop over b for Lz
         }//loop over a for Lz
-        //testing Lz = Sw/wz?
-        Real Sw_Re = 0.;//new
-        Real Sw_Im = 0.;//new
-        for (int a = 1; a <= 2; a++){//new
-       		Sw_Re += S_w_Re(i,j,t,a,w,x,y,Lattice);//new
-        	Sw_Im += S_w_Im(i,j,t,a,w,x,y,Lattice);//new
-        }
-        if (Sw_Re - LzRe*w > 0.00001){//new
-        	cout << "LzRe != Sw_Re/wz" << endl;//new
-        }
-        if (Sw_Im - LzIm*w > 0.00001){//new
-        	cout << "LzIm != Sw_Im/wz" << endl;//new
-        }
     }//if dim+1 = 3
 
     //Interaction potential energy
@@ -528,7 +504,6 @@ local_observables(const int i, const int j, const int t,
             S_Re += S_w_Re(i,j,t,a,w,x,y,Lattice);
             S_Im += S_w_Im(i,j,t,a,w,x,y,Lattice);
         }
-
         //S_int
         S_Re += S_int_Re(i,j,t,a,l,Lattice);
         S_Im += S_int_Im(i,j,t,a,l,Lattice);
@@ -540,16 +515,26 @@ local_observables(const int i, const int j, const int t,
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
     observables[Obs::DensRe]  = dens_Re  / domain_volume;
     observables[Obs::DensIm]  = dens_Im  / domain_volume;
-    //observables[Obs::KERe]  = KinEn_Re  / domain_volume; //new
-    //observables[Obs::KEIm]  = KinEn_Im  / domain_volume; //new
-    //observables[Obs::VtrRe]  = Vtr_Re  / domain_volume; //new
-    //observables[Obs::VtrIm]  = Vtr_Re  / domain_volume; //new
+    observables[Obs::KERe]  = KinEn_Re  / domain_volume; //new
+    observables[Obs::KEIm]  = KinEn_Im  / domain_volume; //new
+    observables[Obs::VtrRe]  = Vtr_Re  / domain_volume; //new
+    observables[Obs::VtrIm]  = Vtr_Re  / domain_volume; //new
     observables[Obs::LzRe]    = Lz_Re    / domain_volume; 
     observables[Obs::LzIm]    = Lz_Im    / domain_volume;
-    //observables[Obs::VintRe]  = Vint_Re  / domain_volume; //new
-    //observables[Obs::VintIm]  = Vint_Re  / domain_volume; //new
+    observables[Obs::VintRe]  = Vint_Re  / domain_volume; //new
+    observables[Obs::VintIm]  = Vint_Re  / domain_volume; //new
     observables[Obs::SRe]     = S_Re     / domain_volume;
     observables[Obs::SIm]     = S_Im     / domain_volume;
+    observables[Obs::StauRe] =	S_tau_Re / domain_volume; //new
+    observables[Obs::StauIm] =	S_tau_Im / domain_volume; //new
+    observables[Obs::SdelRe] = S_del_Re / domain_volume;//new
+    observables[Obs::SdelIm] = S_del_Im / domain_volume;//new
+    observables[Obs::StrapRe] = S_trap_Re / domain_volume;//new
+    observables[Obs::StrapIm] = S_trap_Im / domain_volume;//new
+    observables[Obs::SwRe]	  = S_w_Re / domain_volume;//new
+    observables[Obs::SwIm]	  = S_w_Im / domain_volume;//new
+    observables[Obs::SintRe]  = S_int_Re / domain_volume;//new
+    observables[Obs::SintIm]  = S_int_Im / domain_volume;//new
 
     // compute circulation contributions from this cell
     observables[Obs::Circ1] = Circulation(i, j, t, Lattice, geom, nrrb_parm.circulation_radius_1);

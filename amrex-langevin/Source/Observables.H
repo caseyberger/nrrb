@@ -5,7 +5,10 @@
 
 namespace Obs {
 enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
-                        LzRe, LzIm, SRe, SIm, Circ1, Circ2,
+                        LzRe, LzIm, SRe, SIm, KERe, KEIm, VtrRe, 
+                        VtrIm, VintRe, VintIm, StauRe, StauIm,
+                        SdelRe, SdelIm, StrapRe, StrapIm, SwRe, 
+                        SwIm, SintRe, SintIm, Circ1, Circ2, 
                         NumObservables};
 };
 

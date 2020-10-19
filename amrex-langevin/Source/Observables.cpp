@@ -56,6 +56,22 @@ void Observables::initialize_files(const amrex::Geometry& geom)
         obsFile << "Im[<Lz>],";
         obsFile << "Re[<S>],";
         obsFile << "Im[<S>],";
+        obsFile << "Re[KE],";
+        obsFile << "Im[KE],";
+        obsFile << "Re[Vtr],";
+        obsFile << "Im[Vtr],";
+        obsFile << "Re[Vint],";
+        obsFile << "Im[Vint],";
+        obsFile << "Re[S_tau],";
+        obsFile << "Im[S_tau],";
+        obsFile << "Re[S_del],";
+        obsFile << "Im[S_del],";
+        obsFile << "Re[S_trap],";
+        obsFile << "Im[S_trap],";
+        obsFile << "Re[S_w],";
+        obsFile << "Im[S_w],";
+        obsFile << "Re[S_int],";
+        obsFile << "Im[S_int],";
         obsFile << std::endl;
         obsFile.close();
 
@@ -69,8 +85,12 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
 {
     const int Ncomp = Lattice.nComp();
 
-    ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum> reduce_operations;
-    ReduceData<Real, Real, Real, Real, Real, Real, Real, Real, Real, Real> reduce_data(reduce_operations);
+    ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, 
+                ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,
+                ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,
+                ReduceOpSum, ReduceOpSum> reduce_operations;
+    ReduceData<Real, Real, Real, Real, Real, Real, Real, Real, Real, Real,Real, Real, Real, 
+                Real,Real, Real, Real, Real,Real, Real, Real, Real,Real, Real, Real, Real> reduce_data(reduce_operations);
     using ReduceTuple = typename decltype(reduce_data)::Type;
 
 #ifdef _OPENMP
@@ -96,7 +116,23 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
                             observables[Obs::LzIm],
                             observables[Obs::SRe],
                             observables[Obs::SIm],
-							observables[Obs::Circ1],
+                            observables[Obs::KERe],
+                            observables[Obs::KEIm],
+                            observables[Obs::VtrRe],
+                            observables[Obs::VtrIm],
+                            observables[Obs::VintRe],
+                            observables[Obs::VintIm],
+                            observables[Obs::StauRe],
+                            observables[Obs::StauIm],
+                            observables[Obs::SdelRe],
+                            observables[Obs::SdelIm],
+                            observables[Obs::StrapRe],
+                            observables[Obs::StrapIm],
+                            observables[Obs::SwRe],
+                            observables[Obs::SwIm],
+                            observables[Obs::SintRe],
+                            observables[Obs::SintIm],
+                            observables[Obs::Circ1],
 							observables[Obs::Circ2]};
                 });
     }
@@ -113,6 +149,22 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::LzIm>(reduced_observables), IOProc);
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SRe>(reduced_observables), IOProc);
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::KERe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::KEIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::VtrRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::VtrIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::VintRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::VintIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::StauRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::StauIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SdelRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SdelIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::StrapRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::StrapIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SwRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SwIm>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SintRe>(reduced_observables), IOProc);
+    ParallelDescriptor::ReduceRealSum(amrex::get<Obs::SintIm>(reduced_observables), IOProc);
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::Circ1>(reduced_observables), IOProc);
     ParallelDescriptor::ReduceRealSum(amrex::get<Obs::Circ2>(reduced_observables), IOProc);
 
@@ -131,6 +183,22 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
         obsFile << amrex::get<Obs::LzIm>(reduced_observables) << ',';
         obsFile << amrex::get<Obs::SRe>(reduced_observables) << ',';
         obsFile << amrex::get<Obs::SIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::KERe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::KEIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::VtrRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::VtrIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::VintRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::VintIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::StauRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::StauIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::SdelRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::SdelIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::StrapRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::StrapIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::SwRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::SwIm>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::SintRe>(reduced_observables) << ',';
+        obsFile << amrex::get<Obs::SintIm>(reduced_observables) << ',';
         obsFile << std::endl;
         obsFile.close();
 
