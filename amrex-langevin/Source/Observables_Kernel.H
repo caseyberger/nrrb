@@ -511,6 +511,8 @@ local_observables(const int i, const int j, const int t,
 
     GpuArray<Real, Obs::NumObservables> observables;
 
+    domain_volume = domain_volume / (dx_cell * dy_cell); //account for the possibility of different lattice spacings
+
     observables[Obs::PhiSqRe] = phisq_Re / domain_volume;
     observables[Obs::PhiSqIm] = phisq_Im / domain_volume;
     observables[Obs::DensRe]  = dens_Re  / domain_volume;

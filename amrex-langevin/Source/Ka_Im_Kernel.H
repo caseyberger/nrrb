@@ -34,7 +34,7 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	//doing -K_{a}^{I} and then returning -Ka at the end for simplicity
 	//modify mu, m, w, wtr, and l by dtau
 	mu = dtau*mu;
-	m = m/dtau;
+	m = dx_cell * dy_cell * m / dtau;
 	w = dtau*w;
 	w_t = dtau*w_t;
 	l = dtau*l;
@@ -72,6 +72,7 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 
 	//ROTATIONAL AND TRAPPING PART OF Ka - ONLY WORKS IN 2D AND IF OMEGA > 0.
 	//TRAPPING PIECE
+	r2_cell = r2_cell / (dx_cell * dy_cell); //make dimensionless
 	if (!(w_t == 0.)){
 		// 0.25*m*w_t^{2}*r2*(\phi_{a,r+t}^{I}+\phi_{a,r+t}^{I})
 		Ka += 0.25*m*w_t*w_t*r2_cell * Lattice(i,j,t+1,Field(a,C::Im));
@@ -87,7 +88,9 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 #if (AMREX_SPACEDIM == 3)
 	if (!(w == 0.)){
 		const Real x = x_cell - x_center;
+		x = x/dx_cell; //make dimensionless
 		const Real y = y_cell - y_center;
+		y = y/dy_cell; //make dimensionless
 
 		//ROTATIONAL PIECE
 		// w(y-x)\phi_{a}^{R}
@@ -176,7 +179,7 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 			Ka += -epsilon(a,b) * l * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re));
 		}//last update 2.22.19 to make a gauge interaction
 	}//only sum if l!=0
-	return -1.*Ka;
+	return -1. * dx_cell * dy_cell * Ka;
 }
 
 #endif
