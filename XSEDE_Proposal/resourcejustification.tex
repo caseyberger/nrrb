@@ -34,7 +34,7 @@
 \newcommand*\dif{\mathop{}\!\mathrm{d}}
 
 \begin{document}
-\section{Project Description}
+\section{Project Description and Goals}
 % TO DO
 % \begin{itemize} 
 % 	\item DONE  - can be shortened
@@ -53,7 +53,7 @@
 	
 % 	\item Special considerations, if any (e.g., a need for VMs to support persistent web services or databases, interactive access to a large number of nodes, minimum of 2048 cores/job)
 % \end{itemize}
-\subsection{Goals of the project}
+% \subsection{Goals of the project}
 This project aims to calculate properties of a rotating bosonic superfluid. Experimental study of superfluids under rotation have revealed the onset of quantized vortices with increasing rotational frequency, an example of macroscopic quantum behavior. Theoretical treatment of these systems struggles due to the presence of the ``sign problem," a challenge which plagues the study of many interesting quantum many-body systems. This project applies a method well-known in the community of lattice gauge theory, known as complex Langevin (CL), to circumvent the sign problem in the numerical study of a system of rotating, trapped, and interacting nonrelativistic bosons. 
 
 Rotating bosonic systems can be described using the path-integral formulation:
@@ -77,7 +77,7 @@ I have developed and previously tested a code using CL to measure certain proper
 To progress to the full system, it's essential to increase the computational resources in order to resolve much larger lattices. Scaling studies have been performed and tests have been done to elucidate the computational needs of this problem, and the results of these studies are discussed in Section~\ref{scaling}. We expect this work to result in multiple papers, as the application of this method to low-energy bosonic systems has been minimally studied in the past, and this work will result in insights into both the method and the system itself.
 
 \section{Resource Selection and Computational Considerations}
-\subsection{\label{scaling}Scaling and Performance}
+% \subsection{\label{scaling}Scaling and Performance}
 This code uses AMReX, a high-performance AMR library developed at LBNL and funded as an ECP Co-Design Center. We use AMReX data structures to discretize the spacetime lattice and distribute the lattice across MPI. We also use AMReX abstractions for performance portability to implement local parallelism with OpenMP or CUDA.
 For each step in Langevin time, we update the spacetime lattice in a naively parallel fashion.
 Because we divide the lattice into grids distributed across MPI ranks, we first fill ghost cells throughout the domain to support the nearest neighbor sums in the drift function.
