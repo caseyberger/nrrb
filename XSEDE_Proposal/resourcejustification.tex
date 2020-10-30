@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{subcaption}
+\usepackage{floatrow}
 \usepackage[margin=0.75in]{geometry}
 
 \title{ERCAP Proposal: rotating bosons via CL with AMReX}
@@ -77,10 +78,12 @@ To progress to the full system, it's essential to increase the computational res
 
 \section{Resource Selection and Computational Considerations}
 \subsection{\label{scaling}Scaling and Performance}
-This code uses AMReX, a high-performance AMR library developed at LBNL and funded as an ECP Co-Design Center. We use AMReX data structures to discretize the spacetime lattice upon which the fields are defined, distribute the lattice across MPI, and implement local parallelism. As a result, we achieve performance portability for heterogeneous architectures including CPU, KNL, or GPU-based platforms.
+This code uses AMReX, a high-performance AMR library developed at LBNL and funded as an ECP Co-Design Center. We use AMReX data structures to discretize the spacetime lattice and distribute the lattice across MPI. We also use AMReX abstractions for performance portability to implement local parallelism with OpenMP or CUDA.
+For each step in Langevin time, we update the spacetime lattice in a naively parallel fashion.
+Because we divide the lattice into grids distributed across MPI ranks, we first fill ghost cells throughout the domain to support the nearest neighbor sums in the drift function.
+We then calculate the drift function and Langevin update as entirely local operations for each MPI rank.
 
-For each step in Langevin time, we update the spacetime lattice in a naively parallel fashion. Because we divide the lattice into grids distributed across MPI ranks, we first fill ghost cells throughout the domain to support the nearest neighbor sums in the drift function. We next perform the drift function calculations and Langevin update as entirely local operations for each MPI rank.
-Our memory strategy utilizes the AMReX implementation of local memory arenas allocated with CUDA Unified Memory, and we choose the number of GPUs for a given problem size to ensure all local grid data fits into GPU onboard memory to limit host-device transfers.
+Our GPU memory approach utilizes AMReX local memory arenas allocated with CUDA Unified Memory, and we choose the number of GPUs for a given problem size to ensure all local grid data fits into GPU onboard memory to limit host-device transfers.
 We have invested our development efforts in writing all our local work loops to fully exploit the data-parallel portions of the CL algorithm with CUDA kernels that calculate drift functions and the CL lattice update. We also leverage the CUDA random number generation library to accelerate calculating the stochastic terms for the lattice update.
 %We parallelize this local work using OpenMP with logical tiling for CPUs or KNL to maintain cache efficiency. 
 % When running on GPUs, we launch CUDA kernels for local work loops and disable logical tiling to ensure maximum kernel occupancy.
@@ -107,9 +110,9 @@ In Fig.~\ref{Fig:GPUScaling} we also show excellent strong scaling on the Cori G
 %
 %\vspace{-3mm}
 \begin{figure}[h]
-\centering
-\includegraphics[width=0.6\textwidth]{./AMReX_Complex_Langevin_Cori_GPU_Scaling.png}
-	\caption{\label{Fig:GPUScaling} Strong scaling for AMReX Complex Langevin on NVIDIA Tesla V100 GPUs. These runs were performed with box sizes of $32^3$ and $128^3$ for the $512^3$ and $1024^3$ domains, respectively, using 1 MPI task per GPU and no logical tiling. For the run labeled ``O-10'' we calculate observables every 10 Langevin steps, otherwise we turn off observables to measure performance for the Langevin advance alone.\vspace{-3mm}}
+\floatbox[{\capbeside\thisfloatsetup{capbesideposition={left,top},capbesidewidth=0.4\textwidth}}]{figure}[\FBwidth]
+    {\caption{Strong scaling for AMReX Complex Langevin on NVIDIA Tesla V100 GPUs. These runs were performed with box sizes of $32^3$ and $128^3$ for the $512^3$ and $1024^3$ domains, respectively, using 1 MPI task per GPU and no logical tiling. For the run labeled ``O-10'' we calculate observables every 10 Langevin steps, otherwise we turn off observables to measure performance for the Langevin advance alone.}\label{Fig:GPUScaling}}
+    {\includegraphics[width=0.6\textwidth]{./AMReX_Complex_Langevin_Cori_GPU_Scaling.png}}
 \end{figure}
 %\vspace{-3mm}
 %

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.10.17)  29 OCT 2020 17:43
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.10.17)  29 OCT 2020 18:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -320,51 +320,89 @@ Package caption Info: hyperref package is loaded.
 \c@subfigure=\count270
 \c@subtable=\count271
 )
+(/usr/share/texlive/texmf-dist/tex/latex/floatrow/floatrow.sty
+Package: floatrow 2008/08/02 v0.3b floatrow: float package extension
+\c@float@type=\count272
+\float@exts=\toks20
+\float@box=\box47
+\@floatcapt=\box48
+Package floatrow Info: Modified float package code loaded on input line 455.
+Package floatrow Info: Modified rotfloat package code loaded on input line 473.
+
+\FR@everyfloat=\toks21
+\flrow@foot=\insert252
+\FB@wd=\dimen166
+\FBo@wd=\dimen167
+\FBc@wd=\dimen168
+\FBo@ht=\skip57
+\FBc@ht=\skip58
+\FBf@ht=\skip59
+\FBo@max=\skip60
+\FBc@max=\skip61
+\FBf@max=\skip62
+\c@FBl@b=\count273
+\floatbox@depth=\count274
+\c@FRobj=\count275
+\c@FRsobj=\count276
+\Xhsize=\skip63
+\sXhsize=\skip64
+\Zhsize=\skip65
+\sZhsize=\skip66
+\flrow@rowbox=\box49
+\FR@Zunitlength=\dimen169
+\c@FBcnt=\count277
+\FPOScnt=\count278
+\LTleft=\skip67
+\LTright=\skip68
+\LTleft=\skip69
+\LTright=\skip70
+\flrow@types=\toks22
+)
 (/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
 Package: geometry 2020/01/02 v5.9 Page Geometry
 
 (/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 )
-\Gm@cnth=\count272
-\Gm@cntv=\count273
-\c@Gm@tempcnt=\count274
-\Gm@bindingoffset=\dimen166
-\Gm@wd@mp=\dimen167
-\Gm@odd@mp=\dimen168
-\Gm@even@mp=\dimen169
-\Gm@layoutwidth=\dimen170
-\Gm@layoutheight=\dimen171
-\Gm@layouthoffset=\dimen172
-\Gm@layoutvoffset=\dimen173
-\Gm@dimlist=\toks20
+\Gm@cnth=\count279
+\Gm@cntv=\count280
+\c@Gm@tempcnt=\count281
+\Gm@bindingoffset=\dimen170
+\Gm@wd@mp=\dimen171
+\Gm@odd@mp=\dimen172
+\Gm@even@mp=\dimen173
+\Gm@layoutwidth=\dimen174
+\Gm@layoutheight=\dimen175
+\Gm@layouthoffset=\dimen176
+\Gm@layoutvoffset=\dimen177
+\Gm@dimlist=\toks23
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
 File: l3backend-pdfmode.def 2020-02-03 L3 backend support: PDF mode
-\l__kernel_color_stack_int=\count275
-\l__pdf_internal_box=\box47
+\l__kernel_color_stack_int=\count282
+\l__pdf_internal_box=\box50
 )
 (./resourcejustification.aux)
 \openout1 = `resourcejustification.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 35.
-LaTeX Font Info:    ... okay on input line 35.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 35.
-LaTeX Font Info:    ... okay on input line 35.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 35.
-LaTeX Font Info:    ... okay on input line 35.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 35.
-LaTeX Font Info:    ... okay on input line 35.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 35.
-LaTeX Font Info:    ... okay on input line 35.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 35.
-LaTeX Font Info:    ... okay on input line 35.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 35.
-LaTeX Font Info:    ... okay on input line 35.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 35.
-LaTeX Font Info:    ... okay on input line 35.
-\AtBeginShipoutBox=\box48
-Package hyperref Info: Link coloring OFF on input line 35.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+\AtBeginShipoutBox=\box51
+Package hyperref Info: Link coloring OFF on input line 36.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
@@ -375,11 +413,11 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 (/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count276
+\c@section@level=\count283
 )
-LaTeX Info: Redefining \ref on input line 35.
-LaTeX Info: Redefining \pageref on input line 35.
-LaTeX Info: Redefining \nameref on input line 35.
+LaTeX Info: Redefining \ref on input line 36.
+LaTeX Info: Redefining \pageref on input line 36.
+LaTeX Info: Redefining \nameref on input line 36.
 
 (./resourcejustification.out) (./resourcejustification.out)
 \@outlinefile=\write3
@@ -388,17 +426,17 @@ LaTeX Info: Redefining \nameref on input line 35.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count277
-\scratchdimen=\dimen174
-\scratchbox=\box49
-\nofMPsegments=\count278
-\nofMParguments=\count279
-\everyMPshowfont=\toks21
-\MPscratchCnt=\count280
-\MPscratchDim=\dimen175
-\MPnumerator=\count281
-\makeMPintoPDFobject=\count282
-\everyMPtoPDFconversion=\toks22
+\scratchcounter=\count284
+\scratchdimen=\dimen178
+\scratchbox=\box52
+\nofMPsegments=\count285
+\nofMParguments=\count286
+\everyMPshowfont=\toks24
+\MPscratchCnt=\count287
+\MPscratchDim=\dimen179
+\MPnumerator=\count288
+\makeMPintoPDFobject=\count289
+\everyMPtoPDFconversion=\toks25
 ) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
@@ -409,6 +447,8 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: float package is loaded.
+Package caption Info: floatrow package is loaded.
 Package caption Info: End \AtBeginDocument code.
 
 *geometry* driver: auto-detecting
@@ -445,22 +485,22 @@ Package caption Info: End \AtBeginDocument code.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 60.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 61.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 60.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 61.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 
-LaTeX Warning: Citation `BergerCLReview' on page 1 undefined on input line 72.
+LaTeX Warning: Citation `BergerCLReview' on page 1 undefined on input line 73.
 
 
-LaTeX Warning: Citation `BergerCLReview' on page 1 undefined on input line 72.
+LaTeX Warning: Citation `BergerCLReview' on page 1 undefined on input line 73.
 
 [1
 
@@ -470,36 +510,47 @@ LaTeX Warning: Citation `BergerCLReview' on page 1 undefined on input line 72.
 File: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png Graphic file (type png)
 <use ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>
 Package pdftex.def Info: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png  used on
- input line 111.
+ input line 115.
+(pdftex.def)             Requested size: 303.53708pt x 187.46866pt.
+File: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png Graphic file (type png)
+<use ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>
+Package pdftex.def Info: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png  used on
+ input line 115.
+(pdftex.def)             Requested size: 303.53708pt x 187.46866pt.
+File: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png Graphic file (type png)
+<use ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>
+Package pdftex.def Info: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png  used on
+ input line 115.
 (pdftex.def)             Requested size: 303.53708pt x 187.46866pt.
 
+Overfull \hbox (9.99998pt too wide) detected at line 115
+ [] 
+ []
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
+[2 <./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>]
 No file resourcejustification.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 122.
-[2] [3 <./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 122.
-
-(./resourcejustification.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 122.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 122.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 125.
+[3]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 125.
+ (./resourcejustification.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 125.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 125.
 Package rerunfilecheck Info: File `resourcejustification.out' has not changed.
 (rerunfilecheck)             Checksum: 99D67C2165965C52170575A04E314C86;281.
 
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 122.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 125.
  ) 
 Here is how much of TeX's memory you used:
- 8988 strings out of 481239
- 136180 string characters out of 5920376
- 407852 words of memory out of 5000000
- 24105 multiletter control sequences out of 15000+600000
+ 9512 strings out of 481239
+ 143763 string characters out of 5920376
+ 420880 words of memory out of 5000000
+ 24624 multiletter control sequences out of 15000+600000
  538501 words of font info for 47 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 48i,6n,46p,1282b,326s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 48i,8n,51p,1282b,540s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texl
@@ -508,7 +559,7 @@ mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/t
 ype1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
 ublic/amsfonts/cm/cmsy8.pfb>
-Output written on resourcejustification.pdf (3 pages, 147743 bytes).
+Output written on resourcejustification.pdf (3 pages, 147383 bytes).
 PDF statistics:
  80 PDF objects out of 1000 (max. 8388607)
  64 compressed objects within 1 object stream
