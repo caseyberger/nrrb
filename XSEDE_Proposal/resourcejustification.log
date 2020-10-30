@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.10.17)  29 OCT 2020 18:14
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.10.17)  29 OCT 2020 18:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -502,9 +502,6 @@ LaTeX Warning: Citation `BergerCLReview' on page 1 undefined on input line 73.
 
 LaTeX Warning: Citation `BergerCLReview' on page 1 undefined on input line 73.
 
-
-LaTeX Warning: Reference `scaling' on page 1 undefined on input line 77.
-
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
@@ -513,47 +510,47 @@ LaTeX Warning: Reference `scaling' on page 1 undefined on input line 77.
 File: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png Graphic file (type png)
 <use ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>
 Package pdftex.def Info: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png  used on
- input line 115.
+ input line 118.
 (pdftex.def)             Requested size: 303.53708pt x 187.46866pt.
 File: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png Graphic file (type png)
 <use ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>
 Package pdftex.def Info: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png  used on
- input line 115.
+ input line 118.
 (pdftex.def)             Requested size: 303.53708pt x 187.46866pt.
 File: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png Graphic file (type png)
 <use ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>
 Package pdftex.def Info: ./AMReX_Complex_Langevin_Cori_GPU_Scaling.png  used on
- input line 115.
+ input line 118.
 (pdftex.def)             Requested size: 303.53708pt x 187.46866pt.
 
-Overfull \hbox (9.99998pt too wide) detected at line 115
+Overfull \hbox (9.99998pt too wide) detected at line 118
  [] 
  []
 
-[2 <./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>]
 No file resourcejustification.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 125.
-[3]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 125.
- (./resourcejustification.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 125.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 125.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 128.
+[2 <./AMReX_Complex_Langevin_Cori_GPU_Scaling.png>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 128.
+
+(./resourcejustification.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 128.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 128.
 Package rerunfilecheck Info: File `resourcejustification.out' has not changed.
 (rerunfilecheck)             Checksum: B4C5B07EDA4C27562AD51D93FAFA57A5;150.
 
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 125.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 128.
  ) 
 Here is how much of TeX's memory you used:
- 9506 strings out of 481239
- 143670 string characters out of 5920376
+ 9504 strings out of 481239
+ 143655 string characters out of 5920376
  419821 words of memory out of 5000000
- 24620 multiletter control sequences out of 15000+600000
+ 24619 multiletter control sequences out of 15000+600000
  537896 words of font info for 45 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 48i,8n,51p,1282b,540s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 48i,8n,51p,891b,540s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texl
@@ -562,10 +559,10 @@ mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/t
 ype1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
 ublic/amsfonts/cm/cmsy8.pfb>
-Output written on resourcejustification.pdf (3 pages, 146304 bytes).
+Output written on resourcejustification.pdf (2 pages, 145765 bytes).
 PDF statistics:
- 71 PDF objects out of 1000 (max. 8388607)
- 55 compressed objects within 1 object stream
- 9 named destinations out of 1000 (max. 500000)
+ 67 PDF objects out of 1000 (max. 8388607)
+ 52 compressed objects within 1 object stream
+ 8 named destinations out of 1000 (max. 500000)
  22 words of extra memory for PDF output out of 10000 (max. 10000000)
 
