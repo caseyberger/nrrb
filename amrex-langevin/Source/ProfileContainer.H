@@ -69,7 +69,7 @@ public:
     }
 
 
-    void AccumulateProfile(const MultiFab& lattice, MultiFab& profile, const NRRBParameters& nrrb_parm)
+    void AccumulateProfile(const MultiFab& lattice, const NRRBParameters& nrrb_parm)
     {
         // Set lattice GDB
         BasePC::m_gdb_object = gdb_lattice;
@@ -84,8 +84,7 @@ public:
         // Set profile GDB
         BasePC::m_gdb_object = gdb_profile;
 
-        // Redistribute particles using the profile geometry,
-        // box array, and distribution mapping.
+        // Redistribute particles to the profile
         Redistribute();
 
         // Average particle sums to the mesh
@@ -155,6 +154,9 @@ public:
                 p.pos(2) = 0;
 
                 // accumulate box contents along the time dimension
+                p.rdata(PIdx::DensRe) = 0;
+                p.rdata(PIdx::DensIm) = 0;
+
                 for (int k = lo.z; k <= hi.z; ++k) {
                     Real dens_Re, dens_Im;
                     local_density(cell_idx_x, cell_idx_y, k, L_array, nrrb_parm, dens_Re, dens_Im);
