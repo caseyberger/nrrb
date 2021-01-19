@@ -219,7 +219,7 @@ make -j 8 USE_MPI=TRUE USE_CUDA=TRUE USE_HDF5=TRUE
 
 ## Running
 
-Uses the `gpu_visible.sh` and `run.slurm` scripts in `nrrb/amrex-langevin/Utils/bridges-2`
+Uses the `gpu_visible.sh` and `bridges2.MPI.CUDA.slurm` scripts in `nrrb/amrex-langevin/Utils/bridges-2`
 
 Both scripts are commented for details. The "GPU visible" script makes it
 so each MPI rank can only see 1 GPU. The SLURM script is for submitting batch
@@ -247,11 +247,11 @@ mpirun ./gpu_visible.sh ./main3d.gnu.MPI.CUDA.ex inputs
 
 ### Batch Job
 
-Use a SLURM script like `run.slurm` and pass all the job options to the
+Use a SLURM script like `bridges2.MPI.CUDA.slurm` and pass all the job options to the
 `sbatch` command like this:
 
 ```
-sbatch -p GPU -t 00:30:00 -N 1 --ntasks-per-node=8 --gres=gpu:8 run.slurm
+sbatch -p GPU -t 00:30:00 -N 1 --ntasks-per-node=8 --gres=gpu:8 bridges2.MPI.CUDA.slurm
 ```
 
 Requires the `gpu_visible.sh` script in the current directory.
