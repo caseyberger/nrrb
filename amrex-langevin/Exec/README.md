@@ -217,6 +217,9 @@ Compile for GPUs with:
 make -j 8 USE_MPI=TRUE USE_CUDA=TRUE USE_HDF5=TRUE
 ```
 
+Weirdly, I got a library error when trying to actually run with the
+`use_hdf5=true` option though. But the AMReX IO works.
+
 ## Running
 
 Uses the `gpu_visible.sh` and `bridges2.MPI.CUDA.slurm` scripts in `nrrb/amrex-langevin/Utils/bridges-2`
