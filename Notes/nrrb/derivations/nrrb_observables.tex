@@ -6,7 +6,7 @@
 %%%%%%%%%%%%%%%%%% OBSERVABLES %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{\label{NRRBObservables}NOT UPDATED YET:Lattice Observables}
+\section{\label{NRRBObservables}IN PROGRESS Lattice Observables}
 The observables we are interested in calculating are:
 \begin{itemize}
 	\item particle density (local and average density)
@@ -56,7 +56,7 @@ which suggests that we can compute observables by taking derivatives of the acti
 %
 In our statistical simulation, we seek to compute average values of these observables, weighted by $e^{-S}$. The complex Langevin simulation ensures that our samples are distributed according to the proper weight, so we are able to perform a simple average of the observables after the simulation has thermalized.
 
-*where does the beta come in? Or do we just need to take derivatives wrt our lattice parameters (e.g. $\bar{\mu}$ instead of $\mu$)?
+\note{where does the beta come in? Or do we just need to take derivatives wrt our lattice parameters (e.g. $\bar{\mu}$ instead of $\mu$)?}
 
 
 
@@ -93,6 +93,7 @@ or take the density profile of a single time slice:
 \hat{n}_{r}[\phi_{i},\vec{x},\tau] =  \frac{1}{(a N_{x})^{d}} a^{d}\left(e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)
 \eeq
 %
+Averaging over the extent of the time lattice should produce better results (i.e. we will have a mean and a standard error, which gives us a statistical value to evaluate), so we will do this.
 
 \subsection{Field Modulus Squared}
 The field modulus squared is simply a measure of the magnitude of the complex field, $\phi$. This can be written straightforwardly as
@@ -101,36 +102,80 @@ The field modulus squared is simply a measure of the magnitude of the complex fi
 \phi^{*}\phi = \sum_{\vec{x},\tau} a^{d} d\tau \phi^{*}_{r,\tau}\phi_{r,\tau}
 \eeq
 %
+While this is not an incredibly useful quantity to calculate, it's very simple and can be used in some early testing to ensure stability of the method and check against other results. 
 
 \subsection{Angular Momentum}
 We can compute the angular momentum by taking a derivative of the lattice action with respect to the rotation frequency. Since the only part of the lattice action that depends on $\bar{\omega}_{z}$ is $S_{\omega}$, we can ignore the rest of the action:
 %
 \bea
-\hat{L_{z}}[\phi_{i}] &=& - \frac{\partial}{\partial \bar{\omega}_{z}} S_{lat} = - \frac{\partial}{\partial \bar{\omega}_{z}} S_{\omega}  \nonumber \\
+\hat{L_{z}}[\phi_{i}] &=& - \frac{\partial}{\partial \bar{\omega}_{z}} S_{lat} = \frac{\partial}{\partial \bar{\omega}_{z}} S_{\omega}  \nonumber \\
 %
-&=& - \frac{\partial}{\partial \bar{\omega}_{z}}  \sum_{\vec{x},\tau} a^{d} \left( i \bar{\omega}_{z} \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\right) \nonumber \\
+&=& \frac{\partial}{\partial \bar{\omega}_{z}}  \sum_{\vec{x},\tau} a^{d} \left( i \bar{\omega}_{z} \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\right) \nonumber \\
 %
-&=&-  \sum_{\vec{x},\tau} a^{d} \left( i  \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\right) 
+&=& \sum_{\vec{x},\tau} a^{d} \left( i  \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\right) 
 \eea
 %
 This can be written in terms of $S_{\omega}$:
 %
 \beq
-\hat{L_{z}}[\phi_{i}] = - \frac{1}{\bar{\omega}_{z}} S_{\omega}
+\hat{L_{z}}[\phi_{i}] =  \frac{1}{\bar{\omega}_{z}} S_{\omega}
+\eeq
+%
+\note{Check the sign here -- you may have lost a minus sign}
+
+\subsection{Harmonic Trapping Potential Energy}
+As is likely obvious by now, the way to calculate the potential energy due to the harmonic trap is by taking a derivative with respect to  $\bar{\omega}_{\mathrm{tr}}$. The only part of the action that depends on $\bar{\omega}_{\mathrm{tr}}$ is $S_{\mathrm{tr}}$:
+%
+\bea
+\hat{V}_{\mathrm{tr}}[\phi_{i}] &=&- \frac{\partial}{\partial \bar{\omega}_{\mathrm{tr}}} S_{lat}  =  \frac{\partial}{\partial \bar{\omega}_{\mathrm{tr}}}S_{\mathrm{tr}} \nonumber \\
+& = &  \frac{\partial}{\partial \bar{\omega}_{\mathrm{tr}}} \sum_{\vec{x},\tau}a^{d}\left( \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} \right) = \sum_{\vec{x},\tau}a^{d}\left( \frac{\bar{m}}{2} (2 \bar{\omega}_{\mathrm{tr}}) \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} \right) \nonumber \\
+& =& \sum_{\vec{x},\tau}a^{d}\left(\bar{m} \bar{\omega}_{\mathrm{tr}} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} \right)
+\eea
+%
+In terms of  $S_{\mathrm{tr}}$, this is
+%
+\beq
+V_{\mathrm{tr}}  = \frac{2}{\bar{\omega}_{\mathrm{tr}}} S_{\mathrm{tr}}
+\eeq
+%
+\note{Check the sign here as well}
+
+\subsection{Interaction Potential Energy}
+The interaction also generates a potential energy, and we can calculate that by taking a derivative as well. The interaction parameter, $\bar{\lambda}$, is only present in the interaction term, $S_{\mathrm{int}}$:
+%
+\bea
+\hat{V}_{\mathrm{int}}[\phi_{i}] &=&- \frac{\partial}{\partial \bar{\lambda}} S_{lat}  = - \frac{\partial}{\partial \bar{\lambda}}S_{\mathrm{int}} \nonumber \\
+&=& -  \frac{\partial}{\partial \bar{\lambda}}\sum_{\vec{x},\tau}a^{d}\left( \bar{\lambda}\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}\right) = -  \sum_{\vec{x},\tau}a^{d}\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}. 
+\eea
+%
+In terms of $S_{\bar{\lambda}}$, this is:
+%
+\beq
+\hat{V}_{\mathrm{int}}= \frac{1}{\bar{\lambda}}S_{\bar{\lambda}}
 \eeq
 %
 
-
-\subsection{Harmonic Trapping Potential Energy}
-
-\subsection{Interaction Potential Energy}
-
 \subsection{Kinetic Energy}
+Of course, in addition to the potential energies, our system has a kinetic energy, which we can calculate. The kinetic energy is actually one of the terms in the action, and we don't need to perform any derivatives to calculate it:
+%
+\beq
+\hat{T} = S_{\del} = \sum_{\vec{x},\tau}a^{d}\left( \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(2 \phi_{r}^{*}\phi_{r}  - \phi_{r}^{*}\phi_{r - \hat{j}} - \phi_{r}^{*}\phi_{r + \hat{j}}\right)\right)
+\eeq
+%
 
-\subsection{Total Energy}
+\note{Talk through this with Lukas -- are there any subtleties here?}
 
+%\subsection{Total Energy}
+%The total energy is often calculated using the Hamitonian. We can also calculate it by summing our energy terms. While in the action, we subtract potential energy from kinetic energy, in the Hamiltonian, we add it.
+%\note{We see here that particle number plays a role in the energy of the system -- we can add or remove particles to change the energy. This is part of why it's such a pain to balance all our parameters. Is that right? Or does the particle number contribute to the energy as well? As a sort of chemical potential energy??}
 \subsection{Action}
-
+We see from the above work that the full action can actually be calculated by summing many of the other observables.
+%
+\bea
+S_{\mathrm{lat}} &= & S_{\mu} + S_{\del} - S_{\mathrm{tr}} - S_{\omega} + S_{\mathrm{int}} \nonumber \\
+&=& \hat{N} + \phi^{*}\phi + \hat{T} - \frac{\bar{\omega_{\mathrm{tr}}}}{2} \hat{V}_{\mathrm{tr}} - \bar{\omega}_{z} \hat{L}_{z} + \bar{\lambda} \hat{V}_{\mathrm{int}}
+\eea
+%
 \subsection{NOT DONE YET Circulation}
 The circulation is defined as
 \bea
