@@ -176,25 +176,6 @@ S_{\mathrm{lat}} &= & S_{\mu} + S_{\del} - S_{\mathrm{tr}} - S_{\omega} + S_{\ma
 &=& \hat{N} + \phi^{*}\phi + \hat{T} - \frac{\bar{\omega_{\mathrm{tr}}}}{2} \hat{V}_{\mathrm{tr}} - \bar{\omega}_{z} \hat{L}_{z} + \bar{\lambda} \hat{V}_{\mathrm{int}}
 \eea
 %
-\subsection{NOT DONE YET Circulation}
-The circulation is defined as
-\bea
-\Gamma[l] &=& \frac{1}{2 \pi}\oint_{l \times l}dx \left(\theta_{t,x+j} - \theta_{t,x}\right) \\
-\theta_{t,x} &=& \tan^{-1}\left(\frac{\text{Im}[\phi_{t,x}]}{\text{Re}[\phi_{t,x}]} \right).
-\eea
-Given that our field, $\phi$, is broken into 4 components ($\phi_{1/2}^{R/I}$, we need to rewrite this quantity in terms of those components:
-\bea
-\phi &=& \frac{1}{\sqrt{2}}\left(\phi_{1}^{R} + i \phi_{1}^{I} + i \phi_{2}^{R} - \phi_{2}^{I}\right)\\
-\text{Re}[\phi_{t,x}] & =& \frac{1}{\sqrt{2}}\left(\phi_{1,t,x}^{R} - \phi_{2,t,x}^{I}\right)\\
-\text{Im}[\phi_{t,x}] & = & \frac{1}{\sqrt{2}}\left(\phi_{1,t,x}^{I} + \phi_{2,t,x}^{R} \right)\\
-\theta_{t,x} &=& \tan^{-1}\left(\frac{\phi_{1,t,x}^{I} + \phi_{2,t,x}^{R}}{\phi_{1,t,x}^{R} - \phi_{2,t,x}^{I}} \right).
-\eea
-Therefore, our circulation is a sum computed around a loop on the lattice of length $l$ in each direction:
-\beq
-\Gamma[l] = \frac{1}{2 \pi}\sum_{l \times l}\left(\theta_{t,x+j} - \theta_{t,x}\right) \\
-\eeq
-where $\theta_{t,x+j}$ is computed at the next site on the loop from $\theta_{t,x}$ for each point along the loop.
-
 
 \subsection{Average Energy}
 The expectation value of the density is defined as
@@ -212,6 +193,35 @@ We can see that the action is linear in $\beta$. Therefore, we can simply calcul
 \langle E \rangle = \frac{S}{ \beta}
 \eeq
 
+\subsection{Circulation}
+The circulation is defined as
+%
+\bea
+\Gamma[l] &=& \frac{1}{2 \pi}\oint_{l \times l}dx \left(\theta_{\tau,x+j} - \theta_{\tau,x}\right) \\
+\theta_{t,x} &=& \arctan\left(\frac{\text{Im}[\phi_{\tau,x}]}{\text{Re}[\phi_{\tau,x}]} \right).
+\eea
+%
+Given that our field, $\phi$, is broken into 4 components ($\phi_{1/2}^{R/I}$, we need to rewrite this quantity in terms of those components:
+%
+\bea
+\phi &=& \frac{1}{\sqrt{2}}\left(\phi_{1}^{R} + i \phi_{1}^{I} + i \phi_{2}^{R} - \phi_{2}^{I}\right) \nonumber \\
+\text{Re}[\phi_{\tau,x}] & =& \frac{1}{\sqrt{2}}\left(\phi_{1,\tau,x}^{R} - \phi_{2,\tau,x}^{I}\right)\nonumber \\
+\text{Im}[\phi_{\tau,x}] & = & \frac{1}{\sqrt{2}}\left(\phi_{1,\tau,x}^{I} + \phi_{2,\tau,x}^{R} \right)\nonumber \\
+\theta_{\tau,x} &=& \arctan\left(\frac{\phi_{1,\tau,x}^{I} + \phi_{2,\tau,x}^{R}}{\phi_{1,\tau,x}^{R} - \phi_{2,\tau,x}^{I}} \right).
+\eea
+%
+Note, we have the potential to encounter singularities here -- in the extremely unlikely event that $\phi_{1,\tau,x}^{R} = \phi_{2,\tau,x}^{I}$, we will have a zero in the denominator. This probably won't ever occur, but we should take it into account when troubleshooting.
+
+We need to convert our integral to a sum, in order to calculate it on a lattice. So we choose an $l \times l$ sub-section of the lattice centered around the middle and proceed around it in a clockwise fashion.
+%
+\bea
+\Gamma[l] &=& \frac{a}{2 \pi}\sum_{l \times l}\left(\theta_{\tau,x+j} - \theta_{\tau,x}\right) \nonumber \\
+ &=&  \frac{a}{2 \pi}\sum_{l \times l}\left[\arctan \left( \frac{\phi_{1,\tau,x+\hat{j}}^{I} + \phi_{2,\tau,x+\hat{j}}^{R}}{\phi_{1,\tau,x+\hat{j}}^{R} - \phi_{2,\tau,x+\hat{j}}^{I}}\right) - \arctan\left(\frac{\phi_{1,\tau,x}^{I} + \phi_{2,t,x}^{R}}{\phi_{1,\tau,x}^{R} - \phi_{2,\tau,x}^{I}} \right) \right]
+\eea
+%
+where $\phi_{\tau,x+j}$ is the value of the field at the next site on the loop from $\phi_{\tau,x}$ for each point along the loop.
+
+We can then average this value over the extent of our temporal lattice to produce a value with a mean and standard error.
 
 \section{\label{SecondComplexification} NOT UPDATED YET: Complexifying the Real Fields}
 

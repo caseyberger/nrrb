@@ -30,6 +30,6 @@
 \contentsline {subsection}{\numberline {A.4.6}Interaction Potential Energy}{22}{subsection.1.A.4.6}
 \contentsline {subsection}{\numberline {A.4.7}Kinetic Energy}{22}{subsection.1.A.4.7}
 \contentsline {subsection}{\numberline {A.4.8}Action}{22}{subsection.1.A.4.8}
-\contentsline {subsection}{\numberline {A.4.9}NOT DONE YET Circulation}{23}{subsection.1.A.4.9}
-\contentsline {subsection}{\numberline {A.4.10}Average Energy}{23}{subsection.1.A.4.10}
-\contentsline {section}{\numberline {A.5} NOT UPDATED YET: Complexifying the Real Fields}{23}{section.1.A.5}
+\contentsline {subsection}{\numberline {A.4.9}Average Energy}{23}{subsection.1.A.4.9}
+\contentsline {subsection}{\numberline {A.4.10}Circulation}{23}{subsection.1.A.4.10}
+\contentsline {section}{\numberline {A.5} NOT UPDATED YET: Complexifying the Real Fields}{24}{section.1.A.5}
