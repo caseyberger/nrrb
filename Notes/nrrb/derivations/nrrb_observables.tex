@@ -6,7 +6,7 @@
 %%%%%%%%%%%%%%%%%% OBSERVABLES %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{\label{NRRBObservables}IN PROGRESS Lattice Observables}
+\section{\label{NRRBObservables}Lattice Observables}
 The observables we are interested in calculating are:
 \begin{itemize}
 	\item particle density (local and average density)
@@ -177,21 +177,71 @@ S_{\mathrm{lat}} &= & S_{\mu} + S_{\del} - S_{\mathrm{tr}} - S_{\omega} + S_{\ma
 \eea
 %
 
-\subsection{Average Energy}
-The expectation value of the density is defined as
-\beq
-\langle E \rangle = \frac{-\partial \ln \CZ}{\partial \beta}= \frac{-\partial \ln (e^{-S})}{\partial \beta} = \frac{\partial S}{\partial \beta}.
-\eeq
-Since we have written the action in terms of $\beta$ as 
+\subsection{Total Energy}
+Traditionally, in stat mech calculations, you can calculate the energy by taking a derivative of the partition function with respect to the inverse temperature, $\beta$. In lattice units, $\beta = N_{\tau}d\tau$, so we can rewrite our lattice action in terms of $\beta$. We cancelled out factors of $d\tau$ and $a$, so we need to put those back in:
 %
-\beq
-S \rightarrow \frac{1}{N_{\tau}}\sum_{x,\tau}\Delta x^{d}\beta \left[\left(\partial_{\tau}  - \frac{1}{2m}\del^{2} - \mu- i \omega_{z}(x \partial_{y} - y \partial_{x})  - \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \right)\phi + \lambda (\phi^{*}\phi)^{2}\right].
-\eeq 
+\bea
+S_{\text{lat}} &=& \sum_{\vec{x},\tau}a^{d} \left[ \phi_{r}^{*}\phi_{r} 
+- e^{ d\tau \mu}\phi_{r}^{*}\phi_{r - \hat{\tau}} 
+- \frac{d\tau}{2 m a^{2}} \sum_{j=1}^{d} \left(\phi_{r}^{*}\phi_{r - \hat{j}} - 2 \phi_{r}^{*}\phi_{r} + \phi_{r}^{*}\phi_{r + \hat{j}}\right)
+- \frac{m}{2} d\tau \omega_{\mathrm{tr}}^{2}r^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right. \nonumber \\
+&& \left.  + i d\tau \omega_{z} \left(\frac{x}{a} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \frac{x}{a}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \frac{y}{a} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} + \frac{y}{a}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)
++ d\tau \lambda\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}\right]
+\eea
 %
-We can see that the action is linear in $\beta$. Therefore, we can simply calculate the energy in the following way:
-\beq
-\langle E \rangle = \frac{S}{ \beta}
-\eeq
+Note that only one term in the action has no dependence on $d \tau$, and it came from a derivative with respect to $d\tau$
+\note{Possibly, you have to walk this back one more step... to before you combined terms to get the exponential. It may not make a big difference, and right now we're not very interested in this observable, but look into it.}
+
+If we multiply the whole thing by $1 = \frac{N_{\tau}}{N_{\tau}}$ (and use the same trick on the $d\tau \mu$ in the exponential), we can see where $\beta$ appears:
+%
+\bea
+S_{\text{lat}} &=& \frac{1}{N_{\tau}} \sum_{\vec{x},\tau}a^{d} \left[ N_{\tau} \phi_{r}^{*}\phi_{r} 
+- N_{\tau}e^{\beta \mu/N_{\tau}}\phi_{r}^{*}\phi_{r - \hat{\tau}} 
+- \frac{\beta}{2 m a^{2}} \sum_{j=1}^{d} \left(\phi_{r}^{*}\phi_{r - \hat{j}} - 2 \phi_{r}^{*}\phi_{r} + \phi_{r}^{*}\phi_{r + \hat{j}}\right)
+- \frac{m}{2} \beta \omega_{\mathrm{tr}}^{2}r^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right. \nonumber \\
+&& \left.  + i \beta \omega_{z} \left(\frac{x}{a} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \frac{x}{a}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \frac{y}{a} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} + \frac{y}{a}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)
++ \beta \lambda\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}\right]
+\eea
+%
+We then take a derivative with respect to $\beta$, giving us:
+%
+\bea
+\hat{E} &=& -\frac{1}{N_{\tau}} \sum_{\vec{x},\tau}a^{d} \left[\mu e^{\beta \mu/N_{\tau}}\phi_{r}^{*}\phi_{r - \hat{\tau}} 
++ \frac{1}{2 m a^{2}} \sum_{j=1}^{d} \left(\phi_{r}^{*}\phi_{r - \hat{j}} - 2 \phi_{r}^{*}\phi_{r} + \phi_{r}^{*}\phi_{r + \hat{j}}\right)
++ \frac{m}{2}  \omega_{\mathrm{tr}}^{2}r^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right. \nonumber \\
+&& \left.  - i  \omega_{z} \left(\frac{x}{a} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \frac{x}{a}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \frac{y}{a} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} + \frac{y}{a}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)
+- \lambda\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}\right]
+\eea
+%
+This can be written in terms of our other observables, and we bring back our parameters in lattice units:
+%
+\bea
+\hat{E} &=& -\frac{1}{N_{\tau} d\tau} \sum_{\vec{x},\tau}a^{d} \left[\bar{\mu}\left( \phi_{r}^{*}\phi_{r} - S_{\mu}\right)
+- S_{\del} + S_{\mathrm{tr}} + S_{\omega} - S_{\mathrm{int}}\right] \nonumber \\
+&=& \sum_{\vec{x},\tau}a^{d} \left[ \frac{1}{N_{\tau} d\tau} \bar{\mu} \hat{N} + \frac{1}{N_{\tau} d\tau}  \hat{T}
+- \frac{\bar{\omega}_{\mathrm{tr}}}{2} \hat{V}_{\mathrm{tr}} -  \bar{\omega}_{z}  \hat{L}_{z} +  \bar{\lambda} \hat{V}_{\mathrm{int}}\right] 
+\eea
+%
+
+
+% \note{OLD:
+%The expectation value of the density is defined as
+%
+%\beq
+%\langle E \rangle = \frac{-\partial \ln \CZ}{\partial \beta}= \frac{-\partial \ln (e^{-S})}{\partial \beta} = \frac{\partial S}{\partial \beta}.
+%\eeq
+%
+%Since we have written the action in terms of $\beta$ as 
+%
+%\beq
+%S \rightarrow \frac{1}{N_{\tau}}\sum_{x,\tau}\Delta x^{d}\beta \left[\left(\partial_{\tau}  - \frac{1}{2m}\del^{2} - \mu- i \omega_{z}(x \partial_{y} - y \partial_{x})  - \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \right)\phi + \lambda (\phi^{*}\phi)^{2}\right].
+%\eeq 
+%
+%We can see that the action is linear in $\beta$. Therefore, we can simply calculate the energy in the following way:
+%\beq
+%\langle E \rangle = \frac{S}{ \beta}
+%\eeq
+% Is this wrong? The derivation I did above isn't quite $S/\beta$...}
 
 \subsection{Circulation}
 The circulation is defined as

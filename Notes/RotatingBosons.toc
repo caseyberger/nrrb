@@ -10,8 +10,8 @@
 \contentsline {section}{\numberline {2.1}The rotating bosonic gas}{5}{section.2.1}
 \contentsline {subsection}{\numberline {2.1.1}The Action}{5}{subsection.2.1.1}
 \contentsline {section}{\numberline {2.2}The Langevin Equations}{6}{section.2.2}
-\contentsline {section}{\numberline {2.3}NOT UPDATED YET: Observables}{7}{section.2.3}
-\contentsline {subsection}{\numberline {2.3.1}Observables averaged over the volume}{7}{subsection.2.3.1}
+\contentsline {section}{\numberline {2.3}NOT UPDATED YET: Observables}{8}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Observables averaged over the volume}{8}{subsection.2.3.1}
 \contentsline {subsection}{\numberline {2.3.2}Observables per site}{9}{subsection.2.3.2}
 \contentsline {chapter}{Appendices}{10}{section*.2}
 \contentsline {chapter}{\numberline {A}NRRB Derivations}{11}{Appendix.1.A}
@@ -21,7 +21,7 @@
 \contentsline {subsection}{\numberline {A.3.1} Derivatives on the Lattice}{14}{subsection.1.A.3.1}
 \contentsline {subsection}{\numberline {A.3.2}Computing the derivative of the action with respect to the real fields}{15}{subsection.1.A.3.2}
 \contentsline {subsection}{\numberline {A.3.3} NOT UPDATED YET:Second Complexification of Drift Function}{17}{subsection.1.A.3.3}
-\contentsline {section}{\numberline {A.4}IN PROGRESS Lattice Observables}{19}{section.1.A.4}
+\contentsline {section}{\numberline {A.4}Lattice Observables}{19}{section.1.A.4}
 \contentsline {subsection}{\numberline {A.4.1}Density}{20}{subsection.1.A.4.1}
 \contentsline {subsection}{\numberline {A.4.2}Local Density}{21}{subsection.1.A.4.2}
 \contentsline {subsection}{\numberline {A.4.3}Field Modulus Squared}{21}{subsection.1.A.4.3}
@@ -30,6 +30,6 @@
 \contentsline {subsection}{\numberline {A.4.6}Interaction Potential Energy}{22}{subsection.1.A.4.6}
 \contentsline {subsection}{\numberline {A.4.7}Kinetic Energy}{22}{subsection.1.A.4.7}
 \contentsline {subsection}{\numberline {A.4.8}Action}{22}{subsection.1.A.4.8}
-\contentsline {subsection}{\numberline {A.4.9}Average Energy}{23}{subsection.1.A.4.9}
+\contentsline {subsection}{\numberline {A.4.9}Total Energy}{23}{subsection.1.A.4.9}
 \contentsline {subsection}{\numberline {A.4.10}Circulation}{23}{subsection.1.A.4.10}
 \contentsline {section}{\numberline {A.5} NOT UPDATED YET: Complexifying the Real Fields}{24}{section.1.A.5}
