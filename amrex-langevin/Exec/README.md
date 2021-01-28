@@ -208,7 +208,7 @@ List of modules to load:
 
 ```
 Currently Loaded Modules:
-  1) anaconda3/2020.07   2) gcc/10.2.0   3) cuda/11.1.1   4) openmpi/3.1.6-gcc10.2.0   5) allocations/1.0   6) hdf5/1.10.7
+  1) allocations/1.0   2) anaconda3/2020.11   3) gcc/10.2.0   4) cuda/11.1.1   5) openmpi/4.0.5-gcc10.2.0
 ```
 
 Compile for GPUs with:
