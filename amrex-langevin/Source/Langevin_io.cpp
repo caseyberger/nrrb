@@ -25,9 +25,9 @@ void WritePlotfile(int Langevin_step, const Real Langevin_time,
     MultiFab::Copy(lattice_plot, lattice_aux, 0, lattice.nComp(), AIdx::NAux, 0);
 
     // write lattice_plot to a plotfile
-    if (nrrb.use_hdf5) {
-        WriteSingleLevelPlotfileHDF5(pltfile, lattice_plot, plot_vars, geom, Langevin_time, 0);
-    } else {
-        WriteSingleLevelPlotfile(pltfile, lattice_plot, plot_vars, geom, Langevin_time, 0);
-    }
+#ifdef AMREX_USE_HDF5
+    WriteSingleLevelPlotfileHDF5(pltfile, lattice_plot, plot_vars, geom, Langevin_time, 0);
+#else
+    WriteSingleLevelPlotfile(pltfile, lattice_plot, plot_vars, geom, Langevin_time, 0);
+#endif
 }

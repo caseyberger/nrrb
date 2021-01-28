@@ -74,9 +74,6 @@ void langevin_main()
         // Only plot after this much langevin time has elapsed
         pp.query("plot_after_time", plot_after_time);
 
-        // Use HDF5 for writing plotfiles?
-        pp.query("use_hdf5", nrrb_parm.use_hdf5);
-
         // Get the max grid size to use for the density profile
         // By default, set it to the same as the CL domain max grid size
         int _profile_max_grid_size = -1;
