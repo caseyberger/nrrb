@@ -58,8 +58,8 @@ In our statistical simulation, we seek to compute average values of these observ
 
 \note{where does the beta come in? Or do we just need to take derivatives wrt our lattice parameters (e.g. $\bar{\mu}$ instead of $\mu$)?}
 
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Density}
 To calculate the density, first we need to determine the total number of particles in the system. We can do this by taking a derivative of the lattice action with respect to the chemical potential. Since the only part of the lattice action that depends on $\bar{\mu}$ is $S_{\mu}$, we can ignore the rest of the action:
 %
@@ -80,6 +80,32 @@ To determine the density, we simply normalize the particle number by the spatial
 \hat{n}[\phi_{i}] =  \frac{1}{(a N_{x})^{d}} \hat{N}[\phi_{i}]
 \eeq
 %
+
+\subsubsection{Complexification}
+When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \phi_{a/b}^{R} + i \phi_{a/b}^{I}$, we get:
+%
+\bea
+\hat{n} &=& -\frac{1}{2 N_{x}^{d}} e^{\bar{\mu}} \sum_{\vec{x},\tau}\sum_{a,b=1}^{2} \left( \delta_{ab} \phi_{a,r}\phi_{b,r-\hat{\tau}} + i \epsilon_{ab} \phi_{a,r}\phi_{b,r-\hat{\tau}}\right) \nonumber\\
+%
+&=& -\frac{1}{2N_{x}^{d}} e^{\bar{\mu}} \sum_{\vec{x},\tau}\sum_{a,b=1}^{2}\left[
+\delta_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{I} ) 
+- \epsilon_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{I} +  \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{R} )\right] \nonumber\\
+%
+&& -\frac{i}{2N_{x}^{d}} e^{\bar{\mu}} \sum_{\vec{x},\tau}\sum_{a,b=1}^{2}\left[
+\delta_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{I} + \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{R} )
++ \epsilon_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{I} )
+\right]
+%& = & -\frac{1}{2} e^{\bar{\mu}} \sum_{r}\sum_{a,b=1}^{2} \left[ \delta_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} + i \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} + i \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I} \right) \right. \nonumber \\
+%&&\left. + \epsilon_{ab} \left(i \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} - \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} - i \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I} \right)\right] \nonumber \\
+%& = & -\frac{1}{2} e^{\bar{\mu}} \sum_{r}\sum_{a,b=1}^{2} \left[ \delta_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I} \right) - \epsilon_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} + \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} \right)\right] \nonumber \\
+%& & - \frac{i}{2} e^{\bar{\mu}} \sum_{r}\sum_{a,b=1}^{2} \left[  \delta_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} +  \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}\right) + \epsilon_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R}- i \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I}\right)\right]
+\eea
+%
+This was done in Mathematica.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Local Density}
 The local density is simply the density function without the sum over the lattice. Since we are concerned with spatial density, we can either average our results over the extent of the time lattice
 %
@@ -95,6 +121,11 @@ or take the density profile of a single time slice:
 %
 Averaging over the extent of the time lattice should produce better results (i.e. we will have a mean and a standard error, which gives us a statistical value to evaluate), so we will do this.
 
+\subsubsection{Complexification}
+The difference between this observable and the density is simply that we evaluate the local density at each site and then do not average over the entire spatial lattice. The complexified observable value is therefore the same, after removing the sum over $\vec{x}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Field Modulus Squared}
 The field modulus squared is simply a measure of the magnitude of the complex field, $\phi$. This can be written straightforwardly as
 %
@@ -104,6 +135,18 @@ The field modulus squared is simply a measure of the magnitude of the complex fi
 %
 While this is not an incredibly useful quantity to calculate, it's very simple and can be used in some early testing to ensure stability of the method and check against other results. 
 
+\subsubsection{Complexification}
+When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \phi_{a/b}^{R} + i \phi_{a/b}^{I}$, we get:
+%
+\bea
+\phi^{*}\phi &=&\frac{1}{2} \sum_{\vec{x},\tau} a^{d}\sum_{a=1}^{2} d\tau \left(\phi_{a,r}\phi_{a,r}\right) \nonumber \\
+&=& \frac{1}{2}\sum_{\vec{x},\tau} a^{d} \sum_{a=1}^{2}  d\tau \big[ \big( (\phi_{a,r}^{R})^{2}- (\phi_{a,r}^{I})^{2} \big) + i \phi_{a,r}^{R}\phi_{a,r}^{I}\big]
+\eea
+%
+This was done in Mathematica.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Angular Momentum}
 We can compute the angular momentum by taking a derivative of the lattice action with respect to the rotation frequency. Since the only part of the lattice action that depends on $\bar{\omega}_{z}$ is $S_{\omega}$, we can ignore the rest of the action:
 %
@@ -123,6 +166,17 @@ This can be written in terms of $S_{\omega}$:
 %
 \note{Check the sign here -- you may have lost a minus sign}
 
+\subsubsection{Complexification}
+When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \phi_{a/b}^{R} + i \phi_{a/b}^{I}$, we get:
+%
+\bea
+\eea
+%
+
+\note{NOT DONE}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Harmonic Trapping Potential Energy}
 As is likely obvious by now, the way to calculate the potential energy due to the harmonic trap is by taking a derivative with respect to  $\bar{\omega}_{\mathrm{tr}}$. The only part of the action that depends on $\bar{\omega}_{\mathrm{tr}}$ is $S_{\mathrm{tr}}$:
 %
@@ -140,6 +194,26 @@ V_{\mathrm{tr}}  = \frac{2}{\bar{\omega}_{\mathrm{tr}}} S_{\mathrm{tr}}
 %
 \note{Check the sign here as well}
 
+
+\subsubsection{Complexification}
+When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \phi_{a/b}^{R} + i \phi_{a/b}^{I}$, we get:
+%
+\bea
+V_{\mathrm{tr}}  &=&\sum_{\vec{x},\tau}a^{d}\frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}} \bar{r}_{\perp}^{2}\sum_{a=1}^{2}\left[ \phi_{a,r}\phi_{a,r-\hat{\tau}} + i \sum_{b=1}^{2}\epsilon_{ab}  \phi_{a,r}\phi_{b,r-\hat{\tau}}\right] \nonumber \\
+%
+&=&\frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}} \bar{r}_{\perp}^{2}\sum_{\vec{x},\tau}a^{d}\sum_{a=1}^{2}\left[ 
+\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I} 
+- \epsilon_{ab}(\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I}+\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}) \right] \nonumber \\
+&& + i \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}} \bar{r}_{\perp}^{2} \sum_{\vec{x},\tau}a^{d}\sum_{a=1}^{2}\left[ 
+\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I}+ \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}
++ \epsilon_{ab}(\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I})
+\right]
+\eea
+%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Interaction Potential Energy}
 The interaction also generates a potential energy, and we can calculate that by taking a derivative as well. The interaction parameter, $\bar{\lambda}$, is only present in the interaction term, $S_{\mathrm{int}}$:
 %
@@ -155,6 +229,48 @@ In terms of $S_{\bar{\lambda}}$, this is:
 \eeq
 %
 
+\subsubsection{Complexification}
+When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \phi_{a/b}^{R} + i \phi_{a/b}^{I}$, we get:
+%
+\bea
+\hat{V}_{\mathrm{int}}& =& \frac{1}{4}\sum_{\vec{x},\tau}a^{d}\sum_{a,b=1}^{2}\left[2 \phi_{a,r} \phi_{a,r-\hat{\tau}} \phi_{b,r}\phi_{b,r-\hat{\tau}} -\phi_{a,r}^{2} \phi_{b,r-\hat{\tau}}^{2} \right] \nonumber \\
+&& +i \frac{ \bar{\lambda}}{2}\sum_{\vec{x},\tau}a^{d}\sum_{a,b=1}^{2}\left[\epsilon_{ab} \left( \phi_{a,r}^{2} \phi_{a,r-\hat{\tau}} \phi_{b,r-\hat{\tau}}-\phi_{a,r} \phi_{b,r}\phi_{a,r-\hat{\tau}}^{2} \right) \right] \nonumber \\
+%
+&=& \frac{1}{4}\sum_{\vec{x},\tau}a^{d}\sum_{a,b=1}^{2}\left[ 4 \phi_{a,r}^{R}\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I}  \right.\nonumber \\
+&& \left. + \phi_{a,r}^{R}\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I} + \phi_{a,r}^{I}\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}
+\right. \nonumber \\
+&&\left.- \phi_{a,r}^{R}\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}  - \phi_{a,r}^{I}\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}\right. \nonumber \\
+&&\left.+ 2 \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r}^{R}\phi_{b,r-\hat{\tau}}^{R} + 2 \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r}^{I}\phi_{b,r-\hat{\tau}}^{I}\right. \nonumber \\
+&& \left. - 2 \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r}^{I}\phi_{b,r-\hat{\tau}}^{I}- 2 \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r}^{R}\phi_{b,r-\hat{\tau}}^{R}\right. \nonumber \\
+&& \left.- 2 \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r}^{R}\phi_{b,r-\hat{\tau}}^{I}  - 2 \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r}^{I}\phi_{b,r-\hat{\tau}}^{R} \right.\nonumber \\
+&& \left.- 2 \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r}^{I}\phi_{b,r-\hat{\tau}}^{R} - 2\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r}^{R}\phi_{b,r-\hat{\tau}}^{I} \right. \nonumber \\
+&& \left.+ \epsilon_{ab}(\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R}\phi_{a,r-\hat{\tau}}^{R} \phi_{b,r}^{I}+\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}\phi_{a,r-\hat{\tau}}^{R} \phi_{b,r}^{R} \right. \nonumber \\
+&& \left. - \phi_{a,r}^{R} \phi_{a,r-\hat{\tau}}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r}^{I}- \phi_{a,r}^{I} \phi_{a,r-\hat{\tau}}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r}^{R} \right.\nonumber \\
+&& \left.+ \phi_{a,r}^{I}\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R}  + \phi_{a,r}^{I}\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I} \right.\nonumber \\
+&& \left.- \phi_{a,r}^{R}\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{R}\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I}\right.\nonumber \\
+&& \left. + 2 \phi_{a,r}^{R}\phi_{b,r}^{R}\phi_{a,r-\hat{\tau}}^{R}\phi_{a,r-\hat{\tau}}^{I} + 2\phi_{a,r}^{R}\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}\right.\nonumber \\
+&& \left. - 2\phi_{a,r}^{R} \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}
+ - 2 \phi_{a,r}^{I}\phi_{b,r}^{I} \phi_{a,r-\hat{\tau}}^{R}\phi_{a,r-\hat{\tau}}^{I})
+\right] \nonumber \\
+&& + i  \frac{1}{4}\sum_{\vec{x},\tau}a^{d}\sum_{a,b=1}^{2}\left[ \right.\nonumber \\
+&& \left.
+ \right]
+%
+\eea
+%
+\beq
+\phi_{a,r}^{R}
+\phi_{a,r}^{I}
+\phi_{b,r}^{R}
+\phi_{b,r}^{I}
+\phi_{a,r-\hat{\tau}}^{R}
+\phi_{a,r-\hat{\tau}}^{I}
+\phi_{b,r-\hat{\tau}}^{R}
+\phi_{b,r-\hat{\tau}}^{I}
+\eeq
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Kinetic Energy}
 Of course, in addition to the potential energies, our system has a kinetic energy, which we can calculate. The kinetic energy is actually one of the terms in the action, and we don't need to perform any derivatives to calculate it:
 %
