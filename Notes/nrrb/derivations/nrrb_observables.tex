@@ -170,10 +170,22 @@ This can be written in terms of $S_{\omega}$:
 When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \phi_{a/b}^{R} + i \phi_{a/b}^{I}$, we get:
 %
 \bea
+\hat{L_{z}}[\phi_{i}] &=& \frac{1}{2} \sum_{a=1}^{2} \left[\sum_{b=1}^{2}\epsilon_{ab}\left((\bar{y} - \bar{x})\phi_{a,r}\phi_{b,r-\hat{\tau}}+ \bar{x}\phi_{a,r}\phi_{b,r - \hat{y}-\hat{\tau}} - \bar{y}\phi_{a,r}\phi_{b,r - \hat{x}-\hat{\tau}}\right)\right]\nonumber\\  
+&& + i  \frac{1}{2}\sum_{a=1}^{2} \left[(\bar{x} - \bar{y}) \phi_{a,r}\phi_{a,r-\hat{\tau}}- \bar{x} \phi_{a,r}\phi_{a,r - \hat{y}-\hat{\tau}} + \bar{y} \phi_{a,r}\phi_{a,r - \hat{x}-\hat{\tau}}\right]\nonumber\\  
+&=&\frac{1}{2} \sum_{a=1}^{2} \left[ (y-x) \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I} + (y-x)\phi_{a,r}^{I} \phi_{a,r-\hat{\tau}}^{R} \right. \nonumber \\
+&&\left.+ 
+x \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{y}}^{I} + x \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{y}}^{R} - y \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{x}}^{I} - y \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{x}}^{R}\right. \nonumber \\
+&&\left. + \epsilon_{ab}\sum_{b=1}^{2}\left( (x-y) \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{y}}^{I} + (y-x)\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{y}}^{R} \right. \right.\nonumber \\ 
+&&\left.\left. + x \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{y}}^{R}-x \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{y}}^{I} + y\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{x}}^{I} - y\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{x}}^{R} \right) \right] \nonumber \\
+%
+&=&\frac{i}{2} \sum_{a=1}^{2} \left[ (x-y) \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} + (y-x) \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I} - x \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{y}}^{R} \right.\nonumber \\ 
+&&\left.+ x \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{y}}^{I} + y \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{x}}^{R} - y \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{x}}^{I}\right.\nonumber \\ 
+&&\left. + \epsilon_{ab}\sum_{b=1}^{2}\left(  (y-x)\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} + (y-x)\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} + x \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{y}}^{I}  \right. \right.\nonumber \\ 
+&&\left. \left.+ x \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{y}}^{R} - y \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{x}}^{I} - y \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{x}}^{R}
+\right)\right]
+%
 \eea
 %
-
-\note{NOT DONE}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -253,21 +265,23 @@ When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \p
  - 2 \phi_{a,r}^{I}\phi_{b,r}^{I} \phi_{a,r-\hat{\tau}}^{R}\phi_{a,r-\hat{\tau}}^{I})
 \right] \nonumber \\
 && + i  \frac{1}{4}\sum_{\vec{x},\tau}a^{d}\sum_{a,b=1}^{2}\left[ \right.\nonumber \\
-&& \left.
- \right]
-%
+&& \left. 2 \phi_{a,r}^{I} \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} \phi_{b,r-\hat{\tau}}^{I} - 2\phi_{a,r}^{R} \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} \phi_{b,r-\hat{\tau}}^{I} \right.\nonumber \\
+&& \left. + 2 \phi_{a,r}^{R} \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I} - 2 \phi_{a,r}^{R} \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}\right.\nonumber \\
+&& \left. + 2 \phi_{a,r}^{R}\phi_{b,r}^{R}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R} - 2 \phi_{a,r}^{I}\phi_{b,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R}\right.\nonumber \\
+&&\left. + 2\phi_{a,r}^{R}\phi_{b,r}^{R} \phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I} - 2\phi_{a,r}^{I} \phi_{b,r}^{I} \phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I} 
+\right.\nonumber \\
+&& \left. +2\phi_{a,r}^{R}\phi_{b,r}^{I}  \phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R} - 2\phi_{a,r}^{R}\phi_{b,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}\right.\nonumber \\
+&& \left. + 2 \phi_{a,r}^{I}\phi_{b,r}^{R} \phi_{a,r-\hat{\tau}}^{R} \phi_{b,r-\hat{\tau}}^{R}- 2 \phi_{a,r}^{I}\phi_{b,r}^{R}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}\right.\nonumber \\
+&& \left. + \epsilon_{ab}(
+\phi_{a,r}^{R}\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{R}\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I} \right.\nonumber \\
+&& \left. +\phi_{a,r}^{I}\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I} \phi_{b,r-\hat{\tau}}^{I}- \phi_{a,r}^{I}\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}\right.\nonumber \\
+&& \left. +\phi_{a,r}^{I} \phi_{b,r}^{I}\phi_{a,r-\hat{\tau}}^{R}\phi_{a,r-\hat{\tau}}^{R} - \phi_{a,r}^{R}\phi_{b,r}^{R}\phi_{a,r-\hat{\tau}}^{R}\phi_{a,r-\hat{\tau}}^{R}\right.\nonumber \\
+&& \left. + \phi_{a,r}^{R}\phi_{b,r}^{R} \phi_{a,r-\hat{\tau}}^{I}\phi_{a,r-\hat{\tau}}^{I}- \phi_{a,r}^{I}\phi_{b,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{a,r-\hat{\tau}}^{I} \right.\nonumber \\
+&& \left. + 2 \phi_{a,r}^{R}\phi_{b,r}^{I}\phi_{a,r-\hat{\tau}}^{R} \phi_{a,r-\hat{\tau}}^{I} + 2 \phi_{a,r}^{I}\phi_{b,r}^{R}\phi_{a,r-\hat{\tau}}^{R}\phi_{a,r-\hat{\tau}}^{I}\right.\nonumber \\
+&& \left. - 2 \phi_{a,r}^{R} \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I} - 2 \phi_{a,r}^{R} \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R})
+\right]
 \eea
 %
-\beq
-\phi_{a,r}^{R}
-\phi_{a,r}^{I}
-\phi_{b,r}^{R}
-\phi_{b,r}^{I}
-\phi_{a,r-\hat{\tau}}^{R}
-\phi_{a,r-\hat{\tau}}^{I}
-\phi_{b,r-\hat{\tau}}^{R}
-\phi_{b,r-\hat{\tau}}^{I}
-\eeq
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -279,7 +293,21 @@ Of course, in addition to the potential energies, our system has a kinetic energ
 \eeq
 %
 
-\note{Talk through this with Lukas -- are there any subtleties here?}
+%\note{Talk through this with Lukas -- are there any subtleties here?}
+
+\subsubsection{Complexification}
+%
+\bea
+\hat{T} &= &\frac{1}{4\bar{m}}\sum_{\vec{x},\tau}a^{d}\sum_{j=1}^{d}\sum_{a=1}^{2}\left[ 2 \phi_{a,r}^{2} - (\phi_{a}\phi_{a,r-\hat{j}}+ \phi_{a}\phi_{a,r+\hat{j}}) \right. \nonumber \\
+&& \left.- i \sum_{b=1}^{2}\epsilon_{ab}\left(\phi_{a,r}\phi_{b,r-\hat{j}} +\phi_{a,r}\phi_{b,r+\hat{j}}  \right)\right] \nonumber \\
+&=& \frac{1}{4\bar{m}}\sum_{\vec{x},\tau}a^{d}\sum_{j=1}^{d}\sum_{a=1}^{2}\left[ 2\phi_{a,r}^{R}\phi_{a,r}^{R} - 2 \phi_{a,r}^{I}\phi_{a,r}^{I} \right. \nonumber \\
+&& \left.+ \phi_{a,r}^{I} \phi_{a,r-\hat{j}}^{I}+ \phi_{a,r}^{I} \phi_{a,r+\hat{j}}^{I} -\phi_{a,r}^{R}\phi_{a,r-\hat{j}}^{R}-\phi_{a,r}^{R}\phi_{a,r+\hat{j}}^{R}\right. \nonumber \\
+&& \left. + \epsilon_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{j}}^{I} + \phi_{a,r}^{R}\phi_{b,r+\hat{j}}^{I} + \phi_{a,r}^{I}\phi_{b,r-\hat{j}}^{R} + \phi_{a,r}^{I}\phi_{b,r+\hat{j}}^{R} \right) \right]\nonumber \\
+&& + \frac{i}{4\bar{m}}\sum_{\vec{x},\tau}a^{d}\sum_{j=1}^{d}\sum_{a=1}^{2}\left[ 4 \phi_{a,r}^{R}\phi_{a,r}^{I} - \phi_{a,r}^{R}\phi_{a,r-\hat{j}}^{I} - \phi_{a,r}^{R}\phi_{a,r+\hat{j}}^{I}  \right. \nonumber \\
+&& \left.- \phi_{a,r}^{I}\phi_{a,r-\hat{j}}^{R}- \phi_{a,r}^{I}\phi_{a,r+\hat{j}}^{R} + \epsilon_{ab} \left(\phi_{a,r}^{I}\phi_{b,r-\hat{j}}^{I}   + \phi_{a,r}^{I}\phi_{b,r+\hat{j}}^{I}  \right. \right. \nonumber \\
+&& \left. \left. - \phi_{a,r}^{R}\phi_{b,r-\hat{j}}^{R} - \phi_{a,r}^{R}\phi_{b,r+\hat{j}}^{R} \right)\right]
+\eea
+%
 
 %\subsection{Total Energy}
 %The total energy is often calculated using the Hamitonian. We can also calculate it by summing our energy terms. While in the action, we subtract potential energy from kinetic energy, in the Hamiltonian, we add it.
@@ -292,6 +320,9 @@ S_{\mathrm{lat}} &= & S_{\mu} + S_{\del} - S_{\mathrm{tr}} - S_{\omega} + S_{\ma
 &=& \hat{N} + \phi^{*}\phi + \hat{T} - \frac{\bar{\omega_{\mathrm{tr}}}}{2} \hat{V}_{\mathrm{tr}} - \bar{\omega}_{z} \hat{L}_{z} + \bar{\lambda} \hat{V}_{\mathrm{int}}
 \eea
 %
+
+\subsubsection{Complexification}
+As we have already developed a complexified expression for each of the observables that make up the action, we won't re-derive the expressions here. We can construct a complexified action from the observables already derived above.
 
 \subsection{Total Energy}
 Traditionally, in stat mech calculations, you can calculate the energy by taking a derivative of the partition function with respect to the inverse temperature, $\beta$. In lattice units, $\beta = N_{\tau}d\tau$, so we can rewrite our lattice action in terms of $\beta$. We cancelled out factors of $d\tau$ and $a$, so we need to put those back in:
@@ -339,6 +370,8 @@ This can be written in terms of our other observables, and we bring back our par
 \eea
 %
 
+\subsubsection{Complexification}
+Just as with the action, we can express the complexified total energy using 
 
 % \note{OLD:
 %The expectation value of the density is defined as
@@ -388,78 +421,5 @@ We need to convert our integral to a sum, in order to calculate it on a lattice.
 where $\phi_{\tau,x+j}$ is the value of the field at the next site on the loop from $\phi_{\tau,x}$ for each point along the loop.
 
 We can then average this value over the extent of our temporal lattice to produce a value with a mean and standard error.
-
-\section{\label{SecondComplexification} NOT UPDATED YET: Complexifying the Real Fields}
-
-Now we take our real fields, $\phi_{a}$, where $a = 1,2$, and rewrite them as two complex fields: $\phi_{a} = \phi_{a}^{R} + i \phi_{a}^{I}$
-
-The time derivative and chemical potential piece, $S_{\mu,r}$ becomes:
-\bea
-S_{\mu, r}^{R} & \rightarrow & \frac{1}{2}\sum_{a=1}^{2}\left( (\phi_{a,r}^{R})^{2}-(\phi_{a,r}^{I})^{2} -e^{d\tau\mu} \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} + e^{d\tau\mu}\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I}\right) \\
-& & + \frac{1}{2}\sum_{a,b=1}^{2}\epsilon_{ab}\left(e^{d\tau\mu}\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I}+e^{d\tau\mu}\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} \right) \nonumber \\
-S_{\mu,r}^{I} & \rightarrow & \frac{1}{2}\sum_{a=1}^{2} \left( 2 \phi_{a,r}^{R}\phi_{a,r}^{I} -e^{d\tau\mu}\phi_{a,r}^{R}\phi_{a,r-\hat{d\tau\tau}}^{I} - e^{d\tau\mu} \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}  \right)\\
-& & -  \frac{1}{2} \sum_{a,b=1}^{2} \epsilon_{ab} \left(  e^{d\tau\mu} \phi_{a,r}^{R} \phi_{b,r-\hat{\tau}}^{R} - e^{d\tau\mu} \phi_{a,r}^{I} \phi_{b,r-\hat{\tau}}^{I} \right) \nonumber,
-\eea
-%
-while the spatial derivative piece $S_{\del,r}$ (from the kinetic energy) becomes:
-%
-\bea
-S_{\del, r}^{R} & \rightarrow & \sum_{a=1}^{2}\left[\frac{d}{m}(\phi_{a,r}^{R})^{2}-\frac{d}{m} (\phi_{a,r}^{I})^{2} - \frac{1}{4m}\sum_{i = \pm x, y} \left(  \phi_{a,r}^{R} \phi_{a,r+\hat{i}}^{R} -  \phi_{a,r}^{I} \phi_{a,r+\hat{i}}^{I} \right)\right] \\
-& & +  \frac{1}{4m}\sum_{a,b = 1}^{2} \sum_{i = \pm x,y}\epsilon_{ab}\left(  \phi_{a,r}^{R} \phi_{b,r+\hat{i}}^{I} +  \phi_{a,r}^{I} \phi_{b,r+\hat{i}}^{R} \right)\nonumber \\
-S_{\del, r}^{I}& \rightarrow & \sum_{a=1}^{2}\left[ \frac{2d}{m}\phi_{a,r}^{R}\phi_{a,r}^{I} -\frac{1}{4m}\sum_{i = \pm x,y} \left( \phi_{a,r}^{R} \phi_{a,r+\hat{i}}^{I} +  \phi_{a,r}^{I} \phi_{a,r+\hat{i}}^{R}\right) \right]\\
-& & -\frac{1}{4m}\sum_{a,b=1}^{2}\sum_{i = \pm x,y} \epsilon_{ab} \left(  \phi_{a,r}^{R} \phi_{b,r+\hat{i}}^{R} -  \phi_{a,r}^{I} \phi_{b,r+\hat{i}}^{I} \right)  \nonumber.
-\eea
-%
-The trapping potential term, $S_{\text{trap}}$, becomes:
-%
-\bea
-S_{\text{trap}, r}^{R} & \rightarrow &  \frac{m}{4}\omega_{\text{trap}}^{2}\left(x^{2} + y^{2}\right)\sum_{a=1}^{2}\left[\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I} - \sum_{b=1}^{2}\epsilon_{ab}\left(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I}+\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} \right) \right]  \\
-S_{\text{trap}, r}^{I} & \rightarrow & \frac{m}{4}\omega_{\text{trap}}^{2}\left(x^{2} + y^{2}\right)\sum_{a=1}^{2}\left[\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I} + \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R} + \sum_{b=1}^{2}\epsilon_{ab}\left(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I}\right)\right].
-\eea
-%
-The rotating term, $S_{\omega,r}$ becomes:
-%
-\bea
-S_{\omega, r}^{R} & \rightarrow & \frac{\omega_{z}}{2} \sum_{a = 1}^{2}(y-x)  \left[( \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R} + \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I} ) + \sum_{b=1}^{2}\epsilon_{ab} (\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} -  \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I})\right]\nonumber \\
-%
-&&+  \frac{\omega_{z}}{2} \sum_{a= 1}^{2} \widetilde{x}\left[( \phi_{a,r}^{I}\phi_{a,r-\hat{y}-\hat{\tau}}^{R} + \phi_{a,r}^{R}\phi_{a,r-\hat{y}-\hat{\tau}}^{I} ) + \sum_{b=1}^{2}\epsilon_{ab} (\phi_{a,r}^{R}\phi_{b,r-\hat{y}-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{b,r-\hat{y}-\hat{\tau}}^{I}) \right]\nonumber \\
-%
-&& - \frac{\omega_{z}}{2} \sum_{a = 1}^{2}\widetilde{y}\left[ (\phi_{a,r}^{I}\phi_{a,r-\hat{x}-\hat{\tau}}^{R} +  \phi_{a,r}^{R}\phi_{a,r-\hat{x}-\hat{\tau}}^{I}) + \sum_{b=1}^{2}\epsilon_{ab} (\phi_{a,r}^{R}\phi_{b,r-\hat{x}-\hat{\tau}}^{R}   - \phi_{a,r}^{I} \phi_{b,r-\hat{x}-\hat{\tau}}^{I}) \right]  \\
-%
-S_{\omega, r}^{I}& \rightarrow &  \frac{\omega_{z}}{2}\sum_{a = 1}^{2}(x-y) \left[ (\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I}) - \sum_{b=1}^{2}\epsilon_{ab} (\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}+ \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I})\right] \nonumber\\
-% 
-&& -\frac{\omega_{z}}{2}\sum_{a = 1}^{2} \widetilde{x}\left[ (\phi_{a,r}^{R}\phi_{a,r-\hat{y}-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{y}-\hat{\tau}}^{I}) - \sum_{b=1}^{2}\epsilon_{ab} ( \phi_{a,r}^{I}\phi_{b,r-\hat{y}-\hat{\tau}}^{R}+\phi_{a,r}^{R} \phi_{b,r-\hat{y}-\hat{\tau}}^{I} ) \right]\nonumber \\
-%
-&&+\frac{\omega_{z}}{2}\sum_{a = 1}^{2} \widetilde{y}\left[ (\phi_{a,r}^{R}\phi_{a,r-\hat{x}-\hat{\tau}}^{R}  - \phi_{a,r}^{I}\phi_{a,r-\hat{x}-\hat{\tau}}^{I})  - \sum_{b=1}^{2} \epsilon_{ab} (\phi_{a,r}^{I}\phi_{b,r-\hat{x}-\hat{\tau}}^{R} +  \phi_{a,r}^{R} \phi_{b,r-\hat{x}-\hat{\tau}}^{I}) \right]
-\eea
-%
-and finally, the interaction term $S_{\text{int},r}$ becomes:
-%
-\bea
-&&\text{**still to do: copy over these finished calculations from notebook} \nonumber\\
-\text{Re}[S_{\text{int}, r}]  & \rightarrow &  \frac{\lambda}{4}  \sum_{a,b=1}^{2} \left[ 
-%
-\left( \phi_{a,r}^{R} \phi_{b,r-\hat{\tau}}^{I}\right)^{2} - \left( \phi_{a,r}^{I} \phi_{b,r-\hat{\tau}}^{I}\right)^{2} \right]\nonumber \\
-%
-&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} \left[ \phi_{a,r}^{R}\phi_{b,r}^{I}\left((\phi_{a,r-\hat{\tau}}^{R})^{2} - (\phi_{a,r-\hat{\tau}}^{I})^{2}\right) +\phi_{a,r}^{I}\phi_{b,r}^{R}\left((\phi_{a,r-\hat{\tau}}^{R})^{2} - (\phi_{a,r-\hat{\tau}}^{I})^{2} \right) \right]\nonumber \\
-%
-&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} \left[ \phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R}\left((\phi_{a,r}^{I})^{2}-(\phi_{a,r}^{R})^{2} \right)+ \phi_{a, r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I}\left((\phi_{a,r}^{I})^{2} - (\phi_{a,r}^{R})^{2}\right)\right]\nonumber \\
-%
-&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} 2 \left[\phi_{a,r}^{I}\phi_{b,r}^{I}\left(\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}-\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}\right) + \phi_{a,r}^{R}\phi_{b,r}^{R}\left(\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}-\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}\right)\right]\nonumber \\
-%
-&&-\frac{\lambda}{4}  \sum_{a,b=1}^{2} 2 \left[ \phi_{a,r}^{I} \phi_{b,r}^{R}\left( \phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I}+\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R}\right)+ \phi_{a,r}^{R} \phi_{b,r}^{I}\left( \phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I}+\phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{R}\right)\right]\nonumber \\
-%
-&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} 2 \left[\phi_{a,r}^{I}\phi_{a,r}^{R}\left( \phi_{a,r-\hat{\tau}}^{I}\phi_{b,r-\hat{\tau}}^{I}-\phi_{a,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{R}\right) + \phi_{a,r-\hat{\tau}}^{I}\phi_{a,r-\hat{\tau}}^{R}\left(\phi_{a,r}^{R}\phi_{b,r}^{R} -\phi_{a,r}^{I}\phi_{b,r}^{I} \right)\right]\nonumber \\
-%
-&&+\frac{\lambda}{4}  \sum_{a,b=1}^{2} 4 \left[\phi_{a,r}^{I}\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R}\phi_{b,r-\hat{\tau}}^{I} \right]\nonumber \\
-%
-%&&\text{Check the real part and do the imaginary part} \nonumber
-%S_{\text{int}, r}^{R}  & \rightarrow & \frac{\lambda}{4} \sum_{a,b=1}^{2}\left[ (\phi_{a,r}^{R})^{2}(\phi_{b,r}^{R})^{2} - 2(\phi_{a,r}^{R})^{2}(\phi_{b,r}^{I})^{2}+ (\phi_{a,r}^{I})^{2}(\phi_{b,r}^{I})^{2}\right] - \lambda \sum_{a,b=1}^{2} \phi_{a,r}^{R}\phi_{a,r}^{I}\phi_{b,r}^{R} \phi_{b,r}^{I}\\
-%S_{\text{int}, r}^{I} & \rightarrow &\frac{ \lambda}{2} \sum_{a,b=1}^{2} \left[(\phi_{a,r}^{R})^{2}\phi_{b,r}^{R}\phi_{b,r}^{I} - (\phi_{a,r}^{I})^{2}\phi_{b,r}^{R}\phi_{b,r}^{I}  \right]+\frac{ \lambda}{2} \sum_{a,b=1}^{2}  \left[  \phi_{a,r}^{R}\phi_{a,r}^{I}(\phi_{b,r}^{R})^{2}-\phi_{a,r}^{R}\phi_{a,r}^{I}(\phi_{b,r}^{I})^{2}\right],
-\eea 
-%
-where in all of the above, $S_{j} = S_{j}^{R}+ i S_{j}^{I}$, and $\epsilon_{12} =1$, $\epsilon_{21} =-1$, and  $\epsilon_{11} = \epsilon_{22} = 0$. Note that we were able to compress the real part of the interaction due to the sum over $a$ and $b$. 
-
-%Question - doesn't the imaginary part of the interaction need to be zero by definition? Or maybe I am misunderstanding how this works...
 
 \end{document}
