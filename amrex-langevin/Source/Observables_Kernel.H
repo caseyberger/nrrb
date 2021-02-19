@@ -416,8 +416,8 @@ local_observables(const int i, const int j, const int t,
             dens_Re += -delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
             dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
             dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
-            dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
             dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+            dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
             dens_Im +=  epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
             dens_Im += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
         }//loop over b = 1,2
@@ -425,18 +425,69 @@ local_observables(const int i, const int j, const int t,
 
     dens_Re = 0.5 * std::exp(mu) * dens_Re; //moved from below!
     dens_Im = 0.5 * std::exp(mu) * dens_Im; //moved from below!
+    //checked with notes on Feb 19, 2021
 
     //Kinetic energy
     for (int a = 1; a <= 2; a++){
-	    KinEn_Re += S_del_Re(i,j,t,a,m,Lattice,geom);//new
-	    KinEn_Im += S_del_Im(i,j,t,a,m,Lattice,geom);//new
-	}
+	    KinEn_Re +=  2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
+	    KinEn_Re += -2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
+	    KinEn_Re +=      Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t,Field(a,C::Im));
+	    KinEn_Re +=      Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t,Field(a,C::Im));
+	    KinEn_Re +=      Lattice(i,j,t,Field(a,C::Im)) * Lattice(i+1,j,t,Field(a,C::Im));
+	    KinEn_Re +=      Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j+1,t,Field(a,C::Im));
+	    KinEn_Re += -1.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t,Field(a,C::Re));
+	    KinEn_Re += -1.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t,Field(a,C::Re));
+	    KinEn_Re += -1.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i+1,j,t,Field(a,C::Re));
+	    KinEn_Re += -1.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j+1,t,Field(a,C::Re));
+	    KinEn_Im +=  4.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
+	    KinEn_Im += -1.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t,Field(a,C::Im));
+	    KinEn_Im += -1.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t,Field(a,C::Im));
+	    KinEn_Im += -1.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i+1,j,t,Field(a,C::Im));
+	    KinEn_Im += -1.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j+1,t,Field(a,C::Im));
+	    KinEn_Im += -1.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t,Field(a,C::Re));
+	    KinEn_Im += -1.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t,Field(a,C::Re));
+	    KinEn_Im += -1.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i+1,j,t,Field(a,C::Re));
+	    KinEn_Im += -1.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j+1,t,Field(a,C::Re));
+	    for (int b = 1; b <= 2; b++){
+		    KinEn_Re += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t,Field(b,C::Im));
+		    KinEn_Re += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t,Field(b,C::Im));
+		    KinEn_Re += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i+1,j,t,Field(b,C::Im));
+		    KinEn_Re += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j+1,t,Field(b,C::Im));
+		    KinEn_Re += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t,Field(b,C::Re));
+		    KinEn_Re += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t,Field(b,C::Re));
+		    KinEn_Re += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i+1,j,t,Field(b,C::Re));
+		    KinEn_Re += epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j+1,t,Field(b,C::Re));
+		    KinEn_Im +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t,Field(b,C::Im));
+		    KinEn_Im +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t,Field(b,C::Im));
+		    KinEn_Im +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i+1,j,t,Field(b,C::Im));
+		    KinEn_Im +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j+1,t,Field(b,C::Im));
+		    KinEn_Im += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t,Field(b,C::Re));
+		    KinEn_Im += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t,Field(b,C::Re));
+		    KinEn_Im += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i+1,j,t,Field(b,C::Re));
+		    KinEn_Im += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j+1,t,Field(b,C::Re));
+		}//loop over b
+	}//loop over a
+	KinEn_Re = 0.25 * KinEn_Re / m;
+    KinEn_Im = 0.25 * KinEn_Im / m;
+    //checked with notes on Feb 19, 2021
 
     //Trap potential energy
     for (int a = 1; a <= 2; a++){
-	    Vtr_Re += S_trap_Re(i,j,t,a,w_t,r2,Lattice);//new
-    	Vtr_Im += S_trap_Im(i,j,t,a,w_t,r2,Lattice);//new
+	    Vtr_Re +=      Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
+	    Vtr_Re += -1 * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
+    	Vtr_Im += Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
+    	Vtr_Im += Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re));
+    	for (int b = 1; b <= 2; b++){
+    		Vtr_Re += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+	   		Vtr_Re += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vtr_Im +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vtr_Im += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    	}
     }
+    Vtr_Re = 0.5 * m * w_t * r2 * Vtr_Re;
+    Vtr_Im = 0.5 * m * w_t * r2 * Vtr_Im;
+    //checked with notes on Feb 19, 2021
+
 
     //Angular momentum
     if (AMREX_SPACEDIM == 3){
@@ -447,41 +498,108 @@ local_observables(const int i, const int j, const int t,
         y = y/dy_cell; //make dimensionless
         for (int a = 1; a <= 2; a++){//loop over a
             //real sum over a only
-            Lz_Re +=  0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Im));
-            Lz_Re +=  0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Re));
-            Lz_Re += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Im));
-            Lz_Re += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Re));
-            Lz_Re +=        y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
-            Lz_Re +=       -x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im));
+            Lz_Re +   y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
+            Lz_Re += -x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
+            Lz_Re +=  y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re));
+            Lz_Re += -x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re));
+            Lz_Re +=  x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Im));
+            Lz_Re +=  x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Re));
+            Lz_Re += -y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Im));
+            Lz_Re += -y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Re));
             //imaginary sum over a only
-            Lz_Im += -0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Re));
-            Lz_Im +=  0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Im));
-            Lz_Im +=  0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Re));
-            Lz_Im += -0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Im));
-            Lz_Im += -0.5 * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
-            Lz_Im +=  0.5 * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
-            Lz_Im +=  0.5 * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re));
-            Lz_Im += -0.5 * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im));
+            Lz_Im +=  x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
+            Lz_Im += -y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
+            Lz_Im +=  y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
+            Lz_Im += -x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
+            Lz_Im += -x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(a,C::Re));
+            Lz_Im +=  x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(a,C::Im));
+            Lz_Im +=  y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(a,C::Re));
+            Lz_Im += -y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(a,C::Im));
             for (int b = 1; b <= 2; b++){//loop over b
                 //real sum over a and b
-                Lz_Re +=  0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Re));
-                Lz_Re += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Im));
-                Lz_Re +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Im));
-                Lz_Re += -0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Re));
+                Lz_Re +=   epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+                Lz_Re +=  -epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+                Lz_Re +=   epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+                Lz_Re +=  -epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+                Lz_Re +=   epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Re));
+                Lz_Re +=  -epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Im));
+                Lz_Re +=   epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Im));
+                Lz_Re +=  -epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Re));
                 //imaginary sum over a and b
-                Lz_Im += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Im));
-                Lz_Im += -0.5 * epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Re));
-                Lz_Im +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Im));
-                Lz_Im +=  0.5 * epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
+                Lz_Im +=   epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+                Lz_Im +=  -epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+                Lz_Im +=   epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+                Lz_Im +=  -epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+                Lz_Im +=   epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j-1,t-1,Field(b,C::Im));
+                Lz_Im +=   epsilon(a,b) * x * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j-1,t-1,Field(b,C::Re));
+                Lz_Im +=  -epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i-1,j,t-1,Field(b,C::Im));
+                Lz_Im +=  -epsilon(a,b) * y * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i-1,j,t-1,Field(b,C::Re));
             }//loop over b for Lz
         }//loop over a for Lz
     }//if dim+1 = 3
+    Lz_Re = 0.5 * Lz_Re;
+    Lz_Im = 0.5 * Lz_Im;
+    //checked with notes on Feb 19, 2021 (There were errors! Fixed now...)
 
     //Interaction potential energy
     for (int a = 1; a <= 2; a++){
-    	Vint_Re += S_int_Re(i,j,t,a,l,Lattice);//new
-    	Vint_Im += S_int_Im(i,j,t,a,l,Lattice);//new
+    	for (int b = 1; b <= 2; b++){
+    		//real part
+    		Vint_Re +=  4.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re +=      Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re +=      Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Re += -1.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Re += -1.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re +=  2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Re +=  2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re += -2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re += -2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Re += -2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re += -2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Re += -2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Re += -2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
+    		Vint_Re +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
+    		Vint_Re += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
+    		Vint_Re += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
+    		Vint_Re +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Re +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Re += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re +=  2.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
+    		Vint_Re +=  2.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Re += -2.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Re += -2.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
+    		//imaginary part
+    		Vint_Im +=  2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im += -2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im +=  2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im += -2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Im +=  2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Im += -2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Im +=  2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im += -2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im +=  2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Im += -2.* Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im +=  2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Im += -2.* Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Im += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+    		Vint_Im +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
+    		Vint_Im += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re));
+    		Vint_Im +=      epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
+    		Vint_Im += -1.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im));
+    		Vint_Im +=  2.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(b,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
+    		Vint_Im +=  2.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t,Field(b,C::Re)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(a,C::Im));
+    		Vint_Im += -2.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+    		Vint_Im += -2.* epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+    	}
     }
+    Vint_Re += 0.25 * Vint_Re;
+    Vint_Im += 0.25 * Vint_Im;
+    //checked with notes Feb 19, 2021
 
     //ACTION
     for (int a = 1; a <= 2; a++){
