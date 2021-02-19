@@ -64,7 +64,7 @@ In our statistical simulation, we seek to compute average values of these observ
 To calculate the density, first we need to determine the total number of particles in the system. We can do this by taking a derivative of the lattice action with respect to the chemical potential. Since the only part of the lattice action that depends on $\bar{\mu}$ is $S_{\mu}$, we can ignore the rest of the action:
 %
 \bea
-\hat{N}[\phi_{i}] &=& - \frac{\partial}{\partial \bar{\mu}} S_{lat} = - \frac{\partial}{\partial \bar{\mu}} S_{\mu}  = - \frac{\partial}{\partial \bar{\mu}} \sum_{\vec{x},\tau}a^{d}\left(\phi_{r}^{*}\phi_{r} -e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right) \nonumber \\
+\hat{N}[\phi_{i}] &=& \frac{\partial}{\partial \bar{\mu}} S_{lat} = \frac{\partial}{\partial \bar{\mu}} S_{\mu}  = \frac{\partial}{\partial \bar{\mu}} \sum_{\vec{x},\tau}a^{d}\left(\phi_{r}^{*}\phi_{r} -e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right) \nonumber \\
 &=& \sum_{\vec{x},\tau}a^{d}\left(e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right).
 \eea
 %
@@ -85,24 +85,21 @@ To determine the density, we simply normalize the particle number by the spatial
 When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \phi_{a/b}^{R} + i \phi_{a/b}^{I}$, we get:
 %
 \bea
-\hat{n} &=& -\frac{1}{2 N_{x}^{d}} e^{\bar{\mu}} \sum_{\vec{x},\tau}\sum_{a,b=1}^{2} \left( \delta_{ab} \phi_{a,r}\phi_{b,r-\hat{\tau}} + i \epsilon_{ab} \phi_{a,r}\phi_{b,r-\hat{\tau}}\right) \nonumber\\
+\hat{n} &=& \frac{1}{2 N_{x}^{d}} e^{\bar{\mu}} \sum_{\vec{x},\tau}\sum_{a,b=1}^{2} \left( \delta_{ab} \phi_{a,r}\phi_{b,r-\hat{\tau}} + i \epsilon_{ab} \phi_{a,r}\phi_{b,r-\hat{\tau}}\right) \nonumber\\
 %
-&=& -\frac{1}{2N_{x}^{d}} e^{\bar{\mu}} \sum_{\vec{x},\tau}\sum_{a,b=1}^{2}\left[
+&=& \frac{1}{2N_{x}^{d}} e^{\bar{\mu}} \sum_{\vec{x},\tau}\sum_{a,b=1}^{2}\left[
 \delta_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{I} ) 
 - \epsilon_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{I} +  \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{R} )\right] \nonumber\\
 %
-&& -\frac{i}{2N_{x}^{d}} e^{\bar{\mu}} \sum_{\vec{x},\tau}\sum_{a,b=1}^{2}\left[
+&& \frac{i}{2N_{x}^{d}} e^{\bar{\mu}} \sum_{\vec{x},\tau}\sum_{a,b=1}^{2}\left[
 \delta_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{I} + \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{R} )
 + \epsilon_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{I} )
 \right]
-%& = & -\frac{1}{2} e^{\bar{\mu}} \sum_{r}\sum_{a,b=1}^{2} \left[ \delta_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} + i \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} + i \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I} \right) \right. \nonumber \\
-%&&\left. + \epsilon_{ab} \left(i \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} - \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} - i \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I} \right)\right] \nonumber \\
-%& = & -\frac{1}{2} e^{\bar{\mu}} \sum_{r}\sum_{a,b=1}^{2} \left[ \delta_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I} \right) - \epsilon_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} + \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} \right)\right] \nonumber \\
-%& & - \frac{i}{2} e^{\bar{\mu}} \sum_{r}\sum_{a,b=1}^{2} \left[  \delta_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} +  \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}\right) + \epsilon_{ab} \left( \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R}- i \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I}\right)\right]
 \eea
 %
 This was done in Mathematica.
-
+%\note{Took the minus sign out because it doesn't match the density in the cases where we can solve it exactly. Look into this more carefully... you have minus sign errors all over the place}
+\note{outstanding questions -- where did this extra overall minus sign come from, and is the $1/Nx^d$ the same one we use when taking the average?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,6 +132,8 @@ The field modulus squared is simply a measure of the magnitude of the complex fi
 %
 While this is not an incredibly useful quantity to calculate, it's very simple and can be used in some early testing to ensure stability of the method and check against other results. 
 
+
+
 \subsubsection{Complexification}
 When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \phi_{a/b}^{R} + i \phi_{a/b}^{I}$, we get:
 %
@@ -144,6 +143,9 @@ When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \p
 \eea
 %
 This was done in Mathematica.
+ 
+\note{outstanding questions -- this extra factor of $d\tau$ should be divided out -- where does that come from? Is it just part of the observable? You'll want to prove this before submitting the paper -- look at the analytical solutions for the field modulus}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -175,10 +177,10 @@ When we apply the complexification to the real fields, $\phi_{a/b}\rightarrow \p
 &=&\frac{1}{2} \sum_{a=1}^{2} \left[ (y-x) \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I} + (y-x)\phi_{a,r}^{I} \phi_{a,r-\hat{\tau}}^{R} \right. \nonumber \\
 &&\left.+ 
 x \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{y}}^{I} + x \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{y}}^{R} - y \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{x}}^{I} - y \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{x}}^{R}\right. \nonumber \\
-&&\left. + \epsilon_{ab}\sum_{b=1}^{2}\left( (x-y) \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{y}}^{I} + (y-x)\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{y}}^{R} \right. \right.\nonumber \\ 
+&&\left. + \epsilon_{ab}\sum_{b=1}^{2}\left( (x-y) \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I} + (y-x)\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} \right. \right.\nonumber \\ 
 &&\left.\left. + x \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{y}}^{R}-x \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{y}}^{I} + y\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{x}}^{I} - y\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{x}}^{R} \right) \right] \nonumber \\
 %
-&=&\frac{i}{2} \sum_{a=1}^{2} \left[ (x-y) \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} + (y-x) \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I} - x \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{y}}^{R} \right.\nonumber \\ 
+&+&\frac{i}{2} \sum_{a=1}^{2} \left[ (x-y) \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} + (y-x) \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I} - x \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{y}}^{R} \right.\nonumber \\ 
 &&\left.+ x \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{y}}^{I} + y \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{x}}^{R} - y \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{x}}^{I}\right.\nonumber \\ 
 &&\left. + \epsilon_{ab}\sum_{b=1}^{2}\left(  (y-x)\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} + (y-x)\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} + x \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{y}}^{I}  \right. \right.\nonumber \\ 
 &&\left. \left.+ x \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{y}}^{R} - y \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{x}}^{I} - y \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{x}}^{R}
@@ -186,6 +188,7 @@ x \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{y}}^{I} + x \phi_{a,r}^{I}\phi_{a,r-\h
 %
 \eea
 %
+\note{You lost your $\bar{x}$ and $\bar{y}$ along the way, so check for that. It should be correct except for not having the bar over it, but better to confirm...}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -215,10 +218,10 @@ V_{\mathrm{tr}}  &=&\sum_{\vec{x},\tau}a^{d}\frac{\bar{m}}{2} \bar{\omega}_{\mat
 %
 &=&\frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}} \bar{r}_{\perp}^{2}\sum_{\vec{x},\tau}a^{d}\sum_{a=1}^{2}\left[ 
 \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I} 
-- \epsilon_{ab}(\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I}+\phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}) \right] \nonumber \\
+- \epsilon_{ab}(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I}+\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}) \right] \nonumber \\
 && + i \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}} \bar{r}_{\perp}^{2} \sum_{\vec{x},\tau}a^{d}\sum_{a=1}^{2}\left[ 
 \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I}+ \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{R}
-+ \epsilon_{ab}(\phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I})
++ \epsilon_{ab}(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I})
 \right]
 \eea
 %
@@ -309,9 +312,6 @@ Of course, in addition to the potential energies, our system has a kinetic energ
 \eea
 %
 
-%\subsection{Total Energy}
-%The total energy is often calculated using the Hamitonian. We can also calculate it by summing our energy terms. While in the action, we subtract potential energy from kinetic energy, in the Hamiltonian, we add it.
-%\note{We see here that particle number plays a role in the energy of the system -- we can add or remove particles to change the energy. This is part of why it's such a pain to balance all our parameters. Is that right? Or does the particle number contribute to the energy as well? As a sort of chemical potential energy??}
 \subsection{Action}
 We see from the above work that the full action can actually be calculated by summing many of the other observables.
 %
@@ -371,7 +371,7 @@ This can be written in terms of our other observables, and we bring back our par
 %
 
 \subsubsection{Complexification}
-Just as with the action, we can express the complexified total energy using 
+Just as with the action, we can express the complexified total energy using our other observables.
 
 % \note{OLD:
 %The expectation value of the density is defined as
