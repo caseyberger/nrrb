@@ -1,0 +1,42 @@
+\documentclass[../../RotatingBosons.tex]{subfiles}
+
+\begin{document}
+\section{Testing}
+\subsection{Running the code}
+We have two allocations we can use, one through XSEDE to run on GPUs on Bridges-2, and the other through NERSC to run on cori. In the GitHub, there are notes on how to compile and run the code.
+
+\subsection{The Free Gas}
+We can compute the solution exactly for the case of no trapping potential, no interaction, and no rotation (i.e. the free gas). In order to confirm that our CL simulation is producing reasonable answers, we can compare the simulation with $\omega_{\mathrm{tr}} = \lambda = \omega_{z} = 0$ to the analytical solution for the free gas.
+
+\subsection{Systematics}
+\note{To be filled in with more detail later...}
+We need to run some tests to determine autocorrelation of the observables and the ideal Langevin step size for our simulations.
+
+\subsection{Parameters}
+One of our first objectives once we've tested the free gas and the systematics is to determine optimal parameter ranges. As we are performing a lattice simulation, our lattice parameters will be constrained by the size of the spatial lattice ($N_{x}$), the size of the temporal lattice ($N_{\tau}$), and the lattice spacing ($a=1$). The parameters we need to be concerned about are $\mu$, $\omega_{\mathrm{tr}}$, $\omega_{z}$, and $\lambda$. These will all be constrained by their interactions with each other and with the lattice size and spacing.
+
+The thermal wavelength is defined as $\lambda_{T} = \sqrt{2 \pi \beta} = \sqrt{2 \pi N_{\tau} d\tau}$, the harmonic oscillator wavelength is defined as $\lambda = \frac{1}{\sqrt{\omega_{\mathrm{tr}}}}$. 
+
+To ensure that our system can fit on our lattice, we require that
+%
+\beq
+a \ll \lambda_{T} \ll N_{x}
+\eeq
+%
+So we can resolve the effects of the trap, we require that 
+%
+\beq
+a \ll \lambda_{HO}
+\eeq
+%
+In order to be in a quantum (as opposed to classical) regime, we also require that
+%
+\beq
+\hat{n}^{-d} \ll \lambda_{T}
+\eeq
+%
+where $\hat{n}$ is the density of the system, which will depend on $\mu$.
+
+We will also need to make $N_{x}$ sufficiently large that the the effects of the trap, the rotation, and the interaction keep the system confined to the lattice without causing problems at the boundaries (as we have imposed that the fields go to zero at the boundaries). This will require careful testing, setting a condition first for $\omega_{\mathrm{tr}}$ and then adjusting the lattice size as we add rotation and then interaction.
+
+\end{document}

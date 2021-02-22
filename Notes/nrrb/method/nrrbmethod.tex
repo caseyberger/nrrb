@@ -1,10 +1,20 @@
 \documentclass[../../RotatingBosons.tex]{subfiles}
 
 \begin{document}
-\section{The rotating bosonic gas}
-Hard wall boundary conditions in space and periodic (bosonic) in time. Nonrelativistic dispersion, harmonic trapping potential centered at the midpoint of the lattice, rotation about the midpoint of the lattice in 2 dimensions, and contact interaction (delta function).
 
-For rotation, we need at least $2+1$ dimensions. I will derive all equations for the general $d+1$ dimensional case, but initial computational tests will all be in $2+1$ dimensions.
+\section{Motivation}
+In 1946, Fritz London first proposed that superconductivity and superfluidity were "quantum mechanisms on a macroscopic scale"~\cite{cern}. Additionally, he linked superfluidity with the (then only theoretical and not observed) mechanism of Bose-Einstein condensation. Since London's early insights into superfluid behavior, the system has been studied extensively using super-cooled atoms~\cite{cern}.
+
+In 1949, Lars Onsager predicted that vortices would form in rotating superfluids~\cite{Onsager1949}. Richard Feynman expanded on Onsager's prediction a few years later, reiterating the expectation that quantized vortices would appear when superfluids were forced to rotate~\cite{FEYNMAN195517}. Another 30 years after these predictions, the first direct observation of quantum vortices was made in rotating superfluid helium~\cite{PhysRevLett43214}.
+
+Superfluid velocity has no curl, and therefore is irrotational. However, nonzero hydrodynamic circulation can exist, and must be quantized in units of $2 \pi \hbar/m$~\cite{cern}. This value can be measured in experiment, and will provide a useful point of comparison for this project. This disconnect between the finite circulation and the irrotational superfluid velocity forces the superfluid to form singular regions in the density, leading to the formation of vortices. The lowest energy configuration of these vortices is a triangular lattice - a Wigner crystal.
+
+Experimentally, great progress has been made in studying rotating superfluids since the first direct observation of vortex formation. In 2000, vortex formation was observed in stirred, magnetically-trapped rubidium atoms~\cite{PhysRevLett84806}. The next year, the Ketterle Group at MIT observed triangular vortex lattices of up to 130 vortices in rotating ultracold sodium atoms~\cite{Science20012925516}. Ultracold atoms provide a highly controlled, tuneable setting for studying vortex formation and other properties of rotating superfluids. Theoretically, treatment of these systems has stalled due to the presence of the sign problem. This project is an attempt to apply the complex Langevin method to circumvent the sign problem in a rotating superfluid.
+
+\section{Action and formalism}
+We examine in this project a $2+1$ dimensional system of nonrelativistic bosons of mass $m$ with a contact interaction $\lambda$ in an external harmonic trap of frequency $\omega_{\mathrm{tr}}$ and experiencing a rotation of frequency $\omega_{z}$. Both the harmonic trap and the rotation are centered around the midpoint of the lattice, and we use hard-wall boundary conditions in the spatial extent of the lattice and periodic boundary conditions in Euclidean time.
+
+For rotation, we need at least $2+1$ dimensions. I will occasionally express equations for the general $d+1$ dimensional case, but initial computational tests will all be in $2+1$ dimensions. We can easily test $1+1$ dimensional nonrotating systems, but going to $3+1$ dimensions will require a significant expansion of the code.
 
 Our path integral for the system is 
 %
@@ -17,20 +27,20 @@ where our action is defined in the next section.
 The action for a trapped, rotating, and interacting non-relativistic system in $d+1$ Euclidean dimensions follows this general formula:
 %
 \beq
-S = \int \dif^{d}x \dif\tau \left[ \phi^{*}\left( \CH - \mu  - V_{\text{trap}}-\omega_{z} L_{z}\right)\phi + \lambda (\phi^{*} \phi)^{2}\right].
+S = \int \dif^{d}x \dif\tau \left[ \phi^{*}\left( \CH - \mu  - V_{\mathrm{tr}}-\omega_{z} L_{z}\right)\phi + \lambda (\phi^{*} \phi)^{2}\right].
 \eeq 
 %
 Specifically, in two spatial dimensions, this becomes
 %
 \beq
-S = \int \dif x \dif y \dif \tau \left[ \phi^{*}\left( \CH - \mu  - \frac{m}{2}\omega_{\text{trap}}^{2}r_{\perp}^{2}-\omega_{z} L_{z}\right)\phi + \lambda (\phi^{*} \phi)^{2}\right]
+S = \int \dif x \dif y \dif \tau \left[ \phi^{*}\left( \CH - \mu  - \frac{m}{2}\omega_{\mathrm{tr}}^{2}r_{\perp}^{2}-\omega_{z} L_{z}\right)\phi + \lambda (\phi^{*} \phi)^{2}\right]
 \eeq 
 %
-where $\CH = \partial_{\tau} - \frac{\del^{2}}{2m} $ and $\lambda$ represents a contact interaction coupling. The trapping potential is harmonic, $\omega_{\text{trap}}r_{\perp}^{2}$ where $r_{\perp}^{2} = x^{2} + y^{2}$, and the angular momentum is defined in terms of the quantum mechanical operator, $\omega_{z}L_{z} = i \omega_{z}(x \partial_{y} - y\partial_{x})$. For both the trap and the angular momentum, $x$ and $y$ are measured relative to the origin.
+where $\CH = \partial_{\tau} - \frac{\del^{2}}{2m} $. The trapping potential is harmonic, $\omega_{\mathrm{tr}}r_{\perp}^{2}$ where $r_{\perp}^{2} = x^{2} + y^{2}$, and the angular momentum is defined in terms of the quantum mechanical operator, $\omega_{z}L_{z} = i \omega_{z}(x \partial_{y} - y\partial_{x})$. For both the trap and the angular momentum, $x$ and $y$ are measured relative to the origin.
 
 To take this to a lattice representation, we must discretize the space. The origin becomes the center of the lattice, and therefore $x$ and $y$ are measured relative to the point $(N_{x}/2, N_{x}/2)$ on the lattice.
 
-Using a backward-difference derivative and denoting the position on the $2+1$ dimensional lattice as $r$, we define: $\partial_{j}\phi = \frac{1}{a}(\phi_{r-\hat{j}} - \phi_{r})$ and $\partial_{j}^{2}\phi = \frac{1}{a^{2}}(\phi_{r-\hat{j}} - 2\phi_{r}+\phi_{r-\hat{j}})$. We combine $\partial_{\tau} - \mu$ in the lattice representation and similarly represent the angular momentum, interaction, and external trap as external gauge fields in order to avoid divergences in the continuum limit (see Appendix~\ref{NRAction} for details and justification of these steps). Finally, using spatial lattice site separation $a = 1$ and temporal lattice spacing $d\tau$, and after scaling our parameters to be dimensionless lattice parameters (again, see Appendix~\ref{NRAction}), our lattice action becomes (sum over $r = (x,y,\tau)$ implied):
+Using a backward-difference derivative and denoting the position on the $2+1$ dimensional lattice as $r$, we define: $\partial_{j}\phi = \frac{1}{a}(\phi_{r-\hat{j}} - \phi_{r})$ and $\partial_{j}^{2}\phi = \frac{1}{a^{2}}(\phi_{r-\hat{j}} - 2\phi_{r}+\phi_{r-\hat{j}})$. We combine $\partial_{\tau} - \mu$ in the lattice representation and similarly represent the angular momentum, interaction, and external trap as external gauge fields in order to avoid divergences in the continuum limit (see Appendix~\ref{NRAction} for details and justification of these steps). Finally, using spatial lattice site separation $a = 1$ and temporal lattice spacing $d\tau$, and after scaling our parameters to be dimensionless lattice parameters (again, see Appendix~\ref{NRAction}), our lattice action becomes:
 %
 \bea
 S_{\text{lat}} &=& \sum_{\vec{x},\tau}a^{d} \left[ \phi_{r}^{*}\phi_{r} -e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(\phi_{r}^{*}\phi_{r - \hat{j}} - 2 \phi_{r}^{*}\phi_{r} + \phi_{r}^{*}\phi_{r + \hat{j}}\right)- \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right. \nonumber \\
@@ -42,7 +52,7 @@ Note that for $d < 2$, we omit the rotational term, as it requires at least two 
 To simplify our future work, let's write $S$ as a sum of the different contributions to the action:
 %
 \beq
-S_{\text{lat}} = \left(S_{\mu} + S_{\del} - S_{\text{trap}} - S_{\omega} + S_{\text{int}}\right)
+S_{\text{lat}} = \left(S_{\mu} + S_{\del} - S_{\mathrm{tr}} - S_{\omega} + S_{\text{int}}\right)
 \eeq
 %
 with
@@ -50,7 +60,7 @@ with
 \bea
 S_{\mu,r} & =& \sum_{\vec{x},\tau}a^{d}\left(\phi_{r}^{*}\phi_{r} -e^{\bar{\mu}}\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)\\
 S_{\del,r}& =&\sum_{\vec{x},\tau}a^{d}\left( \frac{1}{2 \bar{m}} \sum_{j=1}^{d} \left(2 \phi_{r}^{*}\phi_{r}  - \phi_{r}^{*}\phi_{r - \hat{j}} - \phi_{r}^{*}\phi_{r + \hat{j}}\right)\right)\\
-S_{\text{trap},r} & =&\sum_{\vec{x},\tau}a^{d}\left( \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} \right)\\
+S_{\mathrm{tr},r} & =&\sum_{\vec{x},\tau}a^{d}\left( \frac{\bar{m}}{2} \bar{\omega}_{\mathrm{tr}}^{2} \bar{r}_{\perp}^{2}\phi_{r}^{*}\phi_{r - \hat{\tau}} \right)\\
 S_{\omega,r} &  = &  \sum_{\vec{x},\tau}a^{d}\left( i \bar{\omega}_{z} \left(\bar{x}\phi_{r}^{*}\phi_{r - \hat{\tau}} - \bar{x} \phi_{r}^{*}\phi_{r - \hat{y} - \hat{\tau}} - \bar{y} \phi_{r}^{*}\phi_{r - \hat{\tau}}+ \bar{y} \phi_{r}^{*}\phi_{r - \hat{x} - \hat{\tau}} \right)\right)\\
 S_{\text{int},r}& =& \sum_{\vec{x},\tau}a^{d}\left( \bar{\lambda}\left(\phi_{r}^{*}\phi_{r - \hat{\tau}}\right)^{2}\right).
 \eea 
@@ -63,7 +73,7 @@ From here on, we will be working with these individual contributions to the acti
 \section{\label{NRRBCLEquations}The Langevin Equations}
 In order to treat this action composed of complex-valued fields, we use a method called complex Langevin (CL). This method uses a stochastic evolution of the complex fields in a fictitious time -- Langevin time -- in order to produce sets of solutions distributed according to the weight $e^{-S}$. Just as standard Monte Carlo methods operate by sampling from the distribution $e^{-S}$, this method allows us to stochastically evaluate observables whose physical behavior is governed by our action, $S$. 
 
-First, we must write our complex fields as a complex sum of two real fields (i.e. $\phi = \frac{1}{\sqrt{2}}\left(\phi_{1}+ i \phi_{2}\right)$. This is worked out in Appendix~\ref{FirstComplexification} for all the contributions to our action. We then complexify the fields a second time and evolve the real and imaginary part of each field according to the complex Langevin equations, a set of coupled stochastic differential equations shown here:
+First, we must write our complex fields as a complex sum of two real fields (i.e. $\phi = \frac{1}{\sqrt{2}}\left(\phi_{1}+ i \phi_{2}\right)$. This is worked out in Appendix~\ref{FirstComplexification} for all the contributions to our action. We then complexify the real fields and evolve the four resulting components ($\phi_{1}^{R}, \phi_{1}^{I}, \phi_{2}^{R},$ and $\phi_{2}^{I}$) according to the complex Langevin equations, a set of coupled stochastic differential equations shown here:
 %
 \bea
 \phi_{a,r}^{R}(n+1) &=& \phi_{a,r}^{R}(n) + \epsilon K_{a,r}^{R}(n) + \sqrt{\epsilon}\eta_{a,r}(n) \\
@@ -107,51 +117,43 @@ The derivation of the Langevin equations is worked out in Appendix~\ref{NRRBCLM}
 %
 This evolution is repeated until we have evolved for a long period in Langevin time (determined by the observation of thermalization followed by enough steps to produce good statistical error). Observables of interest can be calculated as functions of the fields at each point in Langevin time and averaged to find the expectation value.
 
-\section{NOT UPDATED YET: Observables}
+\section{Observables}
 \subsection{Observables averaged over the volume}
-The observables of interest in this simulation are the density $\langle \hat{n} \rangle$, the field modulus $\langle \phi^{2}\phi \rangle$, the angular momentum $\langle \hat{L}_{z}\rangle$, the moment of inertia $\langle \hat{I}_{z}\rangle$,the energy $\langle \hat{E} \rangle$, and the circulation of the fields around the center of the lattice. 
+The observables of interest in this simulation are the density $\langle \hat{n} \rangle$, the field modulus $\langle \phi^{*}\phi \rangle$, the angular momentum $\langle \hat{L}_{z}\rangle$, the moment of inertia $\langle \hat{I}_{z}\rangle$, and the circulation of the fields around the center of the lattice. The individual contributions to the energy (kinetic, trapping potential, and interaction potential) have also been derived, and can be found in Appendix~\ref{NRRBObservables}.
 
 The sum over all lattice sites and subsequent normalization by the lattice volume $V = N_{x}^{d} N_{\tau}$ is implied:
 %
 \bea
-\text{Re}\langle n \rangle & =&\frac{e^{d\tau \mu}}{2}\left[\sum_{a,b=1}^{2}\delta_{a,b}\left(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{R}- \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{I}\right)  -\sum_{a,b=1}^{2}\epsilon_{ab}\left( \phi_{a,r}^{R} \phi_{b,r-\hat{\tau}}^{I} + \phi_{a,r}^{I} \phi_{b,r - \hat{\tau}}^{R}\right)\right] \\
+\text{Re}\langle n \rangle &=&\frac{e^{\bar{\mu}}}{2}  \sum_{a,b=1}^{2}\left[
+\delta_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{I} ) 
+- \epsilon_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{I} +  \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{R} )\right]\\
 %
-\text{Im}\langle n \rangle & =& \frac{e^{d\tau \mu}}{2}\left[\sum_{a,b=1}^{2}\delta_{a,b}\left(\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} + \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R}\right)  + \sum_{a,b=1}^{2}\epsilon_{ab}\left( \phi_{a,r}^{R} \phi_{b,r-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{b,r - \hat{\tau}}^{I}\right)\right] \\ 
+\text{Im}\langle n \rangle &=& \frac{e^{\bar{\mu}} }{2} \sum_{a,b=1}^{2}\left[
+\delta_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{I} + \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{R} )
++ \epsilon_{ab}(\phi_{a,r}^{R} \phi_{r,b-\hat{\tau}}^{R} - \phi_{a,r}^{I} \phi_{r,b-\hat{\tau}}^{I} )
+\right]\\
+%
+%note: these matched when I re-computed them in Feb 2021, but there was an overall sign issue... I reverted to the old sign since we have confirmed the density is correct in the case of the free gas
 %
 \text{Re}\langle \phi^{*} \phi \rangle & = & \frac{1}{2} \sum_{a=1}^{2}\left( \phi_{a,r}^{R}\phi_{a,r}^{R} - \phi_{a,r}^{I}\phi_{a,r}^{I} \right)\\
 %
 \text{Im}\langle \phi^{*} \phi \rangle & = & \sum_{a=1}^{2}\phi_{a,r}^{R}\phi_{a,r}^{I}\\
 %
-\text{Re}\langle L_{z} \rangle &=& \frac{1}{2} \sum_{a=1}^{2}\left( \widetilde{x}( \phi_{a,r}^{R} \phi_{a,r-\hat{y}}^{I} + \phi_{a,r}^{I} \phi_{a,r-\hat{y}}^{R} )- \widetilde{y}(\phi_{a,r}^{R} \phi_{a,r-\hat{x}}^{I} + \phi_{a,r}^{I} \phi_{a,r-\hat{x}}^{R} )\right) \nonumber\\
-& & + \sum_{r}\sum_{a=1}^{2}(y-x)\phi_{a,r}^{R}\phi_{a,r}^{I} \\
-& & +  \frac{1}{2}\sum_{r}\sum_{a,b=1}^{2} \epsilon_{ab}\left( \widetilde{x}( \phi_{a,r}^{R} \phi_{b,r-\hat{y}}^{R} -  \phi_{a,r}^{I} \phi_{b,r-\hat{y}}^{I}) -  \widetilde{y}(\phi_{a,r}^{R} \phi_{b,r-\hat{x}}^{R} -  \phi_{a,r}^{I} \phi_{b,r-\hat{x}}^{I}  ) \right).\nonumber \\
+%note: there's an extra factor of dtau in your derivation -- try to figure out where it came from
 %
-\text{Im}\langle L_{z} \rangle &=&-\frac{1}{2} \sum_{a=1}^{2}\left( \widetilde{x}(\phi_{a,r}^{R} \phi_{a,r-\hat{y}}^{R} - \phi_{a,r}^{I} \phi_{a,r-\hat{y}}^{I} ) -  \widetilde{y}( \phi_{a,r}^{R} \phi_{a,r-\hat{x}}^{R} - \phi_{a,r}^{I} \phi_{a,r-\hat{x}}^{I} )  \right) \nonumber \\
-&&  -\frac{1}{2}\sum_{r}\sum_{a=1}^{2}(y-x)\left((\phi_{a,r}^{R})^{2}-(\phi_{a,r}^{I})^{2}  \right) \\
-& & -  \frac{1}{2}\sum_{r}\sum_{a,b=1}^{2} \epsilon_{ab}\left( \widetilde{x}( \phi_{a,r}^{R} \phi_{b,r-\hat{y}}^{I} +  \phi_{a,r}^{I} \phi_{b,r-\hat{y}}^{R}) -  \widetilde{y}(\phi_{a,r}^{R} \phi_{b,r-\hat{x}}^{I} + \phi_{a,r}^{I} \phi_{b,r-\hat{x}}^{R})\right)\nonumber 
+\text{Re}\langle L_{z} \rangle &=&\frac{1}{2} \sum_{a=1}^{2} \left[ (y-x) \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{I} + (y-x)\phi_{a,r}^{I} \phi_{a,r-\hat{\tau}}^{R} \right. \nonumber \\
+&&\left.+ x \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{y}}^{I} + x \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{y}}^{R} - y \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{x}}^{I} - y \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{x}}^{R}\right. \nonumber \\
+&&\left. + \epsilon_{ab}\sum_{b=1}^{2}\left( (x-y) \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{y}}^{I} + (y-x)\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{y}}^{R} \right. \right.\nonumber \\ 
+&&\left.\left. + x \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{y}}^{R}-x \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{y}}^{I} + y\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{x}}^{I} - y\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{x}}^{R} \right) \right]  \\
+%
+\text{Im}\langle L_{z} \rangle &=& \frac{1}{2} \sum_{a=1}^{2} \left[ (x-y) \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}}^{R} + (y-x) \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}}^{I} - x \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{y}}^{R} \right.\nonumber \\ 
+&&\left.+ x \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{y}}^{I} + y \phi_{a,r}^{R}\phi_{a,r-\hat{\tau}-\hat{x}}^{R} - y \phi_{a,r}^{I}\phi_{a,r-\hat{\tau}-\hat{x}}^{I}\right.\nonumber \\ 
+&&\left. + \epsilon_{ab}\sum_{b=1}^{2}\left(  (y-x)\phi_{a,r}^{R}\phi_{b,r-\hat{\tau}}^{I} + (y-x)\phi_{a,r}^{I}\phi_{b,r-\hat{\tau}}^{R} + x \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{y}}^{I}  \right. \right.\nonumber \\ 
+&&\left. \left.+ x \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{y}}^{R} - y \phi_{a,r}^{R}\phi_{b,r-\hat{\tau}-\hat{x}}^{I} - y \phi_{a,r}^{I}\phi_{b,r-\hat{\tau}-\hat{x}}^{R}
+\right)\right]
 \eea 
 %
-The moment of inertia can be calculated from this by differentiating with respect to the angular frequency. Since $L_{z}$ is linear in $\omega_{z}$, we can simply divide by the frequency to obtain $I_{z}$.
-
-The energy can be calculated by taking a derivative as well. 
-%
-\beq
-\hat{E} = -\frac{\partial}{\partial \beta}\ln \CZ = \frac{\partial}{\partial \beta}S.
-\eeq
-%
-When we go to a lattice representation of the action, we write it in the following way:
-%
-\beq
-S \rightarrow \sum_{x,\tau}\Delta x^{d} \Delta \tau \left[\left(\partial_{\tau}  - \frac{1}{2m}\del^{2} - \mu- i \omega_{z}(x \partial_{y} - y \partial_{x})  - \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \right)\phi + \lambda (\phi^{*}\phi)^{2}\right].
-\eeq 
-%
-Recall that $\beta = \Delta \tau N_{\tau}$. That means we can also write this in terms of $\beta$:
-%
-\beq
-S \rightarrow \frac{1}{N_{\tau}}\sum_{x,\tau}\Delta x^{d}\beta \left[\left(\partial_{\tau}  - \frac{1}{2m}\del^{2} - \mu- i \omega_{z}(x \partial_{y} - y \partial_{x})  - \frac{m\omega_{\text{trap}}^{2}}{2}(x^{2}+y^{2}) \right)\phi + \lambda (\phi^{*}\phi)^{2}\right].
-\eeq 
-%
-Therefore, the action is linear in $\beta$, and so its derivative with respect to beta is simply $S/\beta$. 
+The moment of inertia can be calculated from the angular momentum by differentiating with respect to the angular frequency. We can do this by taking a numerical gradient.
 
 The circulation is computed along an $l \times l$ loop on the lattice:
 \beq
@@ -167,5 +169,6 @@ See Appendix~\ref{NRRBObservables} for the full derivation of the observables.
 
 \subsection{Observables per site}
 The next phase of this project will move to larger lattices in order to calculate the density profiles of the rotating system. We expect to see the formation of vortices in the density of the fluid (localized sites of $0$ density). We expect these vortices to be concentrated closer to the center of the trap. In order to observe these vortices and their structure, we need a finer lattice mesh in the center of the system. This will involve a great deal more computational intensity.
+
 
 \end{document}
