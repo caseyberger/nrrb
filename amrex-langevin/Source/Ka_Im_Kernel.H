@@ -28,7 +28,9 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 	const Real dy_cell = geom.CellSize(1);
 	const Real x_cell = domain_xlo[0] + dx_cell * (i + 0.5 - domain_lo.x);
 	const Real y_cell = domain_xlo[1] + dy_cell * (j + 0.5 - domain_lo.y);
-	const Real r2_cell = std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2);
+
+	//make dimensionless radius squared
+	const Real r2_cell = (std::pow(x_cell - x_center, 2) + std::pow(y_cell - y_center, 2)) / (dx_cell * dy_cell);
 
 	Real Ka = 0.0;
 	//doing -K_{a}^{I} and then returning -Ka at the end for simplicity
@@ -72,7 +74,6 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 
 	//ROTATIONAL AND TRAPPING PART OF Ka - ONLY WORKS IN 2D AND IF OMEGA > 0.
 	//TRAPPING PIECE
-	r2_cell = r2_cell / (dx_cell * dy_cell); //make dimensionless
 	if (!(w_t == 0.)){
 		// 0.25*m*w_t^{2}*r2*(\phi_{a,r+t}^{I}+\phi_{a,r+t}^{I})
 		Ka += 0.25*m*w_t*w_t*r2_cell * Lattice(i,j,t+1,Field(a,C::Im));
@@ -87,10 +88,8 @@ Real K_a_Im(Real m, Real l,Real w, Real w_t, int a, Real dtau, Real mu, amrex::A
 
 #if (AMREX_SPACEDIM == 3)
 	if (!(w == 0.)){
-		const Real x = x_cell - x_center;
-		x = x/dx_cell; //make dimensionless
-		const Real y = y_cell - y_center;
-		y = y/dy_cell; //make dimensionless
+		const Real x = (x_cell - x_center) / dx_cell; //make dimensionless
+		const Real y = (y_cell - y_center) / dy_cell; //make dimensionless
 
 		//ROTATIONAL PIECE
 		// w(y-x)\phi_{a}^{R}
