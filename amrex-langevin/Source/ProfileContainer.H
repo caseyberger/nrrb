@@ -56,8 +56,8 @@ public:
         const auto lattice_hi = amrex::ubound(lattice_domain);
         inv_Ntau = 1.0_rt / static_cast<Real>(lattice_domain.length(2));
 
-        const IntVect profile_lo(AMREX_D_DECL(lattice_lo.x, lattice_lo.y, 0));
-        const IntVect profile_hi(AMREX_D_DECL(lattice_hi.x, lattice_hi.y, 0));
+        const IntVect profile_lo(AMREX_D_DECL(lattice_lo.x, lattice_lo.y, 1));
+        const IntVect profile_hi(AMREX_D_DECL(lattice_hi.x, lattice_hi.y, 1));
         const Box profile_dbox(profile_lo, profile_hi);
 
         BoxArray profile_ba(profile_dbox);
@@ -67,7 +67,7 @@ public:
         const auto lattice_xhi = lattice_gdata.ProbHi();
 
         RealBox profile_real_box({AMREX_D_DECL(lattice_xlo[0], lattice_xlo[1], 0.0)},
-                                 {AMREX_D_DECL(lattice_xhi[0], lattice_xhi[1], 0.0)});
+                                 {AMREX_D_DECL(lattice_xhi[0], lattice_xhi[1], 1.0)});
 
         Geometry profile_geom(profile_dbox, &profile_real_box, CoordSys::cartesian, lattice_geom.isPeriodicArray().data());
 
@@ -101,6 +101,9 @@ public:
 
         // Redistribute particles to the profile
         Redistribute();
+
+        // Clear the profile before accumulating particle sums
+        profile.setVal(0.0);
 
         // Average particle sums to the mesh
         AverageToMesh();
@@ -178,7 +181,7 @@ public:
                 // to hold a sum for these x-y indices.
                 p.pos(0) = cell_idx_x;
                 p.pos(1) = cell_idx_y;
-                p.pos(2) = 0;
+                p.pos(2) = 0.5;
 
                 // accumulate box contents along the time dimension
                 p.rdata(PIdx::DensRe) = 0;
