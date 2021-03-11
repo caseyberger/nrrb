@@ -8,3 +8,4 @@ CEXE_sources += Observables.cpp
 CEXE_headers += Observables_Kernel.H
 CEXE_headers += Langevin.H
 CEXE_headers += Observables.H
+CEXE_headers += ProfileContainer.H
