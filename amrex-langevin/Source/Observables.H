@@ -70,9 +70,10 @@ private:
 	std::string logfile_suffix;
 	std::string observable_log_file;
     amrex::Vector<RadCirc> circulation;
+    ProfileContainer density_profile;
 
 public:
-    Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps);
+    Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps);
     void initialize_files(const amrex::Geometry& geom);
     void update(const int nL, const amrex::MultiFab& Lattice, 
                 const amrex::GeometryData& geom, const NRRBParameters& nrrb_parm);

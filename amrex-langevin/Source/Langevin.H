@@ -47,6 +47,7 @@ struct NRRBParameters {
 
     int problem_type;
     bool use_hdf5;
+    int profile_max_grid_size;
 
     NRRBParameters()
     {
@@ -70,6 +71,11 @@ struct NRRBParameters {
 
         // by default turn off HDF5
         use_hdf5 = false;
+
+        // when we read in the NRRB parameters, we default
+        // profile_max_grid_size to the CL domain max_grid_size
+        // if the user doesn't set it manually.
+        profile_max_grid_size = -1;
     }
 };
 

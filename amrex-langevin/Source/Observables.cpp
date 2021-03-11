@@ -13,7 +13,7 @@ mu = dtau*mu; m = m/dtau; w = dtau*w; wtr = dtau* wtr; l = dtau*l;
 */
 //void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename);
 
-Observables::Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps)
+Observables::Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps)
 {
 	const auto domain_box = geom.Domain();
 	const int length_x = domain_box.length(0);
@@ -37,6 +37,9 @@ Observables::Observables(const amrex::Geometry& geom, const NRRBParameters& nrrb
 	Print() << "logfile name = logfile_" << logfile_suffix << std::endl;
 
 	initialize_files(geom);
+
+    // Define our density profile particle container
+    density_profile.Define(geom, dm, ba, nrrb.profile_max_grid_size);
 }
 
 void Observables::initialize_files(const amrex::Geometry& geom)
@@ -208,4 +211,8 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
 		// Write reduced circulation
 		for (auto& circ : circulation) circ.write();
     }
+
+    // Calculate and save the density profile
+    density_profile.AccumulateProfile(Lattice, nrrb_parm);
+    density_profile.Write(nL);
 }
