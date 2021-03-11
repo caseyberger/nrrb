@@ -2,6 +2,7 @@
 #define _OBSERVABLES_H
 
 #include "Langevin.H"
+#include "ProfileContainer.H"
 
 namespace Obs {
 enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
