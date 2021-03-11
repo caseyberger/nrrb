@@ -28,15 +28,18 @@ class ProfileContainer
     // Profile mesh data
     MultiFab profile;
 
+    // 1/N_tau, where N_tau is the number of time points in the CL domain
+    Real inv_Ntau;
+
 public:
 
-    ProfileContainer::
-    ProfileContainer(const Geometry& lattice_geom,
-                     const DistributionMapping& lattice_dmap,
-                     const BoxArray& lattice_ba,
-                     const int profile_max_grid_size)
-                     : ParticleContainer<PIdx::NumProfile, 0, 0, 0>(lattice_geom, lattice_dmap, lattice_ba)
+    void Define(const Geometry& lattice_geom,
+                const DistributionMapping& lattice_dmap,
+                const BoxArray& lattice_ba,
+                const int profile_max_grid_size)
     {
+        Define(lattice_geom, lattice_dmap, lattice_ba);
+
         gdb_lattice = amrex::ParGDB(lattice_geom, lattice_dmap, lattice_ba);
 
         // create the profile geometry, box array, and distribution mapping
@@ -44,6 +47,7 @@ public:
         const auto lattice_domain = lattice_gdata.Domain();
         const auto lattice_lo = amrex::lbound(lattice_domain);
         const auto lattice_hi = amrex::ubound(lattice_domain);
+        inv_Ntau = 1.0_rt / static_cast<Real>(lattice_domain.length(2));
 
         const IntVect profile_lo(AMREX_D_DECL(lattice_lo.x, lattice_lo.y, 0));
         const IntVect profile_hi(AMREX_D_DECL(lattice_hi.x, lattice_hi.y, 0));
@@ -96,6 +100,18 @@ public:
     {
         // Return a const reference to the profile multifab
         return profile;
+    }
+
+    void Write(int Langevin_step, const NRRBParameters& nrrb_parm)
+    {
+        // Write the density profile MultiFab to a plotfile at this step
+        const auto density_profile_mf = density_profile.GetMeshProfile();
+        const std::string& density_pltfile = amrex::Concatenate("density_profile_plt",Langevin_step,5);
+        if (nrrb_parm.use_hdf5) {
+            WriteSingleLevelPlotfileHDF5(density_pltfile, profile, plot_vars, geom, Langevin_time, 0);
+        } else {
+            WriteSingleLevelPlotfile(density_pltfile, profile, plot_vars, geom, Langevin_time, 0);
+        }
     }
 
 
@@ -170,10 +186,6 @@ public:
 
     void AverageToMesh()
     {
-        auto geom = Geom(0).data();
-        const auto dbox = geom.Domain();
-        const Real inv_Ntau = 1.0 / static_cast<Real>(dbox.length(2));
-
         amrex::ParticleToMesh(*this, profile, 0,
         [=] AMREX_GPU_DEVICE (const ParticleType& p,
                               amrex::Array4<amrex::Real> const& parr)
@@ -184,8 +196,8 @@ public:
             int k = amrex::Math::round(p.pos(2));
 
             // Sum particle density into its corresponding profile mesh cell
-            amrex::Gpu::Atomic::Add(&parr(i, j, k, PIdx::DensRe), p.rdata(PIdx::DensRe));
-            amrex::Gpu::Atomic::Add(&parr(i, j, k, PIdx::DensIm), p.rdata(PIdx::DensIm));
+            amrex::Gpu::Atomic::AddNoRet(&parr(i, j, k, PIdx::DensRe), p.rdata(PIdx::DensRe));
+            amrex::Gpu::Atomic::AddNoRet(&parr(i, j, k, PIdx::DensIm), p.rdata(PIdx::DensIm));
         });
 
         // Since we're averaging in tau, divide the sums over tau by the number of points in tau
