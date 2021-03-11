@@ -136,9 +136,6 @@ void Langevin_evolution(amrex::Real eps, const amrex::Box& box,
 
 void initialize_observables(const std::string);
 
-void update_observables(const int, const amrex::MultiFab&, const amrex::GeometryData &,
-                        const NRRBParameters&, const std::string);
-
 void WritePlotfile(int Langevin_step, const amrex::Real Langevin_time,
                    const amrex::MultiFab& lattice, const amrex::Vector<std::string>& component_names,
                    const amrex::MultiFab& lattice_aux, const amrex::Vector<std::string>& auxiliary_names,
