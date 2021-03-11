@@ -1,7 +1,14 @@
 #ifndef _OBSERVABLES_K_H
 #define _OBSERVABLES_K_H
 
-#include "Observables.H"
+namespace Obs {
+enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
+                        LzRe, LzIm, SRe, SIm, KERe, KEIm, VtrRe,
+                        VtrIm, VintRe, VintIm, StauRe, StauIm,
+                        SdelRe, SdelIm, StrapRe, StrapIm, SwRe,
+                        SwIm, SintRe, SintIm, Circ1, Circ2,
+                        NumObservables};
+};
 
 using namespace amrex;
 
@@ -678,13 +685,14 @@ local_observables(const int i, const int j, const int t,
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void
 local_density(const int i, const int j, const int t,
               const amrex::Array4<const amrex::Real>& Lattice,
               const NRRBParameters nrrb_parm,
 			  amrex::Real& dens_Re, amrex::Real& dens_Im) {
     // Clear out dens_Re & dens_Im first
-	Real dens_Re = 0;
-	Real dens_Im = 0;
+	dens_Re = 0;
+	dens_Im = 0;
 
 	// Modify parameters by dtau
 	const Real mu = nrrb_parm.dtau * nrrb_parm.mu;

@@ -4,15 +4,6 @@
 #include "Langevin.H"
 #include "ProfileContainer.H"
 
-namespace Obs {
-enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
-                        LzRe, LzIm, SRe, SIm, KERe, KEIm, VtrRe, 
-                        VtrIm, VintRe, VintIm, StauRe, StauIm,
-                        SdelRe, SdelIm, StrapRe, StrapIm, SwRe, 
-                        SwIm, SintRe, SintIm, Circ1, Circ2, 
-                        NumObservables};
-};
-
 struct RadCirc
 {
     int radius;
@@ -76,7 +67,7 @@ private:
 public:
     Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps);
     void initialize_files(const amrex::Geometry& geom);
-    void update(const int nL, const amrex::MultiFab& Lattice, 
+    void update(const int nL, const amrex::Real Ltime, const amrex::MultiFab& Lattice,
                 const amrex::GeometryData& geom, const NRRBParameters& nrrb_parm);
 };
 

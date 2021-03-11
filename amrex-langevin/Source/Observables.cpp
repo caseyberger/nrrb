@@ -38,8 +38,8 @@ Observables::Observables(const amrex::Geometry& geom, const amrex::DistributionM
 
 	initialize_files(geom);
 
-    // Define our density profile particle container
-    density_profile.Define(geom, dm, ba, nrrb.profile_max_grid_size);
+    // Setup our density profile particle container
+    density_profile.Setup(geom, dm, ba, nrrb.profile_max_grid_size);
 }
 
 void Observables::initialize_files(const amrex::Geometry& geom)
@@ -83,17 +83,17 @@ void Observables::initialize_files(const amrex::Geometry& geom)
     }
 }
 
-void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amrex::GeometryData& geom,
-                         const NRRBParameters& nrrb_parm)
+void Observables::update(const int nL, const Real Ltime, const amrex::MultiFab& Lattice,
+                         const amrex::GeometryData& geom, const NRRBParameters& nrrb_parm)
 {
     const int Ncomp = Lattice.nComp();
 
     ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, 
-                ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,
-                ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,
-                ReduceOpSum, ReduceOpSum> reduce_operations;
+              ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,
+              ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,ReduceOpSum, ReduceOpSum,
+              ReduceOpSum, ReduceOpSum> reduce_operations;
     ReduceData<Real, Real, Real, Real, Real, Real, Real, Real, Real, Real,Real, Real, Real, 
-                Real,Real, Real, Real, Real,Real, Real, Real, Real,Real, Real, Real, Real> reduce_data(reduce_operations);
+               Real,Real, Real, Real, Real,Real, Real, Real, Real,Real, Real, Real, Real> reduce_data(reduce_operations);
     using ReduceTuple = typename decltype(reduce_data)::Type;
 
 #ifdef _OPENMP
@@ -214,5 +214,5 @@ void Observables::update(const int nL, const amrex::MultiFab& Lattice, const amr
 
     // Calculate and save the density profile
     density_profile.AccumulateProfile(Lattice, nrrb_parm);
-    density_profile.Write(nL);
+    density_profile.Write(nL, Ltime, nrrb_parm);
 }

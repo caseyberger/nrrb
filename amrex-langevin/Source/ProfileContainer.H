@@ -4,6 +4,10 @@
 #include <AMReX_Particles.H>
 #include <AMReX_ParticleMesh.H>
 #include <AMReX_Geometry.H>
+#include <AMReX_MultiFab.H>
+#include <Observables_Kernel.H>
+
+using namespace amrex;
 
 // Indexes into particle real struct data for the quantities to create
 // a 2D profile after averaging along the time axis.
@@ -31,19 +35,22 @@ class ProfileContainer
     // 1/N_tau, where N_tau is the number of time points in the CL domain
     Real inv_Ntau;
 
+    // Names of profile components
+    Vector<std::string> profile_component_names;
+
 public:
 
-    void Define(const Geometry& lattice_geom,
-                const DistributionMapping& lattice_dmap,
-                const BoxArray& lattice_ba,
-                const int profile_max_grid_size)
+    void Setup(const Geometry& lattice_geom,
+               const DistributionMapping& lattice_dmap,
+               const BoxArray& lattice_ba,
+               const int profile_max_grid_size)
     {
         Define(lattice_geom, lattice_dmap, lattice_ba);
 
         gdb_lattice = amrex::ParGDB(lattice_geom, lattice_dmap, lattice_ba);
 
         // create the profile geometry, box array, and distribution mapping
-        lattice_gdata = lattice_geom.data();
+        const auto lattice_gdata = lattice_geom.data();
         const auto lattice_domain = lattice_gdata.Domain();
         const auto lattice_lo = amrex::lbound(lattice_domain);
         const auto lattice_hi = amrex::ubound(lattice_domain);
@@ -70,6 +77,10 @@ public:
         profile.define(profile_ba, profile_dmap, PIdx::NumProfile, 0);
 
         gdb_profile = amrex::ParGDB(profile_geom, profile_dmap, profile_ba);
+
+        // define the component names we're going to profile
+        profile_component_names.push_back("DensityProfile_Re");
+        profile_component_names.push_back("DensityProfile_Im");
     }
 
 
@@ -102,15 +113,15 @@ public:
         return profile;
     }
 
-    void Write(int Langevin_step, const NRRBParameters& nrrb_parm)
+    void Write(const int Langevin_step, const Real Langevin_time, const NRRBParameters& nrrb_parm)
     {
         // Write the density profile MultiFab to a plotfile at this step
-        const auto density_profile_mf = density_profile.GetMeshProfile();
         const std::string& density_pltfile = amrex::Concatenate("density_profile_plt",Langevin_step,5);
+        const auto profile_geom = gdb_profile.Geom(0);
         if (nrrb_parm.use_hdf5) {
-            WriteSingleLevelPlotfileHDF5(density_pltfile, profile, plot_vars, geom, Langevin_time, 0);
+            WriteSingleLevelPlotfileHDF5(density_pltfile, profile, profile_component_names, profile_geom, Langevin_time, 0);
         } else {
-            WriteSingleLevelPlotfile(density_pltfile, profile, plot_vars, geom, Langevin_time, 0);
+            WriteSingleLevelPlotfile(density_pltfile, profile, profile_component_names, profile_geom, Langevin_time, 0);
         }
     }
 

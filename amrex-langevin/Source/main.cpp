@@ -204,7 +204,7 @@ void langevin_main()
     Real Ltime = 0.0;
 
     // Write observables after initialization for reference
-    observables.update(0, lattice_new, geom.data(), nrrb_parm);
+    observables.update(0, Ltime, lattice_new, geom.data(), nrrb_parm);
 
     // To check our initialization, we also write a plotfile
     // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
@@ -259,7 +259,7 @@ void langevin_main()
         // Calculate observables
         if (n % autocorrelation_step == 0)
         {
-            observables.update(n, lattice_new, geom.data(), nrrb_parm);
+            observables.update(n, Ltime, lattice_new, geom.data(), nrrb_parm);
         }
 
         Ltime = Ltime + nrrb_parm.eps;
