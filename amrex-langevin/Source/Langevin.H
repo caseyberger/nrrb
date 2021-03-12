@@ -46,7 +46,7 @@ struct NRRBParameters {
     int seed_run;
 
     int problem_type;
-
+    bool use_hdf5;
     int profile_max_grid_size;
 
     NRRBParameters()
@@ -68,6 +68,9 @@ struct NRRBParameters {
         // problem_type = 0 is the default setup
         // other problem types may be, e.g. specialized test cases
         problem_type = 0;
+
+        // by default turn off HDF5
+        use_hdf5 = false;
 
         // when we read in the NRRB parameters, we default
         // profile_max_grid_size to the CL domain max_grid_size
