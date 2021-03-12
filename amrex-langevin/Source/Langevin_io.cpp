@@ -26,8 +26,8 @@ void WritePlotfile(int Langevin_step, const Real Langevin_time,
 
     // write lattice_plot to a plotfile
 #ifdef AMREX_USE_HDF5
-    WriteSingleLevelPlotfileHDF5(pltfile, lattice_plot, plot_vars, geom, Langevin_time, 0);
+    WriteSingleLevelPlotfileHDF5(pltfile, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step);
 #else
-    WriteSingleLevelPlotfile(pltfile, lattice_plot, plot_vars, geom, Langevin_time, 0);
+    WriteSingleLevelPlotfile(pltfile, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step);
 #endif
 }
