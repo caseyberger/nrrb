@@ -1,7 +1,14 @@
 #ifndef _OBSERVABLES_K_H
 #define _OBSERVABLES_K_H
 
-#include "Observables.H"
+namespace Obs {
+enum ObservableIndices {PhiSqRe = 0, PhiSqIm, DensRe, DensIm,
+                        LzRe, LzIm, SRe, SIm, KERe, KEIm, VtrRe,
+                        VtrIm, VintRe, VintIm, StauRe, StauIm,
+                        SdelRe, SdelIm, StrapRe, StrapIm, SwRe,
+                        SwIm, SintRe, SintIm, Circ1, Circ2,
+                        NumObservables};
+};
 
 using namespace amrex;
 
@@ -675,6 +682,38 @@ local_observables(const int i, const int j, const int t,
     observables[Obs::Circ2] = Circulation(i, j, t, Lattice, geom, nrrb_parm.circulation_radius_2);
 
     return observables;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void
+local_density(const int i, const int j, const int t,
+              const amrex::Array4<const amrex::Real>& Lattice,
+              const NRRBParameters nrrb_parm,
+			  amrex::Real& dens_Re, amrex::Real& dens_Im) {
+    // Clear out dens_Re & dens_Im first
+	dens_Re = 0;
+	dens_Im = 0;
+
+	// Modify parameters by dtau
+	const Real mu = nrrb_parm.dtau * nrrb_parm.mu;
+
+	// Sum up contributions to dens_Re & dens_Im from this cell (i, j, t)
+    for (int a = 1; a <= 2; a++){
+        for (int b = 1; b <= 2; b++){
+            //Density
+            dens_Re +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+            dens_Re += -delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+            dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+            dens_Re += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+            dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Re));
+            dens_Im +=  delta(a,b)   * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Im));
+            dens_Im +=  epsilon(a,b) * Lattice(i,j,t,Field(a,C::Re)) * Lattice(i,j,t-1,Field(b,C::Re));
+            dens_Im += -epsilon(a,b) * Lattice(i,j,t,Field(a,C::Im)) * Lattice(i,j,t-1,Field(b,C::Im));
+        }//loop over b = 1,2
+    }//loop over a = 1,2
+
+    dens_Re = 0.5 * std::exp(mu) * dens_Re;
+    dens_Im = 0.5 * std::exp(mu) * dens_Im;
 }
 
 #endif

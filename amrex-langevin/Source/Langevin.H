@@ -47,6 +47,7 @@ struct NRRBParameters {
 
     int problem_type;
     bool use_hdf5;
+    int profile_max_grid_size;
 
     NRRBParameters()
     {
@@ -70,6 +71,11 @@ struct NRRBParameters {
 
         // by default turn off HDF5
         use_hdf5 = false;
+
+        // when we read in the NRRB parameters, we default
+        // profile_max_grid_size to the CL domain max_grid_size
+        // if the user doesn't set it manually.
+        profile_max_grid_size = -1;
     }
 };
 
@@ -129,9 +135,6 @@ void Langevin_evolution(amrex::Real eps, const amrex::Box& box,
                         amrex::Array4<amrex::Real> const& Lattice_new);
 
 void initialize_observables(const std::string);
-
-void update_observables(const int, const amrex::MultiFab&, const amrex::GeometryData &,
-                        const NRRBParameters&, const std::string);
 
 void WritePlotfile(int Langevin_step, const amrex::Real Langevin_time,
                    const amrex::MultiFab& lattice, const amrex::Vector<std::string>& component_names,

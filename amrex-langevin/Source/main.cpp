@@ -77,6 +77,12 @@ void langevin_main()
         // Use HDF5 for writing plotfiles?
         pp.query("use_hdf5", nrrb_parm.use_hdf5);
 
+        // Get the max grid size to use for the density profile
+        // By default, set it to the same as the CL domain max grid size
+        int _profile_max_grid_size = -1;
+        pp.query("profile_max_grid_size", _profile_max_grid_size);
+        nrrb_parm.profile_max_grid_size = (_profile_max_grid_size == -1) ? max_grid_size : _profile_max_grid_size;
+
         // Default nsteps to 10, allow us to set it to something else in the inputs file
         nsteps = 10;
         pp.query("nsteps",nsteps);
@@ -158,7 +164,7 @@ void langevin_main()
     lattice_aux.setVal(0.0);
 
     // Create an observables object for updating and writing observable log files
-    Observables observables(geom, nrrb_parm, nsteps);
+    Observables observables(geom, dm, ba, nrrb_parm, nsteps);
 
     Vector<BCRec> lattice_bc(Ncomp);
     for (int n = 0; n < Ncomp; ++n)
@@ -198,7 +204,7 @@ void langevin_main()
     Real Ltime = 0.0;
 
     // Write observables after initialization for reference
-    observables.update(0, lattice_new, geom.data(), nrrb_parm);
+    observables.update(0, Ltime, lattice_new, geom.data(), nrrb_parm);
 
     // To check our initialization, we also write a plotfile
     // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
@@ -253,7 +259,7 @@ void langevin_main()
         // Calculate observables
         if (n % autocorrelation_step == 0)
         {
-            observables.update(n, lattice_new, geom.data(), nrrb_parm);
+            observables.update(n, Ltime, lattice_new, geom.data(), nrrb_parm);
         }
 
         Ltime = Ltime + nrrb_parm.eps;
