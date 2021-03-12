@@ -122,9 +122,9 @@ public:
         const std::string& density_pltfile = amrex::Concatenate("density_profile_plt",Langevin_step,5);
         const auto profile_geom = gdb_profile.Geom(0);
         if (nrrb_parm.use_hdf5) {
-            WriteSingleLevelPlotfileHDF5(density_pltfile, profile, profile_component_names, profile_geom, Langevin_time, 0);
+            WriteSingleLevelPlotfileHDF5(density_pltfile, profile, profile_component_names, profile_geom, Langevin_time, Langevin_step);
         } else {
-            WriteSingleLevelPlotfile(density_pltfile, profile, profile_component_names, profile_geom, Langevin_time, 0);
+            WriteSingleLevelPlotfile(density_pltfile, profile, profile_component_names, profile_geom, Langevin_time, Langevin_step);
         }
     }
 
