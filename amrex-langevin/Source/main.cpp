@@ -74,9 +74,6 @@ void langevin_main()
         // Only plot after this much langevin time has elapsed
         pp.query("plot_after_time", plot_after_time);
 
-        // Use HDF5 for writing plotfiles?
-        pp.query("use_hdf5", nrrb_parm.use_hdf5);
-
         // Get the max grid size to use for the density profile
         // By default, set it to the same as the CL domain max grid size
         int _profile_max_grid_size = -1;
@@ -256,16 +253,16 @@ void langevin_main()
         lattice_new.FillBoundary(geom.periodicity());
         FillDomainBoundary(lattice_new, geom, lattice_bc);
 
+        Ltime = Ltime + nrrb_parm.eps;
+
+        // Tell the I/O Processor to write out which step we're doing
+        amrex::Print() << "Advanced step " << n << "\n";
+
         // Calculate observables
         if (n % autocorrelation_step == 0)
         {
             observables.update(n, Ltime, lattice_new, geom.data(), nrrb_parm);
         }
-
-        Ltime = Ltime + nrrb_parm.eps;
-
-        // Tell the I/O Processor to write out which step we're doing
-        amrex::Print() << "Advanced step " << n << "\n";
 
         // Write a plotfile of the current data every plot_int depending on the optional
         // step or time where we turn on plotting.
