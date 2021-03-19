@@ -26,7 +26,8 @@ void WritePlotfile(int Langevin_step, const Real Langevin_time,
     const std::string& pltfile = amrex::Concatenate("plt",Langevin_step,5);
     if (nrrb.use_hdf5) {
         const std::string& pltfile_h = nrrb.append_hdf5 ? "lattice" : pltfile;
-        WriteSingleLevelPlotfileHDF5(pltfile_h, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step, nrrb.append_hdf5);
+        const Vector<std::string> write_group = {"Lattice", "step_" + std::to_string(Langevin_step)};
+        WriteSingleLevelPlotfileHDF5(pltfile_h, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step, write_group);
     } else {
         WriteSingleLevelPlotfile(pltfile, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step);
     }

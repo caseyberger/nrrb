@@ -123,7 +123,8 @@ public:
         const auto profile_geom = gdb_profile.Geom(0);
         if (nrrb_parm.use_hdf5) {
             const std::string& density_pltfile_h = nrrb_parm.append_hdf5 ? "density_profiles" : density_pltfile;
-            WriteSingleLevelPlotfileHDF5(density_pltfile_h, profile, profile_component_names, profile_geom, Langevin_time, Langevin_step, nrrb_parm.append_hdf5);
+            const Vector<std::string> write_group = {"DensityProfile", "step_" + std::to_string(Langevin_step)};
+            WriteSingleLevelPlotfileHDF5(density_pltfile_h, profile, profile_component_names, profile_geom, Langevin_time, Langevin_step, write_group);
         } else {
             WriteSingleLevelPlotfile(density_pltfile, profile, profile_component_names, profile_geom, Langevin_time, Langevin_step);
         }
