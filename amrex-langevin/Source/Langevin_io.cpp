@@ -23,12 +23,12 @@ void WritePlotfile(int Langevin_step, const Real Langevin_time,
     MultiFab::Copy(lattice_plot, lattice_aux, 0, lattice.nComp(), AIdx::NAux, 0);
 
     // write lattice_plot to a plotfile
-    const std::string& pltfile = amrex::Concatenate("plt",Langevin_step,5);
     if (nrrb.use_hdf5) {
-        const std::string& pltfile_h = nrrb.append_hdf5 ? "lattice" : pltfile;
+        const std::string& pltfile = "lattice";
         const Vector<std::string> write_group = {"Lattice", "step_" + std::to_string(Langevin_step)};
-        WriteSingleLevelPlotfileHDF5(pltfile_h, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step, write_group);
+        WriteSingleLevelPlotfileHDF5(pltfile, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step, write_group);
     } else {
+        const std::string& pltfile = amrex::Concatenate("plt",Langevin_step,5);
         WriteSingleLevelPlotfile(pltfile, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step);
     }
 }
