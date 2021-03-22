@@ -9,7 +9,7 @@ DEBUG     = FALSE
 USE_MPI   = FALSE
 USE_OMP   = FALSE
 USE_CUDA  = FALSE
-USE_HDF5  = TRUE
+USE_HDF5  ?= FALSE
 COMP      = gnu
 DIM       = 3
 
