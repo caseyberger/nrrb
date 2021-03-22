@@ -43,30 +43,6 @@ allocation = "m3764" #this is our current allocation through the ERCAP grant
 email = "caseyb@bu.edu"
 
 
-for Nx in Nx_list:
-	circ1 = Nx/8
-	circ2 = Nx/2 -1
-	for Nt in Nt_list:
-		for nL in nL_list:
-			for eps in eps_list:
-				for mu in mu_list:
-					if not dim == 2:
-						w = 0.0
-						w_t = 0.0
-						l = 0.0
-						file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
-						generate_slurm_script(script_name,file_ext,job_name,allocation,email=email)
-						copy_executable(script_name, file_ext)
-					else:
-						for l in l_list:
-							for w_t in w_trap_list:
-								for w in w_list:
-									file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
-									generate_slurm_script(script_name,file_ext,job_name,allocation,email=email)
-									copy_executable(script_name, file_ext)
-
-
-
 def generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,
 	acf_spacing=1,num_plotfiles=1,therm_step=-1,
 	use_hdf5=False,seed_init=8134,seed_run=61,max_grid_size=8):
@@ -187,3 +163,27 @@ def generate_slurm_script(script_name,file_ext,job_name,allocation,num_nodes=2,
 	slurm_file.write("# export OMP_NUM_THREADS=68\n\n")
 	slurm_file.write("srun --cpu_bind=cores ./"+script_name+" inputs_"+file_ext+"\n")
 	slurm_file.close()
+
+
+
+for Nx in Nx_list:
+	circ1 = Nx/8
+	circ2 = Nx/2 -1
+	for Nt in Nt_list:
+		for nL in nL_list:
+			for eps in eps_list:
+				for mu in mu_list:
+					if not dim == 2:
+						w = 0.0
+						w_t = 0.0
+						l = 0.0
+						file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
+						generate_slurm_script(script_name,file_ext,job_name,allocation,email=email)
+						copy_executable(script_name, file_ext)
+					else:
+						for l in l_list:
+							for w_t in w_trap_list:
+								for w in w_list:
+									file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
+									generate_slurm_script(script_name,file_ext,job_name,allocation,email=email)
+									copy_executable(script_name, file_ext)
