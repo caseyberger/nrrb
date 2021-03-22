@@ -3,19 +3,79 @@
 import os, string
 
 '''
+In this script, you enter the parameters you want in the simulation, as well as 
+the name of the executable, the job name, and the allocation.
+The script then loops through the parameters you've given and generates the 
+appropriate input file, then generates the submit script to run the code. 
+Finally, it copies the executable to the appropriate directory.
 
-This generates a bunch of input files and slurm scripts in directories 
-named using the parameter values. All you need to do then is copy the 
-main code file ("main3d.intel.haswell.MPI.OMP.ex") into each folder
-and submit the batch script and it should run!
+It's up to you to run the scripts once they're generated.
 
-you can change the defaults in the input script and the slurm script if you want
 '''
-def generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,seed_init=8134,seed_run=61,max_grid_size=8,acf_spacing=1,num_plotfiles=1):
+
+dim = 2 
+dt = 0.05 
+m = 1.
+#list of values for chemical potential mu
+mu_list = [-1.,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.0]
+#list of values for rotational frequency wx
+w_list = [0.0] 
+#list of values for harmonic trap frequency wt
+w_trap_list = [0.0] 
+#list of values for interaction strength lambda
+l_list = [0.0]
+#list of values for number of spatial lattice sites
+Nx_list = [21]
+#list of values for number of temporal lattice site
+Nt_list = [80]
+#list of values for number of steps in the Langevin evolution
+nL_list = [1000000]
+#autocorrelation spacing
+acf_spacing = 10
+#thermalization step (-1 means we take samples without waiting to thermalize)
+therm_step = -1
+#list of epsilon values 
+eps_list = [0.01]
+
+script_name = "ComplexLangevin3d.gnu.haswell.TPROF.MPI.OMP.ex"
+job_name = "amrex_cl_2D_free_gas"
+allocation = "m3764" #this is our current allocation through the ERCAP grant
+email = "caseyb@bu.edu"
+
+
+for Nx in Nx_list:
+	circ1 = Nx/8
+	circ2 = Nx/2 -1
+	for Nt in Nt_list:
+		for nL in nL_list:
+			for eps in eps_list:
+				for mu in mu_list:
+					if not dim == 2:
+						w = 0.0
+						w_t = 0.0
+						l = 0.0
+						file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
+						generate_slurm_script(script_name,file_ext,job_name,allocation,email=email)
+						copy_executable(script_name, file_ext)
+					else:
+						for l in l_list:
+							for w_t in w_trap_list:
+								for w in w_list:
+									file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
+									generate_slurm_script(script_name,file_ext,job_name,allocation,email=email)
+									copy_executable(script_name, file_ext)
+
+
+
+def generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,
+	acf_spacing=1,num_plotfiles=1,therm_step=-1,
+	use_hdf5=False,seed_init=8134,seed_run=61,max_grid_size=8):
 	#calculate frequency of plotfile interval -- we want to have exactly num_plotfiles
 	plot_int = int(nL/num_plotfiles)
 	#generate file extension 
-	file_ext = "d"+str(dim)+"_w"+str(w)+"_wt"+str(w_t)+"_lambda"+str(l)+"_m"+str(m)+"_Nx"+str(Nx)+"_Nt"+str(Nt)+"_dt"+str(dt)+"_nL"+str(nL)+"_eps"+str(eps)+"_mu"+str(mu)	
+	file_ext = "d"+str(dim)+"_w"+str(w)+"_wt"+str(w_t)+"_lambda"+str(l)
+	file_ext = file_ext+"_m"+str(m)+"_Nx"+str(Nx)+"_Nt"+str(Nt)+"_dt"+str(dt)
+	file_ext = file_ext+"_nL"+str(nL)+"_eps"+str(eps)+"_mu"+str(mu)	
 	#create directory
 	currdir = os.getcwd()
 	work_dir = currdir+'/nrrb_data_'+file_ext
@@ -43,13 +103,6 @@ def generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,seed_init=8
 	input_file.write("n_cell = "+str(Nx)+" "+str(Nx)+" "+str(Nt)+'\n')
 	input_file.write("max_grid_size = "+str(max_grid_size)+'\n')
 	input_file.write("\n# Set Fab tile size (default is 1024000 x 8 x 8 for 3D)\n")
-	'''
-	since this test inputs has max_grid_size = 8, using 4 x 4 tiles means
-	e.g., an 8 x 8 x 8 grid will be tiled into 4 tiles of 8 x 4 x 4 so there 
-	will be work for 4 OpenMP threads even if that 8 x 8 x 8 grid is the only
-	grid owned by an MPI rank.
-	'''
-	input_file.write("fabarray.mfiter_tile_size = 1024000 4 4\n")
 	input_file.write("\n# Periodicity and Domain Boundary Conditions\n")
 	'''
 	For a given dimension, if is_periodic[i] = 1, then the lo/hi BC type 
@@ -71,8 +124,14 @@ def generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,seed_init=8
 	input_file.write("\n#Frequency for computing observables\n")
 	input_file.write("autocorrelation_step = "+str(acf_spacing)+'\n')
 	input_file.write("\n#I/O\n")
+	input_file.write("# only enable plotting after taking a number of steps set by \"plot_after_step\"\n")
+	input_file.write("plot_after_step = "+therm_step+'\n')
+	input_file.write("# plot every \"plot_int\" steps \n")
 	input_file.write("plot_int = "+str(plot_int)+'\n')
+	input_file.write("set logfile name \n")
 	input_file.write("observable_log_file = \"observables_"+file_ext+".log\"\n")
+	input_file.write("toggle HDF5 use \n")
+	input_file.write("use_hdf5 = "+use_hdf5+'\n')
 	input_file.close()
 	return file_ext
 
@@ -86,7 +145,9 @@ def copy_executable(script_name, file_ext):
 	copy_cmd = "cp "+source_path+" "+destination_path
 	os.system(copy_cmd)
 
-def generate_slurm_script(script_name,file_ext,job_name,allocation,num_nodes=2,tasks_per_node=2,cpus_per_task=32,queue="regular",walltime="48:00:00",email = "caseyb@bu.edu",omp_threads=16):
+def generate_slurm_script(script_name,file_ext,job_name,allocation,num_nodes=2,
+	tasks_per_node=2,cpus_per_task=32,queue="regular",walltime="48:00:00",
+	email = "caseyb@bu.edu",omp_threads=16):
 	#generates the sbatch file that you run with sbatch filename
 	#should be paired with the appropriate input file somehow...
 	filename = "cori.MPI.OMP.slurm"
@@ -126,44 +187,3 @@ def generate_slurm_script(script_name,file_ext,job_name,allocation,num_nodes=2,t
 	slurm_file.write("# export OMP_NUM_THREADS=68\n\n")
 	slurm_file.write("srun --cpu_bind=cores ./"+script_name+" inputs_"+file_ext+"\n")
 	slurm_file.close()
-
-
-dim = 2
-dt = 0.05
-m = 1.
-mu_list = [-1.,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.0]
-w_list = [0.0]
-w_trap_list = [0.0]
-l_list = [0.0]
-m_list = [1.0]
-Nx_list = [21,41]
-Nt_list = [160]
-nL_list = [1000000]
-tL_list = [100.,500.,1000.,5000.]
-script_name = "main3d.gnu.haswell.MPI.OMP.ex"
-job_name = "amrex_cl_2D_free_gas"
-allocation = "mp111"
-
-
-for Nx in Nx_list:
-	circ1 = Nx/8
-	circ2 = Nx/2 -1
-	for Nt in Nt_list:
-		for nL in nL_list:
-			for tL in tL_list:
-				eps = float(tL)/float(nL)
-				for mu in mu_list:
-					if not dim == 2:
-						w = 0.0
-						w_t = 0.0
-						l = 0.0
-						file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
-						generate_slurm_script(script_name,file_ext,job_name,allocation)
-						copy_executable(script_name, file_ext)
-					else:
-						for l in l_list:
-							for w_t in w_trap_list:
-								for w in w_list:
-									file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
-									generate_slurm_script(script_name,file_ext,job_name,allocation)
-									copy_executable(script_name, file_ext)
