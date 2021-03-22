@@ -101,13 +101,13 @@ def generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,
 	input_file.write("autocorrelation_step = "+str(acf_spacing)+'\n')
 	input_file.write("\n#I/O\n")
 	input_file.write("# only enable plotting after taking a number of steps set by \"plot_after_step\"\n")
-	input_file.write("plot_after_step = "+therm_step+'\n')
+	input_file.write("plot_after_step = "+str(therm_step)+'\n')
 	input_file.write("# plot every \"plot_int\" steps \n")
 	input_file.write("plot_int = "+str(plot_int)+'\n')
 	input_file.write("set logfile name \n")
 	input_file.write("observable_log_file = \"observables_"+file_ext+".log\"\n")
 	input_file.write("toggle HDF5 use \n")
-	input_file.write("use_hdf5 = "+use_hdf5+'\n')
+	input_file.write("use_hdf5 = "+str(use_hdf5)+'\n')
 	input_file.close()
 	return file_ext
 
