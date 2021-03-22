@@ -161,6 +161,11 @@ def generate_slurm_script(script_name,file_ext,job_name,allocation,num_nodes=2,
 	slurm_file.write("export OMP_NUM_THREADS="+str(omp_threads)+"\n")
 	slurm_file.write("## for KNL nodes:\n")
 	slurm_file.write("# export OMP_NUM_THREADS=68\n\n")
+	slurm_file.write("# Load modules\n")
+	slurm_file.write("module load gcc\n")
+	if use_hdf5:
+		slurm_file.write("module swap PrgEnv-intel PrgEnv-gnu\nmodule load cray-hdf5-parallel\n")
+	slurm_file.write("\n")
 	slurm_file.write("srun --cpu_bind=cores ./"+script_name+" inputs_"+file_ext+"\n")
 	slurm_file.close()
 
