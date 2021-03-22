@@ -123,7 +123,7 @@ def copy_executable(script_name, file_ext):
 
 def generate_slurm_script(script_name,file_ext,job_name,allocation,num_nodes=2,
 	tasks_per_node=2,cpus_per_task=32,queue="regular",walltime="48:00:00",
-	email = "caseyb@bu.edu",omp_threads=16):
+	email = "caseyb@bu.edu",use_hdf5=False,omp_threads=16):
 	#generates the sbatch file that you run with sbatch filename
 	#should be paired with the appropriate input file somehow...
 	filename = "cori.MPI.OMP.slurm"
