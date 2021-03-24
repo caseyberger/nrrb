@@ -107,7 +107,10 @@ def generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,
 	input_file.write("set logfile name \n")
 	input_file.write("observable_log_file = \"observables_"+file_ext+".log\"\n")
 	input_file.write("toggle HDF5 use \n")
-	input_file.write("use_hdf5 = "+str(use_hdf5)+'\n')
+	if use_hdf5:
+		input_file.write("use_hdf5 = true\n")
+	else:
+		input_file.write("use_hdf5 = false\n")
 	input_file.close()
 	return file_ext
 
