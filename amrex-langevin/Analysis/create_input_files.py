@@ -175,8 +175,8 @@ def generate_slurm_script(script_name,file_ext,job_name,allocation,num_nodes=2,
 
 
 for Nx in Nx_list:
-	circ1 = Nx/8
-	circ2 = Nx/2 -1
+	circ1 = int(Nx/8)
+	circ2 = int(Nx/2 -1)
 	for Nt in Nt_list:
 		for nL in nL_list:
 			for eps in eps_list:
