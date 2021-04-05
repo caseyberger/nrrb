@@ -16,6 +16,7 @@
 #include <AMReX_BC_TYPES.H>
 #include <AMReX_BCRec.H>
 #include <AMReX_BCUtil.H>
+#include <ClassyHDF.H>
 
 enum class C { Re = 0, Im };
 

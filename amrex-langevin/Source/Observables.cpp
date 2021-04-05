@@ -25,16 +25,16 @@ Observables::Observables(const amrex::Geometry& geom, const amrex::DistributionM
 	logfile_stream << "_dt_" << nrrb.dtau << "_nL_" << nsteps << "_eps_" << nrrb.eps;
 	logfile_stream << "_m_" << nrrb.m << "_wtr_" <<nrrb.w_t;
 	logfile_stream << "_wz_" << nrrb.w << "_l_" << nrrb.l << "_mu_" << nrrb.mu << ".log";
-	logfile_suffix = logfile_stream.str();
+    std::string logfile_suffix = logfile_stream.str();
 
 	// Construct the log file names
-	observable_log_file = "logfile_" + logfile_suffix;
+	observable_log_file = "logfile_" + logfile_suffix + ".h5";
 
 	// Initialize circulation radii and logfile names
-	circulation.emplace_back(nrrb.circulation_radius_1, logfile_suffix);
-	circulation.emplace_back(nrrb.circulation_radius_2, logfile_suffix);
+	circulation.emplace_back(nrrb.circulation_radius_1);
+	circulation.emplace_back(nrrb.circulation_radius_2);
 
-	Print() << "logfile name = logfile_" << logfile_suffix << std::endl;
+	Print() << "logfile name = " << observable_log_file << std::endl;
 
 	initialize_files(geom);
 
@@ -46,40 +46,37 @@ void Observables::initialize_files(const amrex::Geometry& geom)
 {
     if (ParallelDescriptor::IOProcessor())
     {
-	    std::ofstream obsFile;
+        using namespace ClassyHDF;
 
-		// Write observables file header
-	    obsFile.open(observable_log_file, std::fstream::trunc);
-        obsFile << "#step,";
-        obsFile << "Re[phi^{*}phi],";
-        obsFile << "Im[phi^{*}phi],";
-        obsFile << "Re[<n>],";
-        obsFile << "Im[<n>],";
-        obsFile << "Re[<Lz>],";
-        obsFile << "Im[<Lz>],";
-        obsFile << "Re[<S>],";
-        obsFile << "Im[<S>],";
-        obsFile << "Re[KE],";
-        obsFile << "Im[KE],";
-        obsFile << "Re[Vtr],";
-        obsFile << "Im[Vtr],";
-        obsFile << "Re[Vint],";
-        obsFile << "Im[Vint],";
-        obsFile << "Re[S_tau],";
-        obsFile << "Im[S_tau],";
-        obsFile << "Re[S_del],";
-        obsFile << "Im[S_del],";
-        obsFile << "Re[S_trap],";
-        obsFile << "Im[S_trap],";
-        obsFile << "Re[S_w],";
-        obsFile << "Im[S_w],";
-        obsFile << "Re[S_int],";
-        obsFile << "Im[S_int],";
-        obsFile << std::endl;
-        obsFile.close();
+		// Create datasets in the observable file
+        File obsFile(observable_log_file, FileMode::trunc);
 
-		// Write circulation log files
-		for (auto& circ : circulation) circ.init_file(geom);
+        obsFile.create_dataset<int>("Steps");
+        obsFile.create_dataset<Real>("LangevinTimes");
+
+        auto make_obs_re_im = [&] (const std::string& obs) {
+            Group ogroup = obsFile.get_group(obs);
+            ogroup.create_dataset<Real>("Re");
+            ogroup.create_dataset<Real>("Im");
+        };
+
+        make_obs_re_im("PhiSq");
+        make_obs_re_im("Dens");
+        make_obs_re_im("Lz");
+        make_obs_re_im("S");
+        make_obs_re_im("KE");
+        make_obs_re_im("Vtr");
+        make_obs_re_im("Vint");
+        make_obs_re_im("S_tau");
+        make_obs_re_im("S_del");
+        make_obs_re_im("S_trap");
+        make_obs_re_im("S_w");
+        make_obs_re_im("S_int");
+
+		// Create circulation datasets
+		for (auto& circ : circulation) {
+            circ.init_file(observable_log_file, geom);
+        }
     }
 }
 
@@ -173,43 +170,53 @@ void Observables::update(const int nL, const Real Ltime, const amrex::MultiFab& 
 
     if (ParallelDescriptor::IOProcessor())
     {
-	    std::ofstream obsFile;
+        using namespace ClassyHDF;
 
-		// Write reduced observables
-	    obsFile.open(observable_log_file, std::fstream::app);
-        obsFile << nL << ',';
-        obsFile << amrex::get<Obs::PhiSqRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::PhiSqIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::DensRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::DensIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::LzRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::LzIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::SRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::SIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::KERe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::KEIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::VtrRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::VtrIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::VintRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::VintIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::StauRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::StauIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::SdelRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::SdelIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::StrapRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::StrapIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::SwRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::SwIm>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::SintRe>(reduced_observables) << ',';
-        obsFile << amrex::get<Obs::SintIm>(reduced_observables) << ',';
-        obsFile << std::endl;
-        obsFile.close();
+        // Write reduced observables
+        File obsFile(observable_log_file);
+
+        obsFile.append(Data<int>("Steps", {nL}));
+        obsFile.append(Data<Real>("LangevinTimes", {Ltime}));
+
+        auto append_obs_re_im = [&] (const std::string& obs,
+                                     const Real& oRe, const Real& oIm) {
+            Group ogroup = obsFile.get_group(obs);
+            ogroup.append(Data<Real>("Re", {oRe}));
+            ogroup.append(Data<Real>("Im", {oIm}));
+        };
+
+        append_obs_re_im("PhiSq" , amrex::get<Obs::PhiSqRe>(reduced_observables),
+                                   amrex::get<Obs::PhiSqIm>(reduced_observables));
+        append_obs_re_im("Dens"  , amrex::get<Obs::DensRe>(reduced_observables),
+                                   amrex::get<Obs::DensIm>(reduced_observables));
+        append_obs_re_im("Lz"    , amrex::get<Obs::LzRe>(reduced_observables),
+                                   amrex::get<Obs::LzIm>(reduced_observables));
+        append_obs_re_im("S"     , amrex::get<Obs::SRe>(reduced_observables),
+                                   amrex::get<Obs::SIm>(reduced_observables));
+        append_obs_re_im("KE"    , amrex::get<Obs::KERe>(reduced_observables),
+                                   amrex::get<Obs::KEIm>(reduced_observables));
+        append_obs_re_im("Vtr"   , amrex::get<Obs::VtrRe>(reduced_observables),
+                                   amrex::get<Obs::VtrIm>(reduced_observables));
+        append_obs_re_im("Vint"  , amrex::get<Obs::VintRe>(reduced_observables),
+                                   amrex::get<Obs::VintIm>(reduced_observables));
+        append_obs_re_im("S_tau" , amrex::get<Obs::StauRe>(reduced_observables),
+                                   amrex::get<Obs::StauIm>(reduced_observables));
+        append_obs_re_im("S_del" , amrex::get<Obs::SdelRe>(reduced_observables),
+                                   amrex::get<Obs::SdelIm>(reduced_observables));
+        append_obs_re_im("S_trap", amrex::get<Obs::StrapRe>(reduced_observables),
+                                   amrex::get<Obs::StrapIm>(reduced_observables));
+        append_obs_re_im("S_w"   , amrex::get<Obs::SwRe>(reduced_observables),
+                                   amrex::get<Obs::SwIm>(reduced_observables));
+        append_obs_re_im("S_int" , amrex::get<Obs::SintRe>(reduced_observables),
+                                   amrex::get<Obs::SintIm>(reduced_observables));
 
 		circulation[0].set_circulation(amrex::get<Obs::Circ1>(reduced_observables));
 		circulation[1].set_circulation(amrex::get<Obs::Circ2>(reduced_observables));
 
 		// Write reduced circulation
-		for (auto& circ : circulation) circ.write();
+		for (auto& circ : circulation) {
+            circ.write(observable_log_file);
+        }
     }
 
     // Calculate and save the density profile

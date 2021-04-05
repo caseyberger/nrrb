@@ -22,6 +22,10 @@ Bdirs   := Source
 Bpack   += $(foreach dir, $(Bdirs), $(TOP)/$(dir)/Make.package)
 Blocs   += $(foreach dir, $(Bdirs), $(TOP)/$(dir))
 
+CLASSYHDF_SRC = $(TOP)/Submodules/ClassyHDF/Source
+Bpack += $(CLASSYHDF_SRC)/Make.package
+Blocs += $(CLASSYHDF_SRC)
+
 include $(Bpack)
 
 INCLUDE_LOCATIONS += $(Blocs)
