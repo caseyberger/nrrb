@@ -65,7 +65,7 @@ private:
 
 public:
     Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps);
-    void initialize_files(const amrex::Geometry& geom);
+    void initialize_files(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps);
     void update(const int nL, const amrex::Real Ltime, const amrex::MultiFab& Lattice,
                 const amrex::GeometryData& geom, const NRRBParameters& nrrb_parm);
 };

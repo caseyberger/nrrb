@@ -36,21 +36,39 @@ Observables::Observables(const amrex::Geometry& geom, const amrex::DistributionM
 
 	Print() << "logfile name = " << observable_log_file << std::endl;
 
-	initialize_files(geom);
+	initialize_files(geom, nrrb, nsteps);
 
     // Setup our density profile particle container
     density_profile.Setup(geom, dm, ba, nrrb.profile_max_grid_size);
 }
 
-void Observables::initialize_files(const amrex::Geometry& geom)
+void Observables::initialize_files(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps)
 {
     if (ParallelDescriptor::IOProcessor())
     {
         using namespace ClassyHDF;
 
-		// Create datasets in the observable file
+        // Make an HDF5 observable log file
         File obsFile(observable_log_file, FileMode::trunc);
 
+        // Write simulation parameters as attributes
+        const auto domain_box = geom.Domain();
+        const int length_x = domain_box.length(0);
+        const int length_t = domain_box.length(AMREX_SPACEDIM-1);
+
+        obsFile.attr<int>("SpatialDim", AMREX_SPACEDIM-1);
+        obsFile.attr<int>("Nx", length_x);
+        obsFile.attr<int>("Nt", length_t);
+        obsFile.attr<int>("nL", nsteps);
+        obsFile.attr<double>("dt", nrrb.dtau);
+        obsFile.attr<double>("eps", nrrb.eps);
+        obsFile.attr<double>("mass", nrrb.m);
+        obsFile.attr<double>("w_trap", nrrb.w_t);
+        obsFile.attr<double>("w_z", nrrb.w);
+        obsFile.attr<double>("l", nrrb.l);
+        obsFile.attr<double>("mu", nrrb.mu);
+
+		// Create datasets in the observable file
         obsFile.create_dataset<int>("Steps");
         obsFile.create_dataset<Real>("LangevinTimes");
 
