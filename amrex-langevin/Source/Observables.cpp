@@ -24,7 +24,7 @@ Observables::Observables(const amrex::Geometry& geom, const amrex::DistributionM
 	logfile_stream << "D_" << AMREX_SPACEDIM-1 << "_Nx_" << length_x << "_Nt_" << length_t;
 	logfile_stream << "_dt_" << nrrb.dtau << "_nL_" << nsteps << "_eps_" << nrrb.eps;
 	logfile_stream << "_m_" << nrrb.m << "_wtr_" <<nrrb.w_t;
-	logfile_stream << "_wz_" << nrrb.w << "_l_" << nrrb.l << "_mu_" << nrrb.mu << ".log";
+	logfile_stream << "_wz_" << nrrb.w << "_l_" << nrrb.l << "_mu_" << nrrb.mu;
     std::string logfile_suffix = logfile_stream.str();
 
 	// Construct the log file names
