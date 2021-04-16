@@ -116,15 +116,14 @@ public:
         return profile;
     }
 
-    void Write(const int Langevin_step, const Real Langevin_time, const NRRBParameters& nrrb_parm)
+    void Write(const int Langevin_step, const Real Langevin_time, const NRRBParameters& nrrb_parm, const std::string& output_file)
     {
         // Write the density profile MultiFab to a plotfile at this step
         const auto profile_geom = gdb_profile.Geom(0);
 
 #ifdef AMREX_USE_HDF5
-        const std::string observable_file = "observables";
         const Vector<std::string> write_group = {"DensityProfile", "step_" + std::to_string(Langevin_step)};
-        WriteSingleLevelPlotfileHDF5(observable_file, profile, profile_component_names, profile_geom, Langevin_time, Langevin_step, write_group);
+        WriteSingleLevelPlotfileHDF5(output_file, profile, profile_component_names, profile_geom, Langevin_time, Langevin_step, write_group);
 #else
         const std::string density_pltfile = amrex::Concatenate("density_profile_plt",Langevin_step,7);
         WriteSingleLevelPlotfile(density_pltfile, profile, profile_component_names, profile_geom, Langevin_time, Langevin_step);

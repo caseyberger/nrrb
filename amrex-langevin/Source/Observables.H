@@ -34,9 +34,8 @@ struct RadCirc
         // Create the circulation datasets
         using namespace ClassyHDF;
 
-        File obsFile(logfile);
+        File obsFile(logfile + ".h5");
         Group gcirc = obsFile.get_group("Circulation");
-        // Todo: add loop center as an attribute of the circulation group
         gcirc.create_dataset<amrex::Real>(circ_rad_name);
     }
 
@@ -50,7 +49,7 @@ struct RadCirc
         using namespace ClassyHDF;
 
         // append the circulation to its dataset in the observables file
-        File obsFile(logfile);
+        File obsFile(logfile + ".h5");
         Group gcirc = obsFile.get_group("Circulation");
         gcirc.append(Data<amrex::Real>(circ_rad_name, {circulation}));
     }
@@ -64,8 +63,8 @@ private:
     ProfileContainer density_profile;
 
 public:
-    Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps);
-    void initialize_files(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps);
+    Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps, const std::string& output_file);
+    void initialize_output(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps);
     void update(const int nL, const amrex::Real Ltime, const amrex::MultiFab& Lattice,
                 const amrex::GeometryData& geom, const NRRBParameters& nrrb_parm);
 };

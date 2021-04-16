@@ -13,22 +13,10 @@ mu = dtau*mu; m = m/dtau; w = dtau*w; wtr = dtau* wtr; l = dtau*l;
 */
 //void Equal_Time_Correlators(double *** Lattice, int size, int Nx, int Nt, std::string logfilename);
 
-Observables::Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps)
+Observables::Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps, const std::string& output_file)
 {
-	const auto domain_box = geom.Domain();
-	const int length_x = domain_box.length(0);
-	const int length_t = domain_box.length(AMREX_SPACEDIM-1);
-
-	// Construct the logfile suffix string using runtime parameters
-	std::ostringstream logfile_stream;
-	logfile_stream << "D_" << AMREX_SPACEDIM-1 << "_Nx_" << length_x << "_Nt_" << length_t;
-	logfile_stream << "_dt_" << nrrb.dtau << "_nL_" << nsteps << "_eps_" << nrrb.eps;
-	logfile_stream << "_m_" << nrrb.m << "_wtr_" <<nrrb.w_t;
-	logfile_stream << "_wz_" << nrrb.w << "_l_" << nrrb.l << "_mu_" << nrrb.mu;
-    std::string logfile_suffix = logfile_stream.str();
-
-	// Construct the log file names
-	observable_log_file = "logfile_" + logfile_suffix + ".h5";
+	// Construct the log file name
+    observable_log_file = output_file;
 
 	// Initialize circulation radii and logfile names
 	circulation.emplace_back(nrrb.circulation_radius_1);
@@ -36,20 +24,20 @@ Observables::Observables(const amrex::Geometry& geom, const amrex::DistributionM
 
 	Print() << "logfile name = " << observable_log_file << std::endl;
 
-	initialize_files(geom, nrrb, nsteps);
+	initialize_output(geom, nrrb, nsteps);
 
     // Setup our density profile particle container
     density_profile.Setup(geom, dm, ba, nrrb.profile_max_grid_size);
 }
 
-void Observables::initialize_files(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps)
+void Observables::initialize_output(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps)
 {
     if (ParallelDescriptor::IOProcessor())
     {
         using namespace ClassyHDF;
 
-        // Make an HDF5 observable log file
-        File obsFile(observable_log_file, FileMode::trunc);
+        // Open the HDF5 output file
+        File obsFile(observable_log_file + ".h5");
 
         // Write simulation parameters as attributes
         const auto domain_box = geom.Domain();
@@ -114,8 +102,7 @@ void Observables::update(const int nL, const Real Ltime, const amrex::MultiFab& 
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-    // for (MFIter mfi(Lattice, TilingIfNotGPU()); mfi.isValid(); ++mfi)
-    for (MFIter mfi(Lattice, false); mfi.isValid(); ++mfi)
+    for (MFIter mfi(Lattice, TilingIfNotGPU()); mfi.isValid(); ++mfi)
     {
         const Box& bx = mfi.tilebox();
         const Array4<const Real>& L_obs = Lattice.array(mfi);
@@ -188,48 +175,51 @@ void Observables::update(const int nL, const Real Ltime, const amrex::MultiFab& 
 
     if (ParallelDescriptor::IOProcessor())
     {
-        using namespace ClassyHDF;
 
         // Write reduced observables
-        File obsFile(observable_log_file);
+        {
+            using namespace ClassyHDF;
 
-        obsFile.append(Data<int>("Steps", {nL}));
-        obsFile.append(Data<Real>("LangevinTimes", {Ltime}));
+            File obsFile(observable_log_file + ".h5");
 
-        auto append_obs_re_im = [&] (const std::string& obs,
-                                     const Real& oRe, const Real& oIm) {
-            Group ogroup = obsFile.get_group(obs);
-            ogroup.append(Data<Real>("Re", {oRe}));
-            ogroup.append(Data<Real>("Im", {oIm}));
-        };
+            obsFile.append(Data<int>("Steps", {nL}));
+            obsFile.append(Data<Real>("LangevinTimes", {Ltime}));
 
-        append_obs_re_im("PhiSq" , amrex::get<Obs::PhiSqRe>(reduced_observables),
-                                   amrex::get<Obs::PhiSqIm>(reduced_observables));
-        append_obs_re_im("Dens"  , amrex::get<Obs::DensRe>(reduced_observables),
-                                   amrex::get<Obs::DensIm>(reduced_observables));
-        append_obs_re_im("Lz"    , amrex::get<Obs::LzRe>(reduced_observables),
-                                   amrex::get<Obs::LzIm>(reduced_observables));
-        append_obs_re_im("S"     , amrex::get<Obs::SRe>(reduced_observables),
-                                   amrex::get<Obs::SIm>(reduced_observables));
-        append_obs_re_im("KE"    , amrex::get<Obs::KERe>(reduced_observables),
-                                   amrex::get<Obs::KEIm>(reduced_observables));
-        append_obs_re_im("Vtr"   , amrex::get<Obs::VtrRe>(reduced_observables),
-                                   amrex::get<Obs::VtrIm>(reduced_observables));
-        append_obs_re_im("Vint"  , amrex::get<Obs::VintRe>(reduced_observables),
-                                   amrex::get<Obs::VintIm>(reduced_observables));
-        append_obs_re_im("S_tau" , amrex::get<Obs::StauRe>(reduced_observables),
-                                   amrex::get<Obs::StauIm>(reduced_observables));
-        append_obs_re_im("S_del" , amrex::get<Obs::SdelRe>(reduced_observables),
-                                   amrex::get<Obs::SdelIm>(reduced_observables));
-        append_obs_re_im("S_trap", amrex::get<Obs::StrapRe>(reduced_observables),
-                                   amrex::get<Obs::StrapIm>(reduced_observables));
-        append_obs_re_im("S_w"   , amrex::get<Obs::SwRe>(reduced_observables),
-                                   amrex::get<Obs::SwIm>(reduced_observables));
-        append_obs_re_im("S_int" , amrex::get<Obs::SintRe>(reduced_observables),
-                                   amrex::get<Obs::SintIm>(reduced_observables));
+            auto append_obs_re_im = [&] (const std::string& obs,
+                                        const Real& oRe, const Real& oIm) {
+                Group ogroup = obsFile.get_group(obs);
+                ogroup.append(Data<Real>("Re", {oRe}));
+                ogroup.append(Data<Real>("Im", {oIm}));
+            };
 
-		circulation[0].set_circulation(amrex::get<Obs::Circ1>(reduced_observables));
-		circulation[1].set_circulation(amrex::get<Obs::Circ2>(reduced_observables));
+            append_obs_re_im("PhiSq" , amrex::get<Obs::PhiSqRe>(reduced_observables),
+                                    amrex::get<Obs::PhiSqIm>(reduced_observables));
+            append_obs_re_im("Dens"  , amrex::get<Obs::DensRe>(reduced_observables),
+                                    amrex::get<Obs::DensIm>(reduced_observables));
+            append_obs_re_im("Lz"    , amrex::get<Obs::LzRe>(reduced_observables),
+                                    amrex::get<Obs::LzIm>(reduced_observables));
+            append_obs_re_im("S"     , amrex::get<Obs::SRe>(reduced_observables),
+                                    amrex::get<Obs::SIm>(reduced_observables));
+            append_obs_re_im("KE"    , amrex::get<Obs::KERe>(reduced_observables),
+                                    amrex::get<Obs::KEIm>(reduced_observables));
+            append_obs_re_im("Vtr"   , amrex::get<Obs::VtrRe>(reduced_observables),
+                                    amrex::get<Obs::VtrIm>(reduced_observables));
+            append_obs_re_im("Vint"  , amrex::get<Obs::VintRe>(reduced_observables),
+                                    amrex::get<Obs::VintIm>(reduced_observables));
+            append_obs_re_im("S_tau" , amrex::get<Obs::StauRe>(reduced_observables),
+                                    amrex::get<Obs::StauIm>(reduced_observables));
+            append_obs_re_im("S_del" , amrex::get<Obs::SdelRe>(reduced_observables),
+                                    amrex::get<Obs::SdelIm>(reduced_observables));
+            append_obs_re_im("S_trap", amrex::get<Obs::StrapRe>(reduced_observables),
+                                    amrex::get<Obs::StrapIm>(reduced_observables));
+            append_obs_re_im("S_w"   , amrex::get<Obs::SwRe>(reduced_observables),
+                                    amrex::get<Obs::SwIm>(reduced_observables));
+            append_obs_re_im("S_int" , amrex::get<Obs::SintRe>(reduced_observables),
+                                    amrex::get<Obs::SintIm>(reduced_observables));
+
+            circulation[0].set_circulation(amrex::get<Obs::Circ1>(reduced_observables));
+            circulation[1].set_circulation(amrex::get<Obs::Circ2>(reduced_observables));
+        }
 
 		// Write reduced circulation
 		for (auto& circ : circulation) {
@@ -239,5 +229,5 @@ void Observables::update(const int nL, const Real Ltime, const amrex::MultiFab& 
 
     // Calculate and save the density profile
     density_profile.AccumulateProfile(Lattice, nrrb_parm);
-    density_profile.Write(nL, Ltime, nrrb_parm);
+    density_profile.Write(nL, Ltime, nrrb_parm, observable_log_file);
 }
