@@ -57,11 +57,12 @@ void Observables::initialize_output(const amrex::Geometry& geom, const NRRBParam
         obsFile.attr<double>("mu", nrrb.mu);
 
 		// Create datasets in the observable file
-        obsFile.create_dataset<int>("Steps");
-        obsFile.create_dataset<Real>("LangevinTimes");
+        Group obsGroup = obsFile.get_group("Observables");
+        obsGroup.create_dataset<int>("Steps");
+        obsGroup.create_dataset<Real>("LangevinTimes");
 
         auto make_obs_re_im = [&] (const std::string& obs) {
-            Group ogroup = obsFile.get_group(obs);
+            Group ogroup = obsGroup.get_group(obs);
             ogroup.create_dataset<Real>("Re");
             ogroup.create_dataset<Real>("Im");
         };
@@ -181,13 +182,14 @@ void Observables::update(const int nL, const Real Ltime, const amrex::MultiFab& 
             using namespace ClassyHDF;
 
             File obsFile(observable_log_file + ".h5");
+            Group obsGroup = obsFile.get_group("Observables");
 
-            obsFile.append(Data<int>("Steps", {nL}));
-            obsFile.append(Data<Real>("LangevinTimes", {Ltime}));
+            obsGroup.append(Data<int>("Steps", {nL}));
+            obsGroup.append(Data<Real>("LangevinTimes", {Ltime}));
 
             auto append_obs_re_im = [&] (const std::string& obs,
                                         const Real& oRe, const Real& oIm) {
-                Group ogroup = obsFile.get_group(obs);
+                Group ogroup = obsGroup.get_group(obs);
                 ogroup.append(Data<Real>("Re", {oRe}));
                 ogroup.append(Data<Real>("Im", {oIm}));
             };

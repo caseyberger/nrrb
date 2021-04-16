@@ -122,7 +122,7 @@ public:
         const auto profile_geom = gdb_profile.Geom(0);
 
 #ifdef AMREX_USE_HDF5
-        const Vector<std::string> write_group = {"DensityProfile", "step_" + std::to_string(Langevin_step)};
+        const Vector<std::string> write_group = {"Observables", "DensityProfile", "step_" + std::to_string(Langevin_step)};
         WriteSingleLevelPlotfileHDF5(output_file, profile, profile_component_names, profile_geom, Langevin_time, Langevin_step, write_group);
 #else
         const std::string density_pltfile = amrex::Concatenate("density_profile_plt",Langevin_step,7);

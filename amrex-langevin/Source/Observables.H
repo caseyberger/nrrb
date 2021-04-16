@@ -35,7 +35,8 @@ struct RadCirc
         using namespace ClassyHDF;
 
         File obsFile(logfile + ".h5");
-        Group gcirc = obsFile.get_group("Circulation");
+        Group obsGroup = obsFile.get_group("Observables");
+        Group gcirc = obsGroup.get_group("Circulation");
         gcirc.create_dataset<amrex::Real>(circ_rad_name);
     }
 
@@ -50,7 +51,8 @@ struct RadCirc
 
         // append the circulation to its dataset in the observables file
         File obsFile(logfile + ".h5");
-        Group gcirc = obsFile.get_group("Circulation");
+        Group obsGroup = obsFile.get_group("Observables");
+        Group gcirc = obsGroup.get_group("Circulation");
         gcirc.append(Data<amrex::Real>(circ_rad_name, {circulation}));
     }
 };
