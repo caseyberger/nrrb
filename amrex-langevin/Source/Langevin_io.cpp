@@ -56,11 +56,6 @@ void WritePlotfile(int Langevin_step, const Real Langevin_time,
     MultiFab::Copy(lattice_plot, lattice_aux, 0, lattice.nComp(), AIdx::NAux, 0);
 
     // write lattice_plot to a plotfile
-#ifdef AMREX_USE_HDF5
     const Vector<std::string> write_group = {"Lattice", "step_" + std::to_string(Langevin_step)};
     WriteSingleLevelPlotfileHDF5(output_file, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step, write_group);
-#else
-    const std::string pltfile = amrex::Concatenate("plt",Langevin_step,7);
-    WriteSingleLevelPlotfile(pltfile, lattice_plot, plot_vars, geom, Langevin_time, Langevin_step);
-#endif
 }
