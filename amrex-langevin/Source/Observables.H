@@ -7,19 +7,18 @@
 struct RadCirc
 {
     int radius;
+    std::string circ_rad_name;
     amrex::Real circulation;
-    std::string logfile;
 
-    RadCirc(int circ_radius, std::string logfile_suffix)
+    RadCirc(int circ_radius)
     {
         // Initialize struct data
         radius = circ_radius;
         circulation = 0.0;
-
-        logfile = "Circ_loop_" + std::to_string(radius) + "_" + logfile_suffix;
+        circ_rad_name = "radius=" + std::to_string(radius);
     }
 
-    void init_file(const amrex::Geometry& geom)
+    void init_file(const std::string& logfile, const amrex::Geometry& geom)
     {
         // Get domain center location
         const auto domain_box = geom.Domain();
@@ -32,14 +31,13 @@ struct RadCirc
         const int x_center = 0.5 * (domain_lo.x + domain_hi.x);
         const int y_center = 0.5 * (domain_lo.y + domain_hi.y);
 
-        // Create the circulation logfile
-        std::ofstream obsFile;
-        obsFile.open(logfile, std::fstream::trunc);
+        // Create the circulation datasets
+        using namespace ClassyHDF;
 
-        // Print loop center and radius to logfile
-        obsFile << "center = (" << x_center << ","<< y_center << ") and loop radius = " << radius;
-        obsFile << std::endl;
-        obsFile.close();
+        File obsFile(logfile + ".h5");
+        Group obsGroup = obsFile.get_group("Observables");
+        Group gcirc = obsGroup.get_group("Circulation");
+        gcirc.create_dataset<amrex::Real>(circ_rad_name);
     }
 
     void set_circulation(const amrex::Real loop_circ)
@@ -47,26 +45,28 @@ struct RadCirc
         circulation = loop_circ;
     }
 
-    void write()
+    void write(const std::string& logfile)
     {
-        std::ofstream obsFile;
-        obsFile.open(logfile, std::fstream::app);
-        obsFile << circulation << ",\n";
-        obsFile.close();
+        using namespace ClassyHDF;
+
+        // append the circulation to its dataset in the observables file
+        File obsFile(logfile + ".h5");
+        Group obsGroup = obsFile.get_group("Observables");
+        Group gcirc = obsGroup.get_group("Circulation");
+        gcirc.append(Data<amrex::Real>(circ_rad_name, {circulation}));
     }
 };
 
 class Observables
 {
 private:
-	std::string logfile_suffix;
 	std::string observable_log_file;
     amrex::Vector<RadCirc> circulation;
     ProfileContainer density_profile;
 
 public:
-    Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps);
-    void initialize_files(const amrex::Geometry& geom);
+    Observables(const amrex::Geometry& geom, const amrex::DistributionMapping& dm, const amrex::BoxArray& ba, const NRRBParameters& nrrb, const int& nsteps, const std::string& output_file);
+    void initialize_output(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps);
     void update(const int nL, const amrex::Real Ltime, const amrex::MultiFab& Lattice,
                 const amrex::GeometryData& geom, const NRRBParameters& nrrb_parm);
 };

@@ -1,15 +1,15 @@
 # CL_HOME defines the top level directory for the complex langevin code.
-CL_HOME ?= ../
+CL_HOME ?= ..
 
 # AMREX_HOME defines the directory in which we will find all the AMReX code.
 # If you set AMREX_HOME as an environment variable, this line will be ignored
-AMREX_HOME ?= ../../../amrex
+AMREX_HOME ?= ../Submodules/amrex
 
 DEBUG     = FALSE
 USE_MPI   = FALSE
 USE_OMP   = FALSE
 USE_CUDA  = FALSE
-USE_HDF5  ?= FALSE
+USE_HDF5  ?= TRUE
 COMP      = gnu
 DIM       = 3
 

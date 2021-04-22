@@ -1,0 +1,6 @@
+[submodule "amrex-langevin/Submodules/ClassyHDF"]
+	path = amrex-langevin/Submodules/ClassyHDF
+	url = https://github.com/dwillcox/ClassyHDF
+[submodule "amrex-langevin/Submodules/amrex"]
+	path = amrex-langevin/Submodules/amrex
+	url = https://github.com/dwillcox/amrex

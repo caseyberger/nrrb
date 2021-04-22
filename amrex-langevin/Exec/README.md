@@ -47,9 +47,6 @@ $ main3d.gnu.ex inputs nrrb.l=0.5
 The simple way to tell the AMReX build system to enable HDF5 is to pass
 `USE_HDF5=TRUE` on the `make` line.
 
-Then when running the code, set `use_hdf5=true` either in the inputs file or as
-a command line argument for the executable.
-
 Before compiling, there are some minor setup steps at NERSC vs on a local workstation:
 
 ## Parallel HDF5 on Cori at NERSC
@@ -71,7 +68,7 @@ And then if we want to quickly test this in an interactive session:
 
 ```
 $ salloc -N 1 -C haswell -q interactive -t 00:30:00
-$ srun -N 1 -n 4 ./main3d.gnu.haswell.MPI.OMP.ex inputs use_hdf5=true
+$ srun -N 1 -n 4 ./main3d.gnu.haswell.MPI.OMP.ex inputs
 ```
 
 ## HDF5 in Local environment
@@ -217,8 +214,8 @@ Compile for GPUs with:
 make -j 8 USE_MPI=TRUE USE_CUDA=TRUE USE_HDF5=TRUE
 ```
 
-Weirdly, I got a library error when trying to actually run with the
-`use_hdf5=true` option though. But the AMReX IO works.
+Weirdly, I got a library error when trying to actually run with HDF5 I/O. But
+the AMReX IO works.
 
 ## Running
 
