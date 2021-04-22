@@ -35,17 +35,18 @@ acf_spacing = 10
 #thermalization step (-1 means we take samples without waiting to thermalize)
 therm_step = -1
 #list of epsilon values 
-eps_list = [0.01]
+eps_list = [0.01,0.001,0.0001]
 
 script_name = "ComplexLangevin3d.gnu.haswell.TPROF.MPI.OMP.ex"
-job_name = "amrex_cl_2D_free_gas"
+job_name = "early_tests"#"amrex_cl_2D_free_gas"
 allocation = "m3764" #this is our current allocation through the ERCAP grant
-email = "caseyb@bu.edu"
+email = "cberger@smith.edu"
+use_hdf5 = True
+queue = "regular"
+walltime = "48:00:00"
 
-
-def generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,
-	acf_spacing=1,num_plotfiles=1,therm_step=-1,
-	use_hdf5=False,seed_init=8134,seed_run=61,max_grid_size=8):
+def generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,acf_spacing,therm_step,use_hdf5,
+	num_plotfiles=1,seed_init=8134,seed_run=61,max_grid_size=8):
 	#calculate frequency of plotfile interval -- we want to have exactly num_plotfiles
 	plot_int = int(nL/num_plotfiles)
 	#generate file extension 
@@ -124,9 +125,8 @@ def copy_executable(script_name, file_ext):
 	copy_cmd = "cp "+source_path+" "+destination_path
 	os.system(copy_cmd)
 
-def generate_slurm_script(script_name,file_ext,job_name,allocation,num_nodes=2,
-	tasks_per_node=2,cpus_per_task=32,queue="regular",walltime="48:00:00",
-	email = "caseyb@bu.edu",use_hdf5=False,omp_threads=16):
+def generate_slurm_script(script_name,file_ext,job_name,allocation,queue,walltime,email,use_hdf5,
+	num_nodes=2,tasks_per_node=2,cpus_per_task=32,omp_threads=16):
 	#generates the sbatch file that you run with sbatch filename
 	#should be paired with the appropriate input file somehow...
 	filename = "cori.MPI.OMP.slurm"
@@ -185,13 +185,13 @@ for Nx in Nx_list:
 						w = 0.0
 						w_t = 0.0
 						l = 0.0
-						file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
-						generate_slurm_script(script_name,file_ext,job_name,allocation,email=email)
+						file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,acf_spacing,therm_step,use_hdf5)
+						generate_slurm_script(script_name,file_ext,job_name,allocation,queue,walltime,email,use_hdf5)
 						copy_executable(script_name, file_ext)
 					else:
 						for l in l_list:
 							for w_t in w_trap_list:
 								for w in w_list:
-									file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
-									generate_slurm_script(script_name,file_ext,job_name,allocation,email=email)
+									file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2,acf_spacing,therm_step,use_hdf5)
+									generate_slurm_script(script_name,file_ext,job_name,allocation,queue,walltime,email,use_hdf5)
 									copy_executable(script_name, file_ext)
