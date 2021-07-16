@@ -205,17 +205,14 @@ List of modules to load:
 
 ```
 Currently Loaded Modules:
-  1) allocations/1.0   2) anaconda3/2020.11   3) gcc/10.2.0   4) cuda/11.1.1   5) openmpi/4.0.5-gcc10.2.0
+  1) allocations/1.0   2) anaconda3/2020.11   3) gcc/10.2.0   4) cuda/11.1.1   5) openmpi/4.0.5-gcc10.2.0   6) phdf5/1.10.7-openmpi4.0.5-gcc10.2.0
 ```
 
 Compile for GPUs with:
 
 ```
-make -j 8 USE_MPI=TRUE USE_CUDA=TRUE USE_HDF5=TRUE
+make -j 8 USE_MPI=TRUE USE_CUDA=TRUE USE_HDF5=TRUE HDF5_HOME=/jet/packages/spack/opt/spack/linux-centos8-zen2/gcc-10.2.0/hdf5-1.10.7-3trwysszw4lw3tazizx2if2mg6567cro
 ```
-
-Weirdly, I got a library error when trying to actually run with HDF5 I/O. But
-the AMReX IO works.
 
 ## Running
 
@@ -242,7 +239,7 @@ change `-n [number-of-nodes * ntasks-per-node]`.
 Running in the interactive session:
 
 ```
-mpirun ./gpu_visible.sh ./main3d.gnu.MPI.CUDA.ex inputs
+mpirun ./gpu_visible.sh ./ComplexLangevin3d.gnu.TPROF.MPI.CUDA.ex inputs
 ```
 
 ### Batch Job
