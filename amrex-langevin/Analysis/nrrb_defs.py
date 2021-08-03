@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 
 
-
 def get_io_files(work_dir):
     all_files = os.listdir(work_dir)
     input_filename = None
@@ -120,3 +119,4 @@ def average_data(data_dir, obs_list):
     tL = df["eps"]*df["nL"]
     df["tL"] = tL
     return df
+
