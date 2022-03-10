@@ -74,8 +74,11 @@ void langevin_main()
         // Only plot after this much langevin time has elapsed
         pp.query("plot_after_time", plot_after_time);
 
-        // Use HDF5 for writing plotfiles?
-        pp.query("use_hdf5", nrrb_parm.use_hdf5);
+        // Get the max grid size to use for the density profile
+        // By default, set it to the same as the CL domain max grid size
+        int _profile_max_grid_size = -1;
+        pp.query("profile_max_grid_size", _profile_max_grid_size);
+        nrrb_parm.profile_max_grid_size = (_profile_max_grid_size == -1) ? max_grid_size : _profile_max_grid_size;
 
         // Default nsteps to 10, allow us to set it to something else in the inputs file
         nsteps = 10;
@@ -136,6 +139,10 @@ void langevin_main()
         geom.define(domain,&real_box,CoordSys::cartesian,is_periodic.data());
     }
 
+    // Initialize the output file we will write to
+    const std::string output_file = MakeOutputFilename(geom, nrrb_parm, nsteps);
+    CreateOutputFile(output_file);
+
     // Nghost = number of ghost cells for each array
     int Nghost = 1;
 
@@ -158,7 +165,7 @@ void langevin_main()
     lattice_aux.setVal(0.0);
 
     // Create an observables object for updating and writing observable log files
-    Observables observables(geom, nrrb_parm, nsteps);
+    Observables observables(geom, dm, ba, nrrb_parm, nsteps, output_file);
 
     Vector<BCRec> lattice_bc(Ncomp);
     for (int n = 0; n < Ncomp; ++n)
@@ -198,13 +205,13 @@ void langevin_main()
     Real Ltime = 0.0;
 
     // Write observables after initialization for reference
-    observables.update(0, lattice_new, geom.data(), nrrb_parm);
+    observables.update(0, Ltime, lattice_new, geom.data(), nrrb_parm);
 
     // To check our initialization, we also write a plotfile
     // Write a plotfile of the initial data if plot_int > 0 (plot_int was defined in the inputs file)
     if (plot_int > 0)
     {
-        WritePlotfile(0, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom, nrrb_parm);
+        WritePlotfile(0, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom, nrrb_parm, output_file);
     }
 
     // init_time is the current time post-initialization
@@ -250,23 +257,23 @@ void langevin_main()
         lattice_new.FillBoundary(geom.periodicity());
         FillDomainBoundary(lattice_new, geom, lattice_bc);
 
-        // Calculate observables
-        if (n % autocorrelation_step == 0)
-        {
-            observables.update(n, lattice_new, geom.data(), nrrb_parm);
-        }
-
         Ltime = Ltime + nrrb_parm.eps;
 
         // Tell the I/O Processor to write out which step we're doing
         amrex::Print() << "Advanced step " << n << "\n";
+
+        // Calculate observables
+        if (n % autocorrelation_step == 0)
+        {
+            observables.update(n, Ltime, lattice_new, geom.data(), nrrb_parm);
+        }
 
         // Write a plotfile of the current data every plot_int depending on the optional
         // step or time where we turn on plotting.
         if (plot_int > 0 && n % plot_int == 0 &&
             n >= plot_after_step && Ltime >= plot_after_time)
         {
-            WritePlotfile(n, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom, nrrb_parm);
+            WritePlotfile(n, Ltime, lattice_new, component_names, lattice_aux, auxiliary_names, geom, nrrb_parm, output_file);
         }
 
         // Update the figure of merit with the number of cells advanced
@@ -294,22 +301,3 @@ void langevin_main()
     Print() << "  Average number of cells advanced per microsecond = " << std::fixed << std::setprecision(3) << run_fom << std::endl;
 }
 
-std::string generate_filename(std::string inputs[], int size){
-    std::string str_D = inputs[0];
-    std::string str_Nx = inputs[4];
-    std::string str_Nt = inputs[5];
-    std::string str_dt = inputs[6];
-    std::string str_nL = inputs[7];
-    std::string str_wtr = inputs[8];
-    std::string str_eps = inputs[9];    
-    std::string str_m = inputs[3];
-    std::string str_w = inputs[1];
-    std::string str_l = inputs[2];
-    std::string str_mu = inputs[10];
-    //std::string str_mu = std::to_string(inputs[10]);
-    //mu_stream << std::fixed << std::setprecision(3) << inputs[10]; //truncate mu for filename
-    //std::string str_mu = mu_stream.str();
-    std::string filename = "logfile_D_"+str_D+"_Nx_"+str_Nx+"_Nt_"+str_Nt+"_dt_"+str_dt+"_nL_"+str_nL+"_eps_"+str_eps+"_m_"+str_m+"_wtr_"+str_wtr+"_w_"+str_w+"_l_"+str_l+"_mu_"+str_mu+".log";
-    //std::cout << filename << std::endl;
-    return filename;
-}

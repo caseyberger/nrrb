@@ -10,22 +10,26 @@
 \BOOKMARK [1][-]{section.2.1}{The rotating bosonic gas}{chapter.2}% 10
 \BOOKMARK [2][-]{subsection.2.1.1}{The Action}{section.2.1}% 11
 \BOOKMARK [1][-]{section.2.2}{The Langevin Equations}{chapter.2}% 12
-\BOOKMARK [1][-]{section.2.3}{Observables}{chapter.2}% 13
+\BOOKMARK [1][-]{section.2.3}{NOT UPDATED YET: Observables}{chapter.2}% 13
 \BOOKMARK [2][-]{subsection.2.3.1}{Observables averaged over the volume}{section.2.3}% 14
 \BOOKMARK [2][-]{subsection.2.3.2}{Observables per site}{section.2.3}% 15
 \BOOKMARK [0][-]{section*.2}{Appendices}{}% 16
 \BOOKMARK [0][-]{Appendix.1.A}{NRRB Derivations}{}% 17
 \BOOKMARK [1][-]{section.1.A.1}{ Justification for the Form of the Non-Relativistic Lattice Action}{Appendix.1.A}% 18
 \BOOKMARK [1][-]{section.1.A.2}{ Writing the Complex Action in Terms of Real Fields}{Appendix.1.A}% 19
-\BOOKMARK [1][-]{section.1.A.3}{ NOT UPDATED YET: Complexifying the Real Fields}{Appendix.1.A}% 20
-\BOOKMARK [1][-]{section.1.A.4}{NOT UPDATED YET:Generating the NRRB CL Equations}{Appendix.1.A}% 21
-\BOOKMARK [2][-]{subsection.1.A.4.1}{ Derivatives on the Lattice}{section.1.A.4}% 22
-\BOOKMARK [2][-]{subsection.1.A.4.2}{Computing the derivative of the action with respect to the real fields}{section.1.A.4}% 23
-\BOOKMARK [2][-]{subsection.1.A.4.3}{ NOT UPDATED YET:Second Complexification of Drift Function}{section.1.A.4}% 24
-\BOOKMARK [1][-]{section.1.A.5}{NOT UPDATED YET:Lattice Observables}{Appendix.1.A}% 25
-\BOOKMARK [2][-]{subsection.1.A.5.1}{Average Density}{section.1.A.5}% 26
-\BOOKMARK [2][-]{subsection.1.A.5.2}{Average Angular Momentum}{section.1.A.5}% 27
-\BOOKMARK [2][-]{subsection.1.A.5.3}{Circulation}{section.1.A.5}% 28
-\BOOKMARK [2][-]{subsection.1.A.5.4}{Average Energy}{section.1.A.5}% 29
-\BOOKMARK [1][-]{section.1.A.6}{NOT UPDATED YET:Some checks on our code}{Appendix.1.A}% 30
-\BOOKMARK [2][-]{subsection.1.A.6.1}{Nonrotating, noninteracting, nonrelativistic, finite chemical potential in 1, 2, and 3 dimensions}{section.1.A.6}% 31
+\BOOKMARK [1][-]{section.1.A.3}{Generating the NRRB CL Equations}{Appendix.1.A}% 20
+\BOOKMARK [2][-]{subsection.1.A.3.1}{ Derivatives on the Lattice}{section.1.A.3}% 21
+\BOOKMARK [2][-]{subsection.1.A.3.2}{Computing the derivative of the action with respect to the real fields}{section.1.A.3}% 22
+\BOOKMARK [2][-]{subsection.1.A.3.3}{ NOT UPDATED YET:Second Complexification of Drift Function}{section.1.A.3}% 23
+\BOOKMARK [1][-]{section.1.A.4}{Lattice Observables}{Appendix.1.A}% 24
+\BOOKMARK [2][-]{subsection.1.A.4.1}{Density}{section.1.A.4}% 25
+\BOOKMARK [2][-]{subsection.1.A.4.2}{Local Density}{section.1.A.4}% 26
+\BOOKMARK [2][-]{subsection.1.A.4.3}{Field Modulus Squared}{section.1.A.4}% 27
+\BOOKMARK [2][-]{subsection.1.A.4.4}{Angular Momentum}{section.1.A.4}% 28
+\BOOKMARK [2][-]{subsection.1.A.4.5}{Harmonic Trapping Potential Energy}{section.1.A.4}% 29
+\BOOKMARK [2][-]{subsection.1.A.4.6}{Interaction Potential Energy}{section.1.A.4}% 30
+\BOOKMARK [2][-]{subsection.1.A.4.7}{Kinetic Energy}{section.1.A.4}% 31
+\BOOKMARK [2][-]{subsection.1.A.4.8}{Action}{section.1.A.4}% 32
+\BOOKMARK [2][-]{subsection.1.A.4.9}{Total Energy}{section.1.A.4}% 33
+\BOOKMARK [2][-]{subsection.1.A.4.10}{Circulation}{section.1.A.4}% 34
+\BOOKMARK [1][-]{section.1.A.5}{ NOT UPDATED YET: Complexifying the Real Fields}{Appendix.1.A}% 35

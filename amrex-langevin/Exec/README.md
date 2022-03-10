@@ -47,9 +47,6 @@ $ main3d.gnu.ex inputs nrrb.l=0.5
 The simple way to tell the AMReX build system to enable HDF5 is to pass
 `USE_HDF5=TRUE` on the `make` line.
 
-Then when running the code, set `use_hdf5=true` either in the inputs file or as
-a command line argument for the executable.
-
 Before compiling, there are some minor setup steps at NERSC vs on a local workstation:
 
 ## Parallel HDF5 on Cori at NERSC
@@ -71,7 +68,7 @@ And then if we want to quickly test this in an interactive session:
 
 ```
 $ salloc -N 1 -C haswell -q interactive -t 00:30:00
-$ srun -N 1 -n 4 ./main3d.gnu.haswell.MPI.OMP.ex inputs use_hdf5=true
+$ srun -N 1 -n 4 ./main3d.gnu.haswell.MPI.OMP.ex inputs
 ```
 
 ## HDF5 in Local environment
@@ -197,3 +194,72 @@ Comparing mpi-4-constrng-grid8/plt00010 to ../../field_configs/v4_mu_-0.100_w_0.
   phi_2_Re   0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
   phi_2_Im   0.000000e+00   0.000000e+00   0.000000e+00   0.000000e+00
 ```
+
+# Using PSC Bridges-2 GPU nodes
+
+Each node has 8 NVIDIA V100 GPUs. Just like on Cori GPU, we use 1 MPI rank per GPU.
+
+## Compiling
+
+List of modules to load:
+
+```
+Currently Loaded Modules:
+  1) allocations/1.0   2) anaconda3/2020.11   3) gcc/10.2.0   4) cuda/11.1.1   5) openmpi/4.0.5-gcc10.2.0   6) phdf5/1.10.7-openmpi4.0.5-gcc10.2.0
+```
+
+Compile for GPUs with:
+
+```
+make -j 8 USE_MPI=TRUE USE_CUDA=TRUE USE_HDF5=TRUE HDF5_HOME=/jet/packages/spack/opt/spack/linux-centos8-zen2/gcc-10.2.0/hdf5-1.10.7-3trwysszw4lw3tazizx2if2mg6567cro
+```
+
+## Running
+
+Uses the `gpu_visible.sh` and `bridges2.MPI.CUDA.slurm` scripts in `nrrb/amrex-langevin/Utils/bridges-2`
+
+Both scripts are commented for details. The "GPU visible" script makes it
+so each MPI rank can only see 1 GPU. The SLURM script is for submitting batch
+jobs to the queue.
+
+### Interactive Job
+
+To get an interactive job on, e.g. 2 GPU nodes for 30 minutes:
+
+```
+interact -p GPU -t 00:30:00 -N 2 --ntasks-per-node=8 -n 16 --gres=gpu:8
+```
+
+The `--ntasks-per-node` and `--gres=gpu:8` options would generally stay the
+same to give you access to all 8 GPUs on each node.
+
+To run on a different number of nodes, change `-N [number-of-nodes]` and then
+change `-n [number-of-nodes * ntasks-per-node]`.
+
+Running in the interactive session:
+
+```
+mpirun ./gpu_visible.sh ./ComplexLangevin3d.gnu.TPROF.MPI.CUDA.ex inputs
+```
+
+### Batch Job
+
+Use a SLURM script like `bridges2.MPI.CUDA.slurm` and pass all the job options to the
+`sbatch` command like this:
+
+```
+sbatch -p GPU -t 00:30:00 -N 1 --ntasks-per-node=8 --gres=gpu:8 bridges2.MPI.CUDA.slurm
+```
+
+Requires the `gpu_visible.sh` script in the current directory.
+
+To modify the job options:
+
+- Change walltime & number of nodes:
+-- `-t 00:30:00`: walltime in HH:MM:SS
+-- `-N 1`: number of nodes
+
+- Always use these options for the GPU nodes
+-- `-p GPU`: request GPU nodes
+-- `--ntasks-per-node=8`: 8 MPI ranks per node, 1 for each GPU
+-- `--gres=gpu:8`: use all 8 GPUs on each node

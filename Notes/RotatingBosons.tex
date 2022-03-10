@@ -74,6 +74,8 @@
 
 \newcommand*\dif{\mathop{}\!\mathrm{d}}
 
+\newcommand{\note}[1]{{\color{red} \bf[NOTE: #1]}}
+
 \begin{document}
 \begin{titlepage}
 \maketitle
@@ -81,8 +83,8 @@
 \tableofcontents
 
 %%%%%%%%%% NOTES AND TO-DO LIST  %%%%%%%%%%%%%%%%%%%
-\chapter{Notes To Self and To-Do List}
-\subfile{./notes/notes_to_self.tex}
+%\chapter{Notes To Self and To-Do List}
+%\subfile{./notes/notes_to_self.tex}
 
 %%%%%%%%%  RECREATING THE AARTS PAPER  %%%%%%%%%%%%%%%
 %\chapter{Warm-Up Project}
@@ -94,8 +96,11 @@
 \chapter{The Method: Complex Langevin}
 \subfile{./nrrb/method/nrrbmethod.tex}
 
-%\chapter{Results and Analysis}
-%\subfile{./nrrb/results/nrrbresults.tex}
+\chapter{The Code}
+\subfile{./notes/code_instructions.tex}
+
+\chapter{Results and Analysis}
+\subfile{./nrrb/results/nrrbresults.tex}
 
 %%%%  NONRELATIVISTIC ROTATING BOSE GAS  VIA OTHER METHODS %%%%
 %\subfile{./3.alternatives/alternatives.tex}
@@ -114,12 +119,15 @@
 %\chapter{NRRB Code}
 %\subfile{./nrrb/code/nrrbcode.tex}
 \chapter{NRRB Derivations}
-\subfile{./nrrb/derivations/nrrbderivations.tex}
+\subfile{./nrrb/derivations/nrrb_action.tex}
+\subfile{./nrrb/derivations/nrrb_drift_functions.tex}
+\subfile{./nrrb/derivations/nrrb_observables.tex}
+%\subfile{./nrrb/derivations/nrrb_analytical_solns}
 %\subfile{./nrrb/analytical/freegas.tex}
 
 
 \end{appendices}
-\bibliography{RotatingBosons.bib}{}
+\bibliography{nrrbrefs.bib}{}
 %\bibliographystyle{ieeetr}
 \bibliographystyle{plain}
 \end{document}

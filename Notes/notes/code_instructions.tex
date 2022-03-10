@@ -1,0 +1,98 @@
+\documentclass[../RotatingBosons.tex]{subfiles}
+\begin{document}
+\section{Running the simulation code}
+\subsection{Python script to automate running the code}
+This script is called \lstinline{create_input_files.py} and it's located in the \lstinline{nrrb} repository, at 
+
+\lstinline{nrrb/amrex-langevin/Analysis}. 
+
+It does more than just create the input files. It sets up the submit scripts as well.
+
+The script imports \lstinline{os} and \lstinline{string}. Skipping past the header, we get to the script's function. 
+
+The first thing we do is input the parameters we want to use. The dimension must be one or two, and except for the rare testing situation, we'll always use \lstinline{dim=2}. Our time lattice spacing \lstinline{dt}$=d\tau$ is generally set to $0.05$, although this might be area for some testing later. Right now, we use $0.05$ as it's "standard" in the field, but the justification for that value is not necessarily clear.
+
+The mass (\lstinline{m}) is also standardized to $1$, but if we alter $d\tau$, we will likely need to alter $m$ as well.
+
+\begin{lstlisting}[numbers=left,firstnumber=16,stepnumber=1,escapeinside={\%}{\%}]
+dim = 2 
+dt = 0.05 
+m = 1.
+\end{lstlisting}
+
+The rest of the parameters can be input as lists, as these are the parameters we will vary the most. A lot of the nuance in running this code is determining the appropriate ranges for these parameters, but for initial testing, we will keep it simple by testing the free gas, which means $\omega_{z} = \omega_{trap} = \lambda = 0$. We restrict $\mu$ to be between $-1$ and $0$.
+
+Since we can solve the equations for the free gas exactly, the lattice size is less important, so for now it would be valuable to keep these values fairly small, like 21 for Nx and 80 for Nt. We use an odd number for Nx so that the center of the lattice lies on a lattice site, rather than between sites.
+
+\begin{lstlisting}[numbers=left,firstnumber=19,stepnumber=1,escapeinside={\%}{\%}]
+#list of values for chemical potential mu
+mu_list = [-1.,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.0]
+#list of values for rotational frequency wx
+w_list = [0.0] 
+#list of values for harmonic trap frequency wt
+w_trap_list = [0.0] 
+#list of values for interaction strength lambda
+l_list = [0.0]
+#list of values for number of spatial lattice sites
+Nx_list = [21]
+#list of values for number of temporal lattice site
+Nt_list = [80]
+\end{lstlisting}
+
+We have two parameters that govern the Langevin evolution. The first is the number of steps we want to take. This will limit the number of samples we can have, because at most we can take as many samples as we have Langevin steps. The autocorrelation spacing determines how many steps we take between saves, which further limits the number of samples we take. The number of samples is also limited by thermalization. The parameter \lstinline{therm_step} is the Langevin step where we begin saving samples. If we set this to $-1$, then we start taking samples immediately, which is useful for early testing.
+
+So the total number of samples we end up with is determined in the following way: 
+
+\lstinline{num_samples} = (\lstinline{nL} - \lstinline{therm_step}) / \lstinline{acf_spacing}
+
+The last line in this section is the Langevin step size, $\epsilon$. We will be running some early tests to determine optimal $\epsilon$, but for now we're looking at $\epsilon = 0.01$. We generally want our number of Langevin steps to be long, but when testing the code in an interactive session, start with $nL \approx 100$ to keep the runs quick. The Langevin evolution is the part of the code that must be done serially, so the runtime will scale with length of that evolution.
+
+\begin{lstlisting}[numbers=left,firstnumber=31,stepnumber=1,escapeinside={\%}{\%}]
+#list of values for number of steps in the Langevin evolution
+nL_list = [1000000]
+#autocorrelation spacing
+acf_spacing = 10
+#thermalization step (-1 means we take samples without waiting to thermalize)
+therm_step = -1
+#list of epsilon values 
+eps_list = [0.001,0.005,0.01]
+\end{lstlisting}
+
+The last inputs needed from you are the name of the executable (\lstinline{script_name}), the job name (which you can choose to keep track of different sets of tests), and the allocation (our allocation code is m3764 for our ERCAP allocation).
+
+\begin{lstlisting}[numbers=left,firstnumber=40,stepnumber=1,escapeinside={\%}{\%}]
+script_name = "ComplexLangevin3d.gnu.haswell.TPROF.MPI.OMP.ex"
+job_name = "amrex_cl_2D_free_gas"
+allocation = "m3764" #this is our current allocation through the ERCAP grant
+\end{lstlisting}
+
+This script now takes everything you put in above and loops through all the parameters to create the directory structure, generate the input script and the slurm submission script, and copy the executable to each directory. In order for this to work, you need this script to be in the location where you want all the other directories to spawn, and the executable must also be located in this directory.
+
+\begin{lstlisting}
+for Nx in Nx_list:
+	circ1 = Nx/8
+	circ2 = Nx/2 -1
+	for Nt in Nt_list:
+		for nL in nL_list:
+			for eps in eps_list:
+				for mu in mu_list:
+					if not dim == 2:
+						w = 0.0
+						w_t = 0.0
+						l = 0.0
+						file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
+						generate_slurm_script(script_name,file_ext,job_name,allocation)
+						copy_executable(script_name, file_ext)
+					else:
+						for l in l_list:
+							for w_t in w_trap_list:
+								for w in w_list:
+									file_ext = generate_input_file(dim,m,Nx,Nt,dt,nL,eps,mu,w_t,w,l,circ1,circ2)
+									generate_slurm_script(script_name,file_ext,job_name,allocation)
+									copy_executable(script_name, file_ext)
+
+\end{lstlisting}
+
+Once you've run this, you can \lstinline{cd} into each directory and submit the script with \lstinline{sbatch cori.MPI.OMP.slurm}. Check the status with \lstinline{squeue -u} and your username.
+
+\end{document}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  11 SEP 2020 16:45
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  28 JAN 2021 11:23
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -362,22 +362,22 @@ File: lstlang1.sty 2015/06/04 1.6 listings language file
 (./RotatingBosons.aux)
 \openout1 = `RotatingBosons.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 79.
+LaTeX Font Info:    ... okay on input line 79.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 79.
+LaTeX Font Info:    ... okay on input line 79.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 79.
+LaTeX Font Info:    ... okay on input line 79.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 79.
+LaTeX Font Info:    ... okay on input line 79.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 79.
+LaTeX Font Info:    ... okay on input line 79.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 79.
+LaTeX Font Info:    ... okay on input line 79.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 79.
+LaTeX Font Info:    ... okay on input line 79.
 \AtBeginShipoutBox=\box30
-Package hyperref Info: Link coloring OFF on input line 77.
+Package hyperref Info: Link coloring OFF on input line 79.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
@@ -387,9 +387,9 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count132
 )
-LaTeX Info: Redefining \ref on input line 77.
-LaTeX Info: Redefining \pageref on input line 77.
-LaTeX Info: Redefining \nameref on input line 77.
+LaTeX Info: Redefining \ref on input line 79.
+LaTeX Info: Redefining \pageref on input line 79.
+LaTeX Info: Redefining \nameref on input line 79.
 
 (./RotatingBosons.out) (./RotatingBosons.out)
 \@outlinefile=\write3
@@ -463,11 +463,11 @@ Package caption Info: End \AtBeginDocument code.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 \c@lstlisting=\count139
-LaTeX Font Info:    Try loading font information for U+msa on input line 80.
+LaTeX Font Info:    Try loading font information for U+msa on input line 82.
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 80.
+LaTeX Font Info:    Try loading font information for U+msb on input line 82.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -482,7 +482,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.84 \chapter
+l.86 \chapter
              {Notes To Self and To-Do List} [1
 
 ]
@@ -495,16 +495,15 @@ File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 6.
-
-
-LaTeX Warning: Citation `1903.08672' on page 2 undefined on input line 28.
-
-[2
+ [2
 
 ]
 
+LaTeX Warning: Citation `1903.08672' on page 3 undefined on input line 31.
+
+
 LaTeX Warning: Citation `2019arXiv191011461E' on page 3 undefined on input line
- 33.
+ 36.
 
 [3]) [4]
 Chapter 2.
@@ -515,94 +514,94 @@ Chapter 2.
 
 ]
 Appendix A.
-(./nrrb/derivations/nrrbderivations.tex [11
+(./nrrb/derivations/nrrb_action.tex [11
 
 ] [12pdfTeX warning (ext4): destination with the same identifier (name{equation
 .1.A.1.5}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.85 
-     ] [13] [14]
-Overfull \hbox (10.27313pt too wide) in alignment at lines 196--217
+l.82 \eea
+         ] [13]) (./nrrb/derivations/nrrb_drift_functions.tex [14] [15]
+Overfull \hbox (15.22493pt too wide) in alignment at lines 72--77
  [][][] []
  []
 
-[15]
-Overfull \hbox (11.17126pt too wide) in paragraph at lines 227--227
-[][]\OT1/cmr/bx/n/17.28 NOT UP-DATED YET:Generating the NRRB CL Equa-
- []
-
-[16]
-Overfull \hbox (50.60223pt too wide) in alignment at lines 282--290
- [][][] []
- []
-
-[17] [18pdfTeX warning (ext4): destination with the same identifier (name{equat
-ion.1.A.4.35}) has been already used, duplicate ignored
+[16pdfTeX warning (ext4): destination with the same identifier (name{equation.1
+.A.3.23}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.341 \eea
+l.114 \eea
+          ] [17pdfTeX warning (ext4): destination with the same identifier (nam
+e{equation.1.A.3.25}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.150 \eea
+          pdfTeX warning (ext4): destination with the same identifier (name{equ
+ation.1.A.3.26}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.150 \eea
           ]
-Overfull \hbox (10.42603pt too wide) in alignment at lines 363--376
+Overfull \hbox (10.42603pt too wide) in alignment at lines 178--191
  [][][] []
  []
 
+[18pdfTeX warning (ext4): destination with the same identifier (name{equation.1
+.A.3.28}) has been already used, duplicate ignored
 
-Overfull \hbox (51.34087pt too wide) in alignment at lines 406--413
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.215 \eea
+          ]
+Overfull \hbox (51.34087pt too wide) in alignment at lines 221--228
  [][][] []
  []
 
-[19pdfTeX warning (ext4): destination with the same identifier (name{equation.1
-.A.4.37}) has been already used, duplicate ignored
+) (./nrrb/derivations/nrrb_observables.tex [19pdfTeX warning (ext4): destinatio
+n with the same identifier (name{equation.1.A.3.35}) has been already used, dup
+licate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.413 \eea
-          ] [20pdfTeX warning (ext4): destination with the same identifier (nam
-e{equation.1.A.4.44}) has been already used, duplicate ignored
+l.22 
+     ] [20] [21] [22]
+Overfull \hbox (31.74628pt too wide) in alignment at lines 197--204
+ [][][] []
+ []
 
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.473 \eeq
-           We are interested in the expectation value of this operator: $\la...
-] [21] [22pdfTeX warning (ext4): destination with the same identifier (name{equ
-ation.1.A.5.53}) has been already used, duplicate ignored
+[23] [24]
+Overfull \hbox (10.27313pt too wide) in alignment at lines 322--343
+ [][][] []
+ []
 
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.540 \eea
-          ] [23] [24] [25] [26pdfTeX warning (ext4): destination with the same 
-identifier (name{equation.1.A.6.80}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.663 \eeq
-          ])
+[25])
 No file RotatingBosons.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 125.
-[27]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 125.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 130.
+[26]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 130.
  (./RotatingBosons.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 125.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 125.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 130.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 130.
 Package rerunfilecheck Info: File `RotatingBosons.out' has not changed.
-(rerunfilecheck)             Checksum: 9419CB9308E766AD02FFAE3D589B1C9A;2482.
+(rerunfilecheck)             Checksum: 9EA37514D17FF40899131E18B5A26F7E;2668.
 
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 125.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 130.
  ) 
 Here is how much of TeX's memory you used:
- 9705 strings out of 493014
- 146355 string characters out of 6133351
- 281593 words of memory out of 5000000
- 12982 multiletter control sequences out of 15000+600000
+ 9706 strings out of 493014
+ 146531 string characters out of 6133351
+ 284593 words of memory out of 5000000
+ 12985 multiletter control sequences out of 15000+600000
  13009 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,11n,40p,803b,543s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,11n,40p,913b,543s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
 ></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb>
 </usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><
@@ -613,13 +612,11 @@ ocal/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/loc
 al/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/
 texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/tex
 live/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texl
-ive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texliv
-e/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/
-2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on RotatingBosons.pdf (28 pages, 227638 bytes).
+ive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
+Output written on RotatingBosons.pdf (27 pages, 218018 bytes).
 PDF statistics:
- 467 PDF objects out of 1000 (max. 8388607)
- 419 compressed objects within 5 object streams
- 149 named destinations out of 1000 (max. 500000)
- 249 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 462 PDF objects out of 1000 (max. 8388607)
+ 417 compressed objects within 5 object streams
+ 141 named destinations out of 1000 (max. 500000)
+ 281 words of extra memory for PDF output out of 10000 (max. 10000000)
 

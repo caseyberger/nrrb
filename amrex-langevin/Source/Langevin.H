@@ -16,6 +16,7 @@
 #include <AMReX_BC_TYPES.H>
 #include <AMReX_BCRec.H>
 #include <AMReX_BCUtil.H>
+#include <ClassyHDF.H>
 
 enum class C { Re = 0, Im };
 
@@ -46,7 +47,7 @@ struct NRRBParameters {
     int seed_run;
 
     int problem_type;
-    bool use_hdf5;
+    int profile_max_grid_size;
 
     NRRBParameters()
     {
@@ -68,8 +69,10 @@ struct NRRBParameters {
         // other problem types may be, e.g. specialized test cases
         problem_type = 0;
 
-        // by default turn off HDF5
-        use_hdf5 = false;
+        // when we read in the NRRB parameters, we default
+        // profile_max_grid_size to the CL domain max_grid_size
+        // if the user doesn't set it manually.
+        profile_max_grid_size = -1;
     }
 };
 
@@ -128,14 +131,13 @@ void Langevin_evolution(amrex::Real eps, const amrex::Box& box,
                         amrex::Array4<amrex::Real> const& Lattice_aux,
                         amrex::Array4<amrex::Real> const& Lattice_new);
 
-void initialize_observables(const std::string);
+std::string MakeOutputFilename(const amrex::Geometry& geom, const NRRBParameters& nrrb, const int& nsteps);
 
-void update_observables(const int, const amrex::MultiFab&, const amrex::GeometryData &,
-                        const NRRBParameters&, const std::string);
+void CreateOutputFile(const std::string& filename);
 
 void WritePlotfile(int Langevin_step, const amrex::Real Langevin_time,
                    const amrex::MultiFab& lattice, const amrex::Vector<std::string>& component_names,
                    const amrex::MultiFab& lattice_aux, const amrex::Vector<std::string>& auxiliary_names,
-                   const amrex::Geometry& geom, const NRRBParameters& nrrb);
+                   const amrex::Geometry& geom, const NRRBParameters& nrrb, const std::string& output_file);
 
 #endif

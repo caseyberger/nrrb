@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 Created Jan 24, 2019 by Casey Berger
-Last edited June 4, 2020 by Casey Berger
+Last edited August 3, 2021 by Casey Berger
 
 Notes:
 computes the analytical solutions available to us for the noninteracting, nonrotating case

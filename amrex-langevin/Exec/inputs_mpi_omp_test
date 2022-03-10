@@ -51,7 +51,6 @@ autocorrelation_step = 1
 
 # I/O
 plot_int = 1
-observable_log_file = "observables_mpi_test.log"
 
 # Debugging
 amrex.fpe_trap_invalid = 1
